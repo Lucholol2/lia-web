@@ -5,7 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Chat con detección de errores</title>
 <style>
-  /* Estilos CSS adaptados a tu pedido */
+  /* Reset y base */
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
   body, input, button {
     font-family: sans-serif;
   }
@@ -46,6 +51,8 @@
     width: 100%;
     max-width: 400px;
     height: 60vh;
+    max-height: 60vh;
+    min-height: 200px;
     background: #fff;
     color: #000;
     border-radius: 10px;
@@ -62,7 +69,7 @@
     margin: 6px;
     padding: 10px;
     border-radius: 12px;
-    max-width: 75%;
+    max-width: 75vw; /* adaptable según viewport */
     word-break: break-word;
     line-height: 1.3;
   }
@@ -139,9 +146,14 @@
   #show-errors-btn {
     border-radius: 14px;
     width: auto;
+    min-width: 100px; /* Para que se vea el texto bien */
     padding: 0 12px;
     font-size: 0.9em;
-    border-radius: 14px;
+  }
+
+  #inputArea button {
+    min-width: 35px;
+    min-height: 35px;
   }
 
   #errors-container {
@@ -160,6 +172,7 @@
   @media (max-width: 330px) {
     #chat-box {
       height: 50vh;
+      max-height: 50vh;
     }
     #user-input {
       font-size: 0.80em;
