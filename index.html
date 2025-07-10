@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chat Mejorado</title>
+<title>Chat Mejorado con Comandos</title>
 <style>
   body,input,button{font-family:sans-serif}
   body {
@@ -146,6 +146,22 @@
     box-shadow:0 1.2px 7px #8e24aa5f;
     outline:none;
   }
+  #comandos-lista {
+    margin-top:20px;
+    max-width:420px;
+    background:#fafafa;
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:15px 20px;
+    font-size:0.9em;
+    color:#333;
+    line-height:1.5;
+    user-select:text;
+  }
+  #comandos-lista h2 {
+    color:#8e24aa;
+    margin-bottom:10px;
+  }
   @media(max-width:330px) {
     #chat-box {
       height:50vh;
@@ -171,6 +187,18 @@
 </div>
 
 <div id="errors-container"></div>
+
+<!-- Lista de comandos -->
+<div id="comandos-lista">
+  <h2>¿Qué puedo hacer?</h2>
+  <ul>
+    <li><b>Saludos:</b> Escribí "hola", "buenas", "hey", etc. para saludar.</li>
+    <li><b>Lista de frutas:</b> Escribí "lista de frutas", "frutas" o "dame la lista de frutas".</li>
+    <li><b>Búsquedas en Google:</b> Escribí frases como "buscar fútbol", "busca clima Buenos Aires", "buscar en google recetas".</li>
+    <li><b>Ver errores:</b> Escribí "ver errores" o "mostrar errores" para ver mensajes que no entendí.</li>
+    <li><b>Limpiar chat:</b> Usa el botón "Limpiar" para borrar todo el chat y el historial.</li>
+  </ul>
+</div>
 
 <script>
   const chatBox=document.getElementById('chat-box'),
