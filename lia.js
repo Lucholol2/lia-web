@@ -82,6 +82,16 @@ function elegirRespuesta(input) {
       <li>Uvas 🍇</li>
     </ul>`;
   }
+if (input.includes('lista de fruta') || input.includes('lista de frutas') || input.includes('fruta') || input.includes('frutas')) {
+  return `<b>Lista de frutas:</b><ul>
+    <li>Manzana 🍎</li>
+    <li>Banana 🍌</li>
+    <li>Naranja 🍊</li>
+    <li>Frutilla 🍓</li>
+    <li>Mango 🥭</li>
+    <li>Uvas 🍇</li>
+  </ul>`;
+}
 
   if (input.includes('hola')) return '¡Hola, papá! 💕';
   if (input.includes('cómo estás')) return '¡Muy bien! ¿Y vos, papá? 🥰';
