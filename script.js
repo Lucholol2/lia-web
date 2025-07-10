@@ -2,6 +2,7 @@ const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 const micBtn = document.getElementById('mic-btn');
+const clearBtn = document.getElementById('clear-btn');
 
 let recognition;
 let recognizing = false;
@@ -29,11 +30,11 @@ function agregarMensaje(mensaje, tipo) {
   p.textContent = mensaje;
   div.appendChild(p);
   chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
   guardarHistorial();
 }
 
-// Respuesta automática simple
+// Respuesta automática simple mejorada
 function responder(mensajeUsuario) {
   let respuesta = "No entendí muy bien... 😅";
 
@@ -47,6 +48,14 @@ function responder(mensajeUsuario) {
     respuesta = "¡Hasta luego! Cuídate mucho.";
   } else if (msg.includes('gracias')) {
     respuesta = "De nada, ¡estoy para ayudarte!";
+  } else if (msg.includes('qué haces') || msg.includes('que haces')) {
+    respuesta = "Estoy aquí para charlar contigo y ayudarte en lo que pueda.";
+  } else if (msg.includes('tu nombre')) {
+    respuesta = "Me llamo Lia, tu asistente virtual.";
+  } else if (msg.includes('hora')) {
+    respuesta = "Lo siento, todavía no sé decir la hora. Pero estoy aprendiendo!";
+  } else if (msg.includes('broma')) {
+    respuesta = "¿Por qué el programador confunde Halloween con Navidad? Porque OCT 31 == DEC 25!";
   }
 
   return respuesta;
@@ -107,6 +116,14 @@ function iniciarReconocimiento() {
   recognition.start();
 }
 
+// Limpiar historial completo
+function limpiarHistorial() {
+  if (confirm('¿Querés borrar todo el historial de chat?')) {
+    chatBox.innerHTML = '';
+    localStorage.removeItem('chatHistorial');
+  }
+}
+
 // Eventos
 sendBtn.addEventListener('click', enviarMensaje);
 
@@ -119,10 +136,13 @@ userInput.addEventListener('keydown', (e) => {
 micBtn.addEventListener('click', () => {
   if (recognizing) {
     recognition.stop();
-    return;
+  } else {
+    iniciarReconocimiento();
   }
-  iniciarReconocimiento();
 });
+
+clearBtn.addEventListener('click', limpiarHistorial);
 
 // Carga inicial
 cargarHistorial();
+    
