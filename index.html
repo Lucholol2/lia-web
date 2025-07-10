@@ -5,93 +5,179 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Chat con detección de errores</title>
 <style>
+  /* Estilos CSS adaptados a tu pedido */
+  body, input, button {
+    font-family: sans-serif;
+  }
+
   body {
-    font-family: Arial, sans-serif;
     margin: 20px;
     background: linear-gradient(120deg, #f3e5f5 0%, #e1bee7 100%);
     color: #2a1432;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-height: 100vh;
+    padding: 5px 2px;
+    letter-spacing: 0.01em;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
   }
+
+  h1 {
+    margin-bottom: 7px;
+    font-size: 1em;
+    color: #8e24aa;
+    text-shadow: 0 1.5px 5px #f3e5f5, 1px 1px 0 #fff;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .subtitulo {
+    color: #9c27b0;
+    font-size: 0.72em;
+    margin-top: -3px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    opacity: 0.82;
+  }
+
   #chat-box {
     width: 100%;
     max-width: 400px;
-    height: 300px;
-    overflow-y: auto;
-    background: white;
+    height: 60vh;
+    background: #fff;
+    color: #000;
     border-radius: 10px;
+    overflow-y: auto;
     padding: 10px;
-    box-shadow: 0 4px 12px rgba(142, 36, 170, 0.12);
-    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 0.92em;
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
   }
-  .message {
-    margin: 6px 0;
-    padding: 8px 12px;
+
+  .user, .lia {
+    margin: 6px;
+    padding: 10px;
     border-radius: 12px;
-    max-width: 80%;
-    word-wrap: break-word;
+    max-width: 75%;
+    word-break: break-word;
+    line-height: 1.3;
   }
+
   .user {
     background: #8e24aa;
-    color: white;
+    color: #fff;
     align-self: flex-end;
-    margin-left: auto;
+    font-weight: 600;
   }
-  .bot {
+
+  .lia {
     background: #e1bee7;
     color: #222;
     align-self: flex-start;
-    margin-right: auto;
   }
-  #input-area {
+
+  #inputArea {
+    margin-top: 8px;
     display: flex;
     width: 100%;
     max-width: 400px;
+    gap: 8px;
+    padding: 5px 4px 4px 4px;
+    border-top: 1px solid #ede7f6;
+    background: #fff;
+    border-radius: 10px;
   }
+
   #user-input {
     flex-grow: 1;
-    padding: 8px 12px;
+    padding: 7px 10px;
     border: 2px solid #8e24aa;
-    border-radius: 20px;
-    font-size: 1em;
+    border-radius: 14px;
+    font-size: 0.87em;
+    outline: none;
+    background: #f8eaf6;
+    color: #4a256b;
+    font-family: inherit;
+  }
+
+  #user-input:focus {
+    background: #f3e5f5;
+    border-color: #8e24aa;
+    color: #3d1747;
+  }
+
+  button {
+    background: linear-gradient(120deg, #8e24aa 60%, #6a1b9a 100%);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 1px 5px #ce93d8;
+    transition: background 0.19s, box-shadow 0.16s;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  button:hover,
+  button:focus,
+  button.active {
+    background: linear-gradient(120deg, #6a1b9a 80%, #8e24aa 100%);
+    box-shadow: 0 1.2px 7px #8e24aa5f;
     outline: none;
   }
-  #send-btn, #show-errors-btn {
-    background: #8e24aa;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    margin-left: 8px;
-    padding: 8px 14px;
-    cursor: pointer;
-  }
-  #errors-container {
-    width: 100%;
-    max-width: 400px;
-    background: #fbe9f8;
-    border: 1px solid #ce93d8;
-    border-radius: 10px;
-    padding: 10px;
-    max-height: 120px;
-    overflow-y: auto;
-    display: none;
-    color: #8e24aa;
+
+  #show-errors-btn {
+    border-radius: 14px;
+    width: auto;
+    padding: 0 12px;
     font-size: 0.9em;
+    border-radius: 14px;
+  }
+
+  #errors-container {
+    display: none;
+    white-space: pre-wrap;
+    margin-top: 10px;
+    background: #fdecea;
+    color: #b00020;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 400px;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+
+  @media (max-width: 330px) {
+    #chat-box {
+      height: 50vh;
+    }
+    #user-input {
+      font-size: 0.80em;
+    }
   }
 </style>
 </head>
 <body>
 
-<h1>Chat con detección de errores</h1>
+<h1>Hola, papá! ¿Querés charlar conmigo? 😄</h1>
+<div class="subtitulo">Probá con "Lista de frutas"</div>
 
 <div id="chat-box"></div>
 
-<div id="input-area">
-  <input id="user-input" type="text" placeholder="Escribí tu mensaje..." />
-  <button id="send-btn">Enviar</button>
-  <button id="show-errors-btn">Ver errores</button>
+<div id="inputArea">
+  <input type="text" id="user-input" placeholder="Escribí algo..." autocomplete="off" />
+  <button id="send-btn" title="Enviar">➤</button>
+  <button id="show-errors-btn" title="Ver mensajes no entendidos">Ver errores</button>
 </div>
 
 <div id="errors-container"></div>
@@ -103,51 +189,53 @@
   const showErrorsBtn = document.getElementById('show-errors-btn');
   const errorsContainer = document.getElementById('errors-container');
 
-  // Lista para almacenar mensajes no entendidos
   let erroresNoEntendidos = [];
 
-  function addMessage(text, sender) {
-    const div = document.createElement('div');
-    div.classList.add('message', sender);
-    div.textContent = text;
-    chatBox.appendChild(div);
+  function agregarMensaje(texto, clase) {
+    const msg = document.createElement('div');
+    msg.textContent = texto;
+    msg.className = clase;
+    chatBox.appendChild(msg);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function procesarMensaje(msg) {
-    const texto = msg.toLowerCase().trim();
+  function procesarMensaje(texto) {
+    const mensaje = texto.toLowerCase().trim();
 
-    if (texto === 'lista de frutas' || texto === 'frutas' || texto === 'dame la lista de frutas') {
-      return '🍎 Manzana\n🍌 Banana\n🍊 Naranja\n🍓 Frutilla\n🥭 Mango\n🍇 Uvas';
+    if (mensaje === 'lista de frutas' || mensaje === 'frutas' || mensaje === 'dame la lista de frutas') {
+      return `🍎 Manzana
+🍌 Banana
+🍊 Naranja
+🍓 Frutilla
+🥭 Mango
+🍇 Uvas`;
     }
 
-    // Aquí podés agregar más respuestas conocidas
-
-    // Si no entiende
-    erroresNoEntendidos.push(msg);
+    // No entendió, guarda el mensaje
+    erroresNoEntendidos.push(texto);
     return 'No entendí muy bien... 😅';
   }
 
-  sendBtn.addEventListener('click', () => {
-    const mensaje = userInput.value.trim();
-    if (!mensaje) return;
+  function enviarMensaje() {
+    const texto = userInput.value.trim();
+    if (!texto) return;
 
-    addMessage(mensaje, 'user');
-
-    const respuesta = procesarMensaje(mensaje);
-    addMessage(respuesta, 'bot');
+    agregarMensaje(texto, 'user');
+    const respuesta = procesarMensaje(texto);
+    agregarMensaje(respuesta, 'lia');
 
     userInput.value = '';
-  });
+    errorsContainer.style.display = 'none'; // Oculta errores al enviar nuevo mensaje
+  }
 
-  // Permite presionar Enter para enviar
+  sendBtn.addEventListener('click', enviarMensaje);
+
   userInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
-      sendBtn.click();
+      enviarMensaje();
     }
   });
 
-  // Mostrar errores acumulados en el contenedor
   showErrorsBtn.addEventListener('click', () => {
     if (erroresNoEntendidos.length === 0) {
       errorsContainer.textContent = 'No hay errores para mostrar.';
