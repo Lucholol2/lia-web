@@ -175,7 +175,7 @@
 <body>
 
 <h1>Hola, papá! ¿Querés charlar conmigo? 😄</h1>
-<div class="subtitulo">Probá con "Lista de frutas", "buscar algo" o saludá 😎</div>
+<div class="subtitulo">Probá con "buscar algo" o saludá 😎</div>
 
 <div id="chat-box"></div>
 
@@ -193,7 +193,6 @@
   <h2>¿Qué puedo hacer?</h2>
   <ul>
     <li><b>Saludos:</b> Escribí "hola", "buenas", "hey", etc. para saludar.</li>
-    <li><b>Lista de frutas:</b> Escribí "lista de frutas", "frutas" o "dame la lista de frutas".</li>
     <li><b>Búsquedas en Google:</b> Escribí frases como "buscar fútbol", "busca clima Buenos Aires", "buscar en google recetas".</li>
     <li><b>Ver errores:</b> Escribí "ver errores" o "mostrar errores" para ver mensajes que no entendí.</li>
     <li><b>Limpiar chat:</b> Usa el botón "Limpiar" para borrar todo el chat y el historial.</li>
@@ -261,9 +260,6 @@
     if(match){
       const terminoBusqueda=encodeURIComponent(match[2].trim());
       return `<a href="https://www.google.com/search?q=${terminoBusqueda}" target="_blank" rel="noopener noreferrer">Buscar "${match[2].trim()}" en Google 🔍</a>`;
-    }
-    if(mensaje==='lista de frutas'||mensaje==='frutas'||mensaje==='dame la lista de frutas'){
-      return `🍎 Manzana<br>🍌 Banana<br>🍊 Naranja<br>🍓 Frutilla<br>🥭 Mango<br>🍇 Uvas`;
     }
     erroresNoEntendidos.push(texto);
     return 'No entendí muy bien... 😅';
