@@ -1,66 +1,89 @@
-// Función que decide la respuesta según mensaje del usuario
-function responder(mensajeUsuario) {
-  const msg = mensajeUsuario.toLowerCase().trim();
+const chatBox = document.getElementById('chat-box');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+const showErrorsBtn = document.getElementById('show-errors-btn');
+const errorsContainer = document.getElementById('errors-container');
 
-  // Detecta cualquier mensaje que contenga "lista" y "frutas" o solo "fruta(s)"
-  if ((msg.includes('lista') && msg.includes('frutas')) || msg.includes('fruta')) {
-    return 'LISTA_FRUTAS';
-  }
+let erroresNoEntendidos = [];
 
-  return "No entendí muy bien... 😅";
-}
-
-// Mensaje con la lista de frutas
-const listaFrutas = `<b>Lista de frutas:</b>
-<ul>
-  <li>Manzana 🍎</li>
-  <li>Banana 🍌</li>
-  <li>Naranja 🍊</li>
-  <li>Frutilla 🍓</li>
-  <li>Mango 🥭</li>
-  <li>Uvas 🍇</li>
-</ul>`;
-
-// Función que agrega mensajes al chat visualmente
-function agregarMensaje(tipo, texto) {
-  const chatBox = document.getElementById('chat-box');
-  if (!chatBox) return; // Seguridad: si no existe chat-box, no hacer nada
-
-  const contenedor = document.createElement('div');
-  contenedor.classList.add(tipo);
-
-  const mensaje = document.createElement('div');
-  mensaje.classList.add(`${tipo}-message`);
-  mensaje.innerHTML = texto;
-
-  contenedor.appendChild(mensaje);
-  chatBox.appendChild(contenedor);
-  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll al final
-}
-
-// Función que procesa el mensaje del usuario y agrega la respuesta en el chat
-function procesarMensaje(mensaje) {
-  agregarMensaje('user', mensaje);
-
-  const respuesta = responder(mensaje);
-
-  if (respuesta === 'LISTA_FRUTAS') {
-    agregarMensaje('lia', listaFrutas);
+function agregarMensaje(texto, clase) {
+  const msg = document.createElement('div');
+  if (clase === 'lia') {
+    msg.innerHTML = texto; // Permitimos HTML para respuestas del bot (links, emojis, etc.)
   } else {
-    agregarMensaje('lia', respuesta);
+    msg.textContent = texto;
   }
+  msg.className = clase;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Evento para escuchar el input y enviar mensaje al presionar Enter
-const inputUsuario = document.getElementById('user-input');
-if (inputUsuario) {
-  inputUsuario.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      const texto = e.target.value.trim();
-      if (texto.length > 0) {
-        procesarMensaje(texto);
-        e.target.value = '';
-      }
+function procesarMensaje(texto) {
+  const mensaje = texto.toLowerCase().trim();
+
+  // Comando para mostrar errores desde el chat
+  if (mensaje === 'ver errores' || mensaje === 'mostrar errores' || mensaje === 'errores') {
+    if (erroresNoEntendidos.length === 0) {
+      return 'No hay errores para mostrar.';
+    } else {
+      return 'Mensajes no entendidos:\n' + erroresNoEntendidos.join('\n');
     }
-  });
+  }
+
+  // Detectar búsqueda en Google con "buscar ..." o "buscar en google ..."
+  const buscarRegex = /^(buscar|busca|buscar en google)\s+(.+)/i;
+  const match = texto.match(buscarRegex);
+  if (match) {
+    const terminoBusqueda = encodeURIComponent(match[2].trim());
+    return `<a href="https://www.google.com/search?q=${terminoBusqueda}" target="_blank" rel="noopener noreferrer">Buscar "${match[2].trim()}" en Google 🔍</a>`;
+  }
+
+  if (mensaje === 'lista de frutas' || mensaje === 'frutas' || mensaje === 'dame la lista de frutas') {
+    return `🍎 Manzana
+🍌 Banana
+🍊 Naranja
+🍓 Frutilla
+🥭 Mango
+🍇 Uvas`;
+  }
+
+  // No entendió, guarda el mensaje
+  erroresNoEntendidos.push(texto);
+  return 'No entendí muy bien... 😅';
 }
+
+function enviarMensaje() {
+  const texto = userInput.value.trim();
+  if (!texto) return;
+
+  agregarMensaje(texto, 'user');
+  const respuesta = procesarMensaje(texto);
+  agregarMensaje(respuesta, 'lia');
+
+  userInput.value = '';
+  errorsContainer.style.display = 'none'; // Oculta errores al enviar nuevo mensaje
+
+  // Animar ícono del botón enviar
+  sendBtn.classList.add('active');
+  setTimeout(() => {
+    sendBtn.classList.remove('active');
+  }, 1000);
+}
+
+sendBtn.addEventListener('click', enviarMensaje);
+
+userInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    enviarMensaje();
+  }
+});
+
+showErrorsBtn.addEventListener('click', () => {
+  if (erroresNoEntendidos.length === 0) {
+    errorsContainer.textContent = 'No hay errores para mostrar.';
+  } else {
+    errorsContainer.textContent = 'Mensajes no entendidos:\n' + erroresNoEntendidos.join('\n');
+  }
+  errorsContainer.style.display = 'block';
+});
+                               
