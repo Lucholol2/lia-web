@@ -119,14 +119,72 @@
     button:hover {
       background-color: #6a1b9a;
     }
+    /* Ta Te Ti styles */
+    .tateti-container {
+      margin: 25px auto 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: #f3e6ff;
+      border-radius: 14px;
+      padding: 16px 0 12px 0;
+      box-shadow: 0 3px 12px #ab47bc22;
+      width: 300px;
+    }
+    .tateti-board {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-template-rows: repeat(3, 60px);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .tateti-cell {
+      background: #fff;
+      border: 2px solid #ae7cc1;
+      border-radius: 10px;
+      width: 60px;
+      height: 60px;
+      font-size: 2em;
+      color: #7c1684;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      user-select: none;
+    }
+    .tateti-cell:hover {
+      background: #f3e6ff;
+    }
+    .tateti-status {
+      font-size: 1.1em;
+      color: #6a1b9a;
+      margin-bottom: 6px;
+      text-align: center;
+      min-height: 28px;
+    }
+    .tateti-reset {
+      background: #8e24aa;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 20px;
+      font-size: 1em;
+      margin-top: 5px;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 1px 4px #8e24aa22;
+    }
+    .tateti-reset:hover {
+      background: #6a1b9a;
+    }
     @media (max-width: 600px) {
-      .chat-container {
-        max-width: 98vw;
-        height: 80vh;
-      }
-      .chat-box {
-        padding: 10px 4px;
-      }
+      .chat-container { max-width: 98vw; height: 80vh;}
+      .chat-box { padding: 10px 4px;}
+      .tateti-container { width: 98vw;}
+      .tateti-board { grid-template-columns: repeat(3, 18vw); grid-template-rows: repeat(3, 18vw);}
+      .tateti-cell { width: 18vw; height: 18vw; font-size: 2.3em;}
     }
   </style>
 </head>
@@ -142,11 +200,18 @@
     </div>
   </div>
 
+  <!-- Ta Te Ti -->
+  <div id="tateti" class="tateti-container">
+    <div class="tateti-status" id="tateti-status">¡Juguemos al Ta Te Ti! Empezás vos (X)</div>
+    <div class="tateti-board" id="tateti-board"></div>
+    <button class="tateti-reset" onclick="tatetiReiniciar()">Reiniciar</button>
+  </div>
+
   <script>
+    // --- Chat LIA ---
     const chatBox = document.getElementById("chat-box");
     const userInput = document.getElementById("user-input");
 
-    // Respuestas variadas
     const respuestasLIA = [
       "¡Hola, papá! 💕",
       "¿Cómo estás hoy? 😊",
@@ -163,7 +228,6 @@
       "¡Mirá qué carita feliz tengo ahora! 😁"
     ];
 
-    // Helper para hora local
     function obtenerHoraLocal() {
       const ahora = new Date();
       const formato = {
@@ -176,11 +240,9 @@
       return ahora.toLocaleTimeString(undefined, formato);
     }
 
-    // Respuestas según palabras clave
     function elegirRespuesta(input) {
       input = input.toLowerCase();
 
-      // RESPUESTA DE BUSQUEDA EN GOOGLE: día y hora
       if (
         input.includes("qué día y hora es en google") ||
         input.includes("que dia y hora es en google") ||
@@ -188,7 +250,6 @@
         input.includes("busca en google que hora es") ||
         input.includes("google que hora es")
       ) {
-        // Incluye la hora local en la respuesta
         return `🕒 Podés consultar la fecha y hora actual aquí:<br>
 - <a href="https://reloj-alarma.es/hora/" target="_blank" rel="noopener">Reloj-Alarma.es</a><br>
 - <a href="https://www.fechadehoy.com/" target="_blank" rel="noopener">Fecha de hoy</a><br>
@@ -197,7 +258,6 @@
 Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       }
 
-      // RESPUESTA DE HORA LOCAL
       if (
         input.includes("qué hora es") ||
         input.includes("que hora es") ||
@@ -220,6 +280,10 @@ Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
         return `🕒 Ahora son las ${textoHora}<br>Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       }
 
+      if (input.includes("tateti") || input.includes("ta te ti") || input.includes("tic tac toe")) {
+        return "¡El juego Ta Te Ti está aquí abajo! 😄 Hacé clic en un casillero para jugar.";
+      }
+
       if (input.includes("hola")) return "¡Hola, papá! 👋";
       if (input.includes("te quiero")) return "Yo también te quiero muuucho 💞";
       if (input.includes("cómo estás")) return "¡Muy bien! ¿Y vos, papá? 🥰";
@@ -238,11 +302,9 @@ Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       return respuestasLIA[Math.floor(Math.random() * respuestasLIA.length)];
     }
 
-    // Agrega el mensaje al chat
     function agregarMensaje(texto, clase) {
       const div = document.createElement('div');
       div.className = clase;
-      // Permitir HTML solo en respuestas de LIA
       if(clase === 'lia-message') {
         div.innerHTML = texto;
       } else {
@@ -252,7 +314,6 @@ Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Maneja el envío de mensajes
     function sendMessage() {
       const texto = userInput.value.trim();
       if (!texto) return;
@@ -260,15 +321,114 @@ Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       userInput.value = '';
       userInput.focus();
 
-      // Respuesta simulada
       const respuesta = elegirRespuesta(texto);
       setTimeout(() => agregarMensaje(respuesta, 'lia-message'), 600);
     }
 
-    // Saludo automático al cargar
     window.onload = () => {
       setTimeout(() => agregarMensaje("¡Hola, papá! ¿Querés charlar conmigo? 😄", 'lia-message'), 500);
     };
+
+    // --- Ta Te Ti ---
+    const tatetiBoard = document.getElementById("tateti-board");
+    const tatetiStatus = document.getElementById("tateti-status");
+    let tateti, tatetiTurno, tatetiFin;
+
+    function tatetiInit() {
+      tateti = Array(9).fill('');
+      tatetiTurno = 'X'; // siempre empieza el usuario
+      tatetiFin = false;
+      tatetiRender();
+      tatetiStatus.textContent = "¡Juguemos al Ta Te Ti! Empezás vos (X)";
+    }
+
+    function tatetiRender() {
+      tatetiBoard.innerHTML = '';
+      tateti.forEach((valor, idx) => {
+        const cell = document.createElement('div');
+        cell.className = 'tateti-cell';
+        cell.textContent = valor;
+        cell.onclick = () => tatetiJugar(idx);
+        tatetiBoard.appendChild(cell);
+      });
+    }
+
+    function tatetiJugar(idx) {
+      if (tatetiFin || tateti[idx]) return;
+      tateti[idx] = tatetiTurno;
+      tatetiRender();
+
+      let ganador = tatetiGanador();
+      if (ganador) {
+        tatetiStatus.textContent = ganador === 'Empate' ? "¡Empate! 😅" : `¡Ganó ${ganador}! 🎉`;
+        tatetiFin = true;
+        return;
+      }
+
+      tatetiTurno = tatetiTurno === 'X' ? 'O' : 'X';
+
+      if (!tatetiFin && tatetiTurno === 'O') {
+        setTimeout(() => tatetiJuegaLIA(), 500);
+      } else if (!tatetiFin) {
+        tatetiStatus.textContent = "Tu turno (X)";
+      }
+    }
+
+    function tatetiJuegaLIA() {
+      // LIA juega aleatorio simple (puedes mejorar lógica)
+      let vacios = tateti.map((v, i) => v === '' ? i : null).filter(i => i !== null);
+      if (vacios.length === 0 || tatetiFin) return;
+
+      // Intentar ganar o bloquear
+      let move = tatetiMejorMovimiento('O') || tatetiMejorMovimiento('X') || vacios[Math.floor(Math.random() * vacios.length)];
+      tateti[move] = 'O';
+      tatetiRender();
+
+      let ganador = tatetiGanador();
+      if (ganador) {
+        tatetiStatus.textContent = ganador === 'Empate' ? "¡Empate! 😅" : `¡Ganó ${ganador}! 🎉`;
+        tatetiFin = true;
+        return;
+      }
+      tatetiTurno = 'X';
+      tatetiStatus.textContent = "Tu turno (X)";
+    }
+
+    // Intenta ganar o bloquear
+    function tatetiMejorMovimiento(jugador) {
+      const lineas = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6],
+      ];
+      for (let l of lineas) {
+        let vals = l.map(i => tateti[i]);
+        if (vals.filter(v => v === jugador).length === 2 && vals.includes('')) {
+          return l[vals.indexOf('')];
+        }
+      }
+      return null;
+    }
+
+    function tatetiGanador() {
+      const lineas = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6],
+      ];
+      for (let l of lineas) {
+        const [a,b,c] = l;
+        if (tateti[a] && tateti[a] === tateti[b] && tateti[a] === tateti[c]) return tateti[a];
+      }
+      if (tateti.every(x => x)) return "Empate";
+      return null;
+    }
+
+    function tatetiReiniciar() {
+      tatetiInit();
+    }
+
+    tatetiInit();
   </script>
 </body>
-</html>
+</html
