@@ -15,14 +15,12 @@
       align-items: center;
       min-height: 100vh;
       padding: 20px;
-      transition: background 0.5s;
     }
     h1 {
       margin-bottom: 10px;
       font-size: 2.2em;
       color: #fff;
       text-shadow: 1px 2px 6px #0007;
-      letter-spacing: 1px;
     }
     .subtitulo {
       margin-bottom: 25px;
@@ -99,11 +97,8 @@
       border-radius: 30px;
       font-size: 1.05em;
       outline: none;
-      transition: border-color 0.2s;
     }
-    #user-input:focus {
-      border-color: #8e24aa;
-    }
+    #user-input:focus { border-color: #8e24aa; }
     button {
       background-color: #8e24aa;
       color: white;
@@ -116,12 +111,10 @@
       transition: background 0.2s;
       box-shadow: 0 1px 4px #8e24aa55;
     }
-    button:hover {
-      background-color: #6a1b9a;
-    }
+    button:hover { background-color: #6a1b9a; }
     @media (max-width: 600px) {
-      .chat-container { max-width: 98vw; height: 80vh;}
-      .chat-box { padding: 10px 4px;}
+      .chat-container { max-width: 98vw; height: 80vh; }
+      .chat-box { padding: 10px 4px; }
     }
   </style>
 </head>
@@ -132,13 +125,12 @@
   <div class="chat-container">
     <div id="chat-box" class="chat-box" aria-live="polite"></div>
     <div class="input-area">
-      <input id="user-input" type="text" placeholder="Escribime algo, papá..." autocomplete="off" autofocus onkeydown="if(event.key==='Enter') sendMessage()" />
-      <button onclick="sendMessage()" title="Enviar">💌</button>
+      <input id="user-input" type="text" placeholder="Escribime algo, papá..." autocomplete="off" autofocus />
+      <button onclick="sendMessage()">💌</button>
     </div>
   </div>
 
   <script>
-    // --- Chat LIA ---
     const chatBox = document.getElementById("chat-box");
     const userInput = document.getElementById("user-input");
 
@@ -158,97 +150,100 @@
       "¡Mirá qué carita feliz tengo ahora! 😁"
     ];
 
-    function obtenerHoraLocal() {
-      const ahora = new Date();
-      const formato = {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-        timeZoneName: 'short'
-      };
-      return ahora.toLocaleTimeString(undefined, formato);
-    }
-
-    function elegirRespuesta(input) {
-      input = input.toLowerCase();
-
-      if (
-        input.includes("qué día y hora es en google") ||
-        input.includes("que dia y hora es en google") ||
-        input.includes("busca en google que dia y hora es") ||
-        input.includes("busca en google que hora es") ||
-        input.includes("google que hora es")
-      ) {
-        return `🕒 Podés consultar la fecha y hora actual aquí:<br> - <a href="https://reloj-alarma.es/hora/" target="_blank" rel="noopener">Reloj-Alarma.es</a><br> - <a href="https://www.fechadehoy.com/" target="_blank" rel="noopener">Fecha de hoy</a><br> - <a href="https://www.kiwireloj.com/hora/" target="_blank" rel="noopener">Kiwi Reloj</a><br> <br> Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
-      }
-
-      if (
-        input.includes("qué hora es") ||
-        input.includes("que hora es") ||
-        input.includes("me decís la hora") ||
-        input.includes("dime la hora") ||
-        input.includes("hora actual") ||
-        input.includes("fecha y hora")
-      ) {
-        const ahora = new Date();
-        const opciones = {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        };
-        const textoHora = ahora.toLocaleString('es-AR', opciones);
-        return `🕒 Ahora son las ${textoHora}<br>Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
-      }
-
-      if (input.includes("hola")) return "¡Hola, papá! 👋";
-      if (input.includes("te quiero")) return "Yo también te quiero muuucho 💞";
-      if (input.includes("cómo estás")) return "¡Muy bien! ¿Y vos, papá? 🥰";
-      if (input.includes("qué día es")) {
-        const fecha = new Date();
-        return `Hoy es ${fecha.toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
-      }
-      if (input.includes("adiós") || input.includes("chau") || input.includes("bye")) {
-        return "¡Hasta luego! Te espero para seguir charlando 🫶";
-      }
-      if (input.includes("gracias")) return "¡De nada, papá! 😊";
-      if (input.includes("jugar")) return "¡Dale! ¿A qué jugamos? 🎲";
-      if (input.includes("secreto")) return "Shhh... ¡Los secretos están a salvo conmigo! 🤐";
-      if (input.includes("cuántos años tienes") || input.includes("edad")) return "Tengo la edad de tu ternura, papá 👶🏻";
-      if (input.includes("corazón")) return "Tengo el corazón más dulce... ¡como un alfajor! 💖🥯";
-      return respuestasLIA[Math.floor(Math.random() * respuestasLIA.length)];
-    }
-
     function agregarMensaje(texto, clase) {
       const div = document.createElement('div');
       div.className = clase;
-      if(clase === 'lia-message') {
-        div.innerHTML = texto;
-      } else {
-        div.textContent = texto;
-      }
+      div.innerHTML = clase === 'lia-message' ? texto : escapeHTML(texto);
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    function sendMessage() {
+    function escapeHTML(text) {
+      return text.replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      })[c]);
+    }
+
+    function obtenerHoraLocal() {
+      const ahora = new Date();
+      return ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function elegirRespuesta(input) {
+      const lower = input.toLowerCase();
+
+      if (lower.includes("hora")) {
+        return `🕒 Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
+      }
+
+      if (lower.includes("hola")) return "¡Hola, papá! 👋";
+      if (lower.includes("te quiero")) return "Yo también te quiero muuucho 💞";
+      if (lower.includes("cómo estás")) return "¡Muy bien! ¿Y vos, papá? 🥰";
+      if (lower.includes("qué día es") || lower.includes("fecha")) {
+        const fecha = new Date();
+        return `Hoy es ${fecha.toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+      }
+      if (lower.includes("adiós") || lower.includes("chau") || lower.includes("bye")) {
+        return "¡Hasta luego! Te espero para seguir charlando 🫶";
+      }
+      if (lower.includes("gracias")) return "¡De nada, papá! 😊";
+      if (lower.includes("jugar")) return "¡Dale! ¿A qué jugamos? 🎲";
+      if (lower.includes("secreto")) return "Shhh... ¡Los secretos están a salvo conmigo! 🤐";
+      if (lower.includes("edad") || lower.includes("cuántos años")) return "Tengo la edad de tu ternura, papá 👶🏻";
+      if (lower.includes("corazón")) return "Tengo el corazón más dulce... ¡como un alfajor! 💖🥯";
+
+      return respuestasLIA[Math.floor(Math.random() * respuestasLIA.length)];
+    }
+
+    async function buscarEnGoogle(query) {
+      const apiKey = 'AIzaSyBVyQ1CmpzvKUqlpPDSskFkR9v2hqoU-Cg';
+      const cx = '232b2051090784dc2';
+      try {
+        const res = await fetch(`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(query)}`);
+        if (!res.ok) throw new Error("Error de búsqueda");
+        const data = await res.json();
+        return data.items || [];
+      } catch (e) {
+        console.error("Error en búsqueda:", e);
+        return null;
+      }
+    }
+
+    async function sendMessage() {
       const texto = userInput.value.trim();
       if (!texto) return;
+
       agregarMensaje(texto, 'user-message');
       userInput.value = '';
       userInput.focus();
 
-      const respuesta = elegirRespuesta(texto);
-      setTimeout(() => agregarMensaje(respuesta, 'lia-message'), 600);
+      if (/^(busca |\/google )/i.test(texto)) {
+        const query = texto.replace(/^(busca |\/google )/i, '').trim();
+        agregarMensaje("🔎 Buscando en Google…", 'lia-message');
+        const resultados = await buscarEnGoogle(query);
+        if (resultados && resultados.length > 0) {
+          resultados.slice(0, 3).forEach(item => {
+            agregarMensaje(`<strong>📌 ${item.title}</strong><br><a href="${item.link}" target="_blank">${item.link}</a><br><em>${item.snippet}</em>`, 'lia-message');
+          });
+        } else {
+          agregarMensaje("No encontré nada 😕", 'lia-message');
+        }
+      } else {
+        const respuesta = elegirRespuesta(texto);
+        setTimeout(() => agregarMensaje(respuesta, 'lia-message'), 500);
+      }
     }
 
     window.onload = () => {
       setTimeout(() => agregarMensaje("¡Hola, papá! ¿Querés charlar conmigo? 😄", 'lia-message'), 500);
     };
+
+    userInput.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
   </script>
 </body>
 </html>
