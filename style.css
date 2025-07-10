@@ -16,7 +16,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 8px;
+  padding: 16px 3px;
   letter-spacing: 0.01em;
   user-select: none;
   -webkit-font-smoothing: antialiased;
@@ -24,19 +24,19 @@ body {
 
 /* CABECERA */
 h1 {
-  margin-bottom: 12px;
-  font-size: 2.3em;
+  margin-bottom: 10px;
+  font-size: 1.38em;
   color: #8e24aa;
   text-shadow: 0 2px 8px #f3e5f5, 1px 1px 0 #fff;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
 }
 
 .subtitulo {
   color: #9c27b0;
-  font-size: 1.07em;
-  margin-top: -8px;
-  margin-bottom: 22px;
+  font-size: 0.93em;
+  margin-top: -6px;
+  margin-bottom: 13px;
   font-weight: 500;
   opacity: 0.88;
 }
@@ -44,49 +44,50 @@ h1 {
 /* CONTENEDOR DEL CHAT */
 .chat-container {
   width: 100%;
-  max-width: 510px;
-  height: 76vh;
+  max-width: 355px;
+  height: 52vh;
   background: rgba(255,255,255,0.97);
-  border-radius: 22px;
-  box-shadow: 0 8px 32px rgba(142,36,170,0.18), 0 1.5px 8px #ce93d8;
+  border-radius: 18px;
+  box-shadow: 0 6px 22px rgba(142,36,170,0.14), 0 1.5px 7px #ce93d8;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 2.1px solid #ce93d8;
-  backdrop-filter: blur(1px);
+  border: 1.4px solid #ce93d8;
+  backdrop-filter: blur(0.5px);
 }
 
 /* ZONA DE MENSAJES */
 #chat-box {
   flex: 1 1 0;
-  padding: 18px 14px;
+  padding: 10px 7px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 8px;
   background-color: #fbe9f8;
   scrollbar-width: thin;
   scrollbar-color: #ce93d8 #fbe9f8;
+  font-size: 0.97em;
 }
 #chat-box::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 #chat-box::-webkit-scrollbar-thumb {
   background: #ce93d8;
-  border-radius: 8px;
+  border-radius: 7px;
 }
 
 /* BUBUJAS DE MENSAJE */
 .user-message,
 .lia-message {
-  padding: 13px 17px;
-  max-width: 85%;
-  font-size: 1.04em;
+  padding: 8px 13px;
+  max-width: 90%;
+  font-size: 1em;
   word-break: break-word;
-  border-radius: 22px;
-  line-height: 1.5;
-  animation: fadeIn 0.32s cubic-bezier(.38,1.09,.63,1.12);
-  box-shadow: 0 1.5px 5px rgba(206,147,216,.10);
+  border-radius: 17px;
+  line-height: 1.45;
+  animation: fadeIn 0.23s cubic-bezier(.38,1.09,.63,1.12);
+  box-shadow: 0 1.5px 5px rgba(206,147,216,.09);
 }
 
 .user-message {
@@ -107,18 +108,18 @@ h1 {
 /* ENTRADA Y BOTÓN */
 .input-container {
   display: flex;
-  padding: 12px 14px 11px 14px;
-  border-top: 1.3px solid #ede7f6;
+  padding: 8px 8px 7px 8px;
+  border-top: 1px solid #ede7f6;
   background: #fff;
-  gap: 7px;
+  gap: 6px;
 }
 
 #user-input {
   flex-grow: 1;
-  padding: 13px 19px;
-  border: 1.2px solid #ce93d8;
-  border-radius: 32px;
-  font-size: 1.05em;
+  padding: 9px 13px;
+  border: 1px solid #ce93d8;
+  border-radius: 22px;
+  font-size: 0.98em;
   outline: none;
   background: #f8eaf6;
   color: #4a256b;
@@ -137,12 +138,12 @@ button {
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 47px;
-  height: 47px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.36em;
+  font-size: 1em;
   cursor: pointer;
   box-shadow: 0 1.5px 8px #ce93d8;
   transition: background 0.25s, box-shadow 0.2s;
@@ -160,19 +161,19 @@ button:hover, button:focus {
 }
 
 /* RESPONSIVE */
-@media (max-width: 650px) {
+@media (max-width: 500px) {
   .chat-container {
-    height: 85vh;
+    height: 69vh;
     max-width: 99vw;
   }
-  h1 { font-size: 1.19em; }
-  .subtitulo { font-size: .97em; }
-  #user-input { font-size: 0.97em; padding: 12px 12px;}
-  button { width: 40px; height: 40px; font-size: 1.05em;}
-  #chat-box { padding: 11px 3px; }
+  h1 { font-size: 1.12em; }
+  .subtitulo { font-size: .91em; }
+  #user-input { font-size: 0.95em; padding: 8px 8px;}
+  button { width: 27px; height: 27px; font-size: 0.93em;}
+  #chat-box { padding: 7px 2px; }
 }
 
 @media (max-width: 370px) {
-  .chat-container { height: 93vh; }
-  #user-input { font-size: 0.91em; }
+  .chat-container { height: 82vh; }
+  #user-input { font-size: 0.90em; }
   }
