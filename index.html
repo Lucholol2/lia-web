@@ -143,16 +143,7 @@
     outline:none;
   }
   #errors-container {
-    white-space:pre-wrap;
-    margin-top:10px;
-    background:#fdecea;
-    color:#b00020;
-    padding:10px;
-    border-radius:8px;
-    max-width:420px;
-    font-family:monospace;
-    font-size:.9em;
-    display:none;
+    display:none; /* Ya no lo usamos */
   }
   #clear-btn {
     background:linear-gradient(120deg,#d32f2f 60%,#b71c1c 100%);
@@ -200,7 +191,6 @@
 <div id="inputArea">
   <input type="text" id="user-input" placeholder="Escribí algo..." autocomplete="off" />
   <button id="send-btn" title="Enviar">Enviar</button>
-  <button id="show-errors-btn" title="Ver mensajes no entendidos">Ver errores</button>
   <button id="clear-btn" title="Limpiar chat">Limpiar</button>
 </div>
 
@@ -214,7 +204,6 @@
     <li><b>Buscar en Google:</b> Ejemplo: "buscar fútbol", "busca clima Buenos Aires".</li>
     <li><b>Contar chistes:</b> Escribí "contar chiste" o "decime un chiste".</li>
     <li><b>Decir la hora actual:</b> Escribí "qué hora es", "hora", "dime la hora".</li>
-    <li><b>Ver errores:</b> Escribí "ver errores" o "mostrar errores" para ver mensajes que no entendí.</li>
     <li><b>Limpiar chat:</b> Usa el botón "Limpiar" para borrar todo el chat y el historial.</li>
   </ul>
 </div>
@@ -223,9 +212,7 @@
   const chatBox = document.getElementById('chat-box'),
         userInput = document.getElementById('user-input'),
         sendBtn = document.getElementById('send-btn'),
-        showErrorsBtn = document.getElementById('show-errors-btn'),
-        clearBtn = document.getElementById('clear-btn'),
-        errorsContainer = document.getElementById('errors-container');
+        clearBtn = document.getElementById('clear-btn');
 
   let erroresNoEntendidos = [], typingTimeout = null;
 
@@ -253,14 +240,12 @@
     localStorage.setItem('chatHistorial', JSON.stringify(mensajes));
   }
 
-  // Nueva función que crea mensajes "visualizados" con icono para lia
   function agregarMensaje(texto, clase, guardar = true) {
     const msg = document.createElement('div');
     msg.className = clase;
 
     if (clase === 'lia') {
-      // Detectar tipo de respuesta para icono
-      let icono = '💬'; // default
+      let icono = '💬';
       if (texto.includes('Buscar "')) icono = '🔍';
       else if (chistes.some(joke => joke === texto)) icono = '😂';
       else if (texto.match(/Son las \d{2}:\d{2}/)) icono = '⏰';
@@ -276,7 +261,6 @@
       msg.appendChild(iconSpan);
       msg.appendChild(contentSpan);
     } else {
-      // Usuario normal texto plano (permitir copiar)
       msg.textContent = texto;
     }
 
@@ -300,18 +284,10 @@
   function procesarMensaje(texto) {
     const mensaje = texto.toLowerCase().trim();
 
-    // Saludos
     const saludos = ['hola', 'buenas', 'buen día', 'buenos días', 'buenas tardes', 'buenas noches', 'hi', 'hey', 'hello'];
     if (saludos.some(s => mensaje === s))
       return '¡Hola! 😊 ¿En qué puedo ayudarte hoy?';
 
-    // Mostrar errores
-    if (mensaje === 'ver errores' || mensaje === 'mostrar errores' || mensaje === 'errores') {
-      if (erroresNoEntendidos.length === 0) return 'No hay errores para mostrar.';
-      else return 'Mensajes no entendidos:\n' + erroresNoEntendidos.join('\n');
-    }
-
-    // Buscar en Google
     const buscarRegex = /^(buscar|busca|buscar en google)\s+(.+)/i;
     let match = texto.match(buscarRegex);
     if (match) {
@@ -319,13 +295,11 @@
       return `<a href="https://www.google.com/search?q=${terminoBusqueda}" target="_blank" rel="noopener noreferrer">Buscar "${match[2].trim()}" en Google 🔍</a>`;
     }
 
-    // Contar chiste
     if (mensaje.includes('contar chiste') || mensaje.includes('decime un chiste') || mensaje.includes('cuéntame un chiste')) {
       const idx = Math.floor(Math.random() * chistes.length);
       return chistes[idx];
     }
 
-    // Decir la hora
     const horaRegex = /(qué hora es|hora|dime la hora|me podes decir la hora|me puedes decir la hora)/i;
     if (horaRegex.test(mensaje)) {
       const ahora = new Date();
@@ -333,7 +307,6 @@
       return `Son las ${horaStr} ⏰`;
     }
 
-    // Si no entiende el mensaje, guardar error y sugerir comandos
     erroresNoEntendidos.push(texto);
     return `No entendí muy bien... 😅
 
@@ -342,7 +315,6 @@ Prueba con algunos comandos válidos:
 - Buscar algo escribiendo "buscar [término]"
 - Pedir un chiste con "contar chiste"
 - Pedir la hora con "qué hora es"
-- Ver mensajes no entendidos con "ver errores"
 - Limpiar chat con el botón "Limpiar"`;
   }
 
@@ -351,7 +323,6 @@ Prueba con algunos comandos válidos:
     if (!texto) return;
     agregarMensaje(texto, 'user');
     userInput.value = '';
-    errorsContainer.style.display = 'none';
     mostrarTyping(() => {
       const respuesta = procesarMensaje(texto);
       agregarMensaje(respuesta, 'lia');
@@ -360,16 +331,10 @@ Prueba con algunos comandos válidos:
 
   sendBtn.addEventListener('click', enviarMensaje);
   userInput.addEventListener('keydown', e => { if (e.key === 'Enter') enviarMensaje(); });
-  showErrorsBtn.addEventListener('click', () => {
-    if (erroresNoEntendidos.length === 0) errorsContainer.textContent = 'No hay errores para mostrar.';
-    else errorsContainer.textContent = 'Mensajes no entendidos:\n' + erroresNoEntendidos.join('\n');
-    errorsContainer.style.display = 'block';
-  });
   clearBtn.addEventListener('click', () => {
     localStorage.removeItem('chatHistorial');
     erroresNoEntendidos = [];
     chatBox.innerHTML = '';
-    errorsContainer.style.display = 'none';
   });
 
   cargarHistorial();
