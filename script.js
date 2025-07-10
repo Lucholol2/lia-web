@@ -1,148 +1,61 @@
-const chatBox = document.getElementById('chat-box');
-const userInput = document.getElementById('user-input');
-const sendBtn = document.getElementById('send-btn');
-const micBtn = document.getElementById('mic-btn');
-const clearBtn = document.getElementById('clear-btn');
-
-let recognition;
-let recognizing = false;
-
-// Cargar historial si hay
-function cargarHistorial() {
-  const historial = localStorage.getItem('chatHistorial');
-  if (historial) {
-    chatBox.innerHTML = historial;
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
-}
-
-// Guardar historial
-function guardarHistorial() {
-  localStorage.setItem('chatHistorial', chatBox.innerHTML);
-}
-
-// Agregar mensaje al chat
-function agregarMensaje(mensaje, tipo) {
-  const div = document.createElement('div');
-  div.classList.add(tipo);
-  const p = document.createElement('p');
-  p.classList.add(tipo + '-message');
-  p.textContent = mensaje;
-  div.appendChild(p);
-  chatBox.appendChild(div);
-  chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
-  guardarHistorial();
-}
-
-// Respuesta automática simple mejorada
+// Función que decide la respuesta según mensaje del usuario
 function responder(mensajeUsuario) {
-  let respuesta = "No entendí muy bien... 😅";
+  const msg = mensajeUsuario.toLowerCase().trim();
 
-  const msg = mensajeUsuario.toLowerCase();
-
-  if (msg.includes('hola')) {
-    respuesta = "¡Hola! ¿Cómo estás?";
-  } else if (msg.includes('cómo estás') || msg.includes('como estas')) {
-    respuesta = "Estoy bien, ¡gracias por preguntar! 😊";
-  } else if (msg.includes('adiós') || msg.includes('chao')) {
-    respuesta = "¡Hasta luego! Cuídate mucho.";
-  } else if (msg.includes('gracias')) {
-    respuesta = "De nada, ¡estoy para ayudarte!";
-  } else if (msg.includes('qué haces') || msg.includes('que haces')) {
-    respuesta = "Estoy aquí para charlar contigo y ayudarte en lo que pueda.";
-  } else if (msg.includes('tu nombre')) {
-    respuesta = "Me llamo Lia, tu asistente virtual.";
-  } else if (msg.includes('hora')) {
-    respuesta = "Lo siento, todavía no sé decir la hora. Pero estoy aprendiendo!";
-  } else if (msg.includes('broma')) {
-    respuesta = "¿Por qué el programador confunde Halloween con Navidad? Porque OCT 31 == DEC 25!";
+  // Detecta cualquier mensaje que contenga "lista" y "frutas" o solo "fruta(s)"
+  if ((msg.includes('lista') && msg.includes('frutas')) || msg.includes('fruta')) {
+    return 'LISTA_FRUTAS';
   }
 
-  return respuesta;
+  return "No entendí muy bien... 😅";
 }
 
-// Enviar mensaje (usuario)
-function enviarMensaje() {
-  const texto = userInput.value.trim();
-  if (!texto) return;
-  agregarMensaje(texto, 'user');
-  userInput.value = '';
-  setTimeout(() => {
-    const respuesta = responder(texto);
-    agregarMensaje(respuesta, 'lia');
-  }, 600);
-}
+// Mensaje con la lista de frutas
+const listaFrutas = `<b>Lista de frutas:</b>
+<ul>
+  <li>Manzana 🍎</li>
+  <li>Banana 🍌</li>
+  <li>Naranja 🍊</li>
+  <li>Frutilla 🍓</li>
+  <li>Mango 🥭</li>
+  <li>Uvas 🍇</li>
+</ul>`;
 
-// Manejo de reconocimiento de voz
-function iniciarReconocimiento() {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Este navegador no soporta reconocimiento de voz.');
-    return;
-  }
+// Función que procesa el mensaje del usuario y agrega la respuesta en el chat
+function procesarMensaje(mensaje) {
+  agregarMensaje('user', mensaje);
 
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
+  const respuesta = responder(mensaje);
 
-  recognition.lang = 'es-AR';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = () => {
-    recognizing = true;
-    micBtn.classList.add('active');
-  };
-
-  recognition.onerror = (event) => {
-    console.error('🎤 Error de voz:', event.error);
-    agregarMensaje(`🎤 Error de voz: ${event.error}`, 'lia');
-    recognizing = false;
-    micBtn.classList.remove('active');
-  };
-
-  recognition.onend = () => {
-    recognizing = false;
-    micBtn.classList.remove('active');
-  };
-
-  recognition.onresult = (event) => {
-    const speechResult = event.results[0][0].transcript;
-    agregarMensaje(speechResult, 'user');
-    setTimeout(() => {
-      const respuesta = responder(speechResult);
-      agregarMensaje(respuesta, 'lia');
-    }, 600);
-  };
-
-  recognition.start();
-}
-
-// Limpiar historial completo
-function limpiarHistorial() {
-  if (confirm('¿Querés borrar todo el historial de chat?')) {
-    chatBox.innerHTML = '';
-    localStorage.removeItem('chatHistorial');
-    chatBox.scrollTop = 0;
-  }
-}
-
-// Eventos
-sendBtn.addEventListener('click', enviarMensaje);
-
-userInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    enviarMensaje();
-  }
-});
-
-micBtn.addEventListener('click', () => {
-  if (recognizing) {
-    recognition.stop();
+  if (respuesta === 'LISTA_FRUTAS') {
+    agregarMensaje('lia', listaFrutas);
   } else {
-    iniciarReconocimiento();
+    agregarMensaje('lia', respuesta);
+  }
+}
+
+// Función que agrega mensajes al chat visualmente
+function agregarMensaje(tipo, texto) {
+  const chatBox = document.getElementById('chat-box');
+  const contenedor = document.createElement('div');
+  contenedor.classList.add(tipo);
+
+  const mensaje = document.createElement('div');
+  mensaje.classList.add(tipo + '-message');
+  mensaje.innerHTML = texto;
+
+  contenedor.appendChild(mensaje);
+  chatBox.appendChild(contenedor);
+  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll
+}
+
+// Ejemplo de uso: escuchar el input y enviar mensaje al presionar Enter
+document.getElementById('user-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const texto = e.target.value.trim();
+    if (texto.length > 0) {
+      procesarMensaje(texto);
+      e.target.value = '';
+    }
   }
 });
-
-clearBtn.addEventListener('click', limpiarHistorial);
-
-// Carga inicial
-cargarHistorial();
