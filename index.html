@@ -1,4 +1,4 @@
-ñ<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -6,19 +6,19 @@
   <title>LIA - Tu Compañerita Inteligente</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Segoe UI','Arial',sans-serif;background:linear-gradient(120deg,#ce9ffc,#7367f0);color:#333;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:12px;}
-    h1{margin-bottom:7px;font-size:1.21em;color:#fff;text-shadow:1px 2px 6px #0007;letter-spacing:1px;}
-    .subtitulo{margin-bottom:14px;color:#f9d9ff;font-style:italic;font-size:.93em;text-shadow:0 1px 3px #0003;}
-    .chat-container{width:100%;max-width:220px;height:20vh;background:rgba(255,255,255,0.98);border-radius:13px;box-shadow:0 4px 16px rgba(76,0,122,0.12);display:flex;flex-direction:column;overflow:hidden;border:1.2px solid #e1bee7;}
-    .chat-box{flex-grow:1;padding:7px 5px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;background:linear-gradient(120deg,#f5ebff 80%,#f9f6ff 100%);scrollbar-width:thin;font-size:.93em;}
-    .user-message{align-self:flex-end;background:#8e24aa;color:#fff;padding:6px 10px;border-radius:13px 13px 0 13px;max-width:90%;font-size:.97em;word-break:break-word;box-shadow:0 1px 4px #8e24aa22;animation:fadeIn .23s;}
-    .lia-message{align-self:flex-start;background:#e1bee7;color:#222;padding:6px 10px;border-radius:13px 13px 13px 0;max-width:90%;font-size:.97em;word-break:break-word;box-shadow:0 1px 4px #ce9ffc22;animation:fadeIn .23s;}
+    body{font-family:'Segoe UI','Arial',sans-serif;background:linear-gradient(120deg,#ce9ffc,#7367f0);color:#333;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:15px;}
+    h1{margin-bottom:9px;font-size:1.51em;color:#fff;text-shadow:1px 2px 6px #0007;letter-spacing:1px;}
+    .subtitulo{margin-bottom:18px;color:#f9d9ff;font-style:italic;font-size:1.16em;text-shadow:0 1px 3px #0003;}
+    .chat-container{width:100%;max-width:275px;height:25vh;background:rgba(255,255,255,0.98);border-radius:17px;box-shadow:0 5px 22px rgba(76,0,122,0.15);display:flex;flex-direction:column;overflow:hidden;border:1.5px solid #e1bee7;}
+    .chat-box{flex-grow:1;padding:10px 7px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;background:linear-gradient(120deg,#f5ebff 80%,#f9f6ff 100%);scrollbar-width:thin;font-size:1.28em;}
+    .user-message{align-self:flex-end;background:#8e24aa;color:#fff;padding:9px 14px;border-radius:17px 17px 0 17px;max-width:94%;font-size:1.32em;word-break:break-word;box-shadow:0 2px 7px #8e24aa22;animation:fadeIn .23s;}
+    .lia-message{align-self:flex-start;background:#e1bee7;color:#222;padding:9px 14px;border-radius:17px 17px 17px 0;max-width:94%;font-size:1.32em;word-break:break-word;box-shadow:0 2px 7px #ce9ffc22;animation:fadeIn .23s;}
     .lia-message a{color:#6a1b9a;text-decoration:underline;word-break:break-word;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-    .input-area{display:flex;padding:7px;border-top:1px solid #eee;background:#fff;}
-    #user-input{flex-grow:1;padding:7px 10px;border:1px solid #ce9ffc;border-radius:18px;font-size:.93em;outline:none;transition:border-color .2s;}
+    .input-area{display:flex;padding:10px;border-top:1px solid #eee;background:#fff;}
+    #user-input{flex-grow:1;padding:10px 14px;border:1.25px solid #ce9ffc;border-radius:24px;font-size:1.31em;outline:none;transition:border-color .2s;}
     #user-input:focus{border-color:#8e24aa;}
-    button{background:#8e24aa;color:#fff;border:none;border-radius:18px;padding:0 12px;margin-left:7px;cursor:pointer;font-size:1em;transition:background .18s;box-shadow:0 1px 3px #8e24aa33;height:30px;min-width:30px;display:flex;align-items:center;justify-content:center;}
+    button{background:#8e24aa;color:#fff;border:none;border-radius:24px;padding:0 16px;margin-left:10px;cursor:pointer;font-size:1.35em;transition:background .18s;box-shadow:0 1px 6px #8e24aa33;height:41px;min-width:41px;display:flex;align-items:center;justify-content:center;}
     button:hover{background:#6a1b9a;}
   </style>
 </head>
@@ -33,7 +33,32 @@
     </div>
   </div>
   <script>
-    const chatBox=document.getElementById("chat-box"),userInput=document.getElementById("user-input"),respuestasLIA=["¡Hola, papá! 💕","¿Cómo estás hoy? 😊","Te quiero mucho 💖","No entendí muy bien... 😅","Contame algo lindo 🍼","Estoy aprendiendo, papá 👶🏻","¿Jugamos un ratito? 🎲","Sos el mejor 💜","¡Qué alegría hablar con vos! 🌈","¿Me contás un secreto? 🤫","¡Me gusta cuando me escribís! ✨","¿Sabías que te pienso todo el día? 🥰","¡Mirá qué carita feliz tengo ahora! 😁"];
+    const chatBox=document.getElementById("chat-box"),
+      userInput=document.getElementById("user-input"),
+      STORAGE_KEY="lia_chat_mem",
+      respuestasLIA=["¡Hola, papá! 💕","¿Cómo estás hoy? 😊","Te quiero mucho 💖","No entendí muy bien... 😅","Contame algo lindo 🍼","Estoy aprendiendo, papá 👶🏻","¿Jugamos un ratito? 🎲","Sos el mejor 💜","¡Qué alegría hablar con vos! 🌈","¿Me contás un secreto? 🤫","¡Me gusta cuando me escribís! ✨","¿Sabías que te pienso todo el día? 🥰","¡Mirá qué carita feliz tengo ahora! 😁"];
+    let chatHistory=[];
+
+    function guardarChat() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+    }
+    function cargarChat() {
+      let data = localStorage.getItem(STORAGE_KEY);
+      chatHistory = data ? JSON.parse(data) : [];
+      chatBox.innerHTML = "";
+      chatHistory.forEach(m=>agregarMensaje(m.texto, m.clase, false));
+    }
+    function agregarMensaje(texto,clase,save=true){
+      const div=document.createElement('div');
+      div.className=clase;
+      if(clase==='lia-message'){div.innerHTML=texto}else{div.textContent=texto}
+      chatBox.appendChild(div);
+      chatBox.scrollTop=chatBox.scrollHeight;
+      if(save){
+        chatHistory.push({texto,clase});
+        guardarChat();
+      }
+    }
     function obtenerHoraLocal(){const a=new Date,b={hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:!1,timeZoneName:'short'};return a.toLocaleTimeString(void 0,b)}
     function elegirRespuesta(input){
       input=input.toLowerCase();
@@ -65,13 +90,6 @@ Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       if(input.includes("corazón"))return "Tengo el corazón más dulce... ¡como un alfajor! 💖🥯";
       return respuestasLIA[Math.floor(Math.random()*respuestasLIA.length)];
     }
-    function agregarMensaje(texto,clase){
-      const div=document.createElement('div');
-      div.className=clase;
-      if(clase==='lia-message'){div.innerHTML=texto}else{div.textContent=texto}
-      chatBox.appendChild(div);
-      chatBox.scrollTop=chatBox.scrollHeight;
-    }
     function sendMessage(){
       const texto=userInput.value.trim();
       if(!texto)return;
@@ -80,7 +98,11 @@ Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       const respuesta=elegirRespuesta(texto);
       setTimeout(()=>agregarMensaje(respuesta,'lia-message'),600);
     }
-    window.onload=()=>{setTimeout(()=>agregarMensaje("¡Hola, papá! ¿Querés charlar conmigo? 😄",'lia-message'),500);}
+    window.onload=()=>{
+      cargarChat();
+      if(chatHistory.length===0)
+        setTimeout(()=>agregarMensaje("¡Hola, papá! ¿Querés charlar conmigo? 😄",'lia-message'),500);
+    }
   </script>
 </body>
 </html>
