@@ -1,53 +1,70 @@
+// Selección de elementos del DOM
 const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 
-// ✉️ Enviar mensaje al backend
-function sendMessage() {
-  const text = userInput.value.trim();
-  if (!text) return;
-
-  addMessage(text, 'user-message');
-  userInput.value = '';
-
-  fetch('https://lia-backend-v0ta.onrender.com/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: text })
-  })
-    .then(res => res.json())
-    .then(data => {
-      const reply = data.reply || "Uy, no entendí 😕";
-      addMessage(reply, 'lia-message');
-      speak(reply);
-    })
-    .catch(err => {
-      console.error("Error al conectar con el backend:", err);
-      addMessage("Uy, no pude responder 😢", 'lia-message');
-    });
+// Utilidad: Scroll suave al final del chat
+function scrollToBottom() {
+  chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
 }
 
-// 🗨️ Mostrar mensaje en el chat
+// Mostrar mensaje en el chat
 function addMessage(text, className) {
   const msg = document.createElement('div');
   msg.className = className;
   msg.textContent = text;
   chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  scrollToBottom();
 }
 
-// 🗣️ Hablar en voz alta
+// TTS: Hablar en voz alta (voz argentina si está disponible)
 function speak(text) {
+  if (!window.speechSynthesis) return;
   const synth = window.speechSynthesis;
-  const voices = synth.getVoices();
+  let voices = synth.getVoices();
+
+  // Safari: el array puede estar vacío la primera vez
+  if (!voices.length) {
+    synth.onvoiceschanged = () => speak(text);
+    return;
+  }
+
   const argentinian = voices.find(v => v.lang === 'es-AR');
   const utter = new SpeechSynthesisUtterance(text);
-  utter.voice = argentinian || voices[0];
-  utter.lang = 'es-AR';
+  utter.voice = argentinian || voices.find(v => v.lang.startsWith('es')) || voices[0];
+  utter.lang = utter.voice.lang || 'es-AR';
   synth.cancel();
   synth.speak(utter);
 }
 
-// 🎙️ Escuchar por voz
+// Enviar mensaje al backend y manejar respuesta
+async function sendMessage() {
+  const text = userInput.value.trim();
+  if (!text) return;
+
+  addMessage(text, 'user-message');
+  userInput.value = '';
+  userInput.disabled = true;
+
+  try {
+    const res = await fetch('https://lia-backend-v0ta.onrender.com/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await res.json();
+    const reply = data.reply || "Uy, no entendí 😕";
+    addMessage(reply, 'lia-message');
+    speak(reply);
+  } catch (err) {
+    console.error("Error al conectar con el backend:", err);
+    addMessage("Uy, no pude responder 😢", 'lia-message');
+  } finally {
+    userInput.disabled = false;
+    userInput.focus();
+  }
+}
+
+// Escuchar voz y enviar mensaje
 function startListening() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
@@ -73,3 +90,14 @@ function startListening() {
     addMessage("No pude escucharte bien 😕", 'lia-message');
   };
 }
+
+// Atajos de teclado y UX
+userInput.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// Opcional: exportar funciones si usas módulos
+// export { sendMessage, startListening };
