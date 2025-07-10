@@ -19,20 +19,24 @@ function addMessage(text, className) {
 // TTS: Hablar en voz alta (voz argentina si está disponible)
 function speak(text) {
   if (!window.speechSynthesis) return;
+
   const synth = window.speechSynthesis;
   let voices = synth.getVoices();
 
-  // Safari: el array puede estar vacío la primera vez
+  // Manejo para Safari y otros navegadores donde `getVoices` puede tardar
   if (!voices.length) {
     synth.onvoiceschanged = () => speak(text);
     return;
   }
 
   const argentinian = voices.find(v => v.lang === 'es-AR');
+  const fallback = voices.find(v => v.lang.startsWith('es')) || voices[0];
+
   const utter = new SpeechSynthesisUtterance(text);
-  utter.voice = argentinian || voices.find(v => v.lang.startsWith('es')) || voices[0];
-  utter.lang = utter.voice.lang || 'es-AR';
-  synth.cancel();
+  utter.voice = argentinian || fallback;
+  utter.lang = utter.voice?.lang || 'es-AR';
+
+  synth.cancel(); // Detiene cualquier voz anterior
   synth.speak(utter);
 }
 
@@ -51,8 +55,12 @@ async function sendMessage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: text })
     });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
     const data = await res.json();
-    const reply = data.reply || "Uy, no entendí 😕";
+    const reply = data.reply?.trim() || "Uy, no entendí 😕";
+
     addMessage(reply, 'lia-message');
     speak(reply);
   } catch (err) {
@@ -81,8 +89,10 @@ function startListening() {
 
   recognition.onresult = function (event) {
     const spokenText = event.results[0][0].transcript;
-    userInput.value = spokenText;
-    sendMessage();
+    if (spokenText) {
+      userInput.value = spokenText;
+      sendMessage(); // Ya se llama directo
+    }
   };
 
   recognition.onerror = function (event) {
@@ -91,13 +101,10 @@ function startListening() {
   };
 }
 
-// Atajos de teclado y UX
+// Atajo de teclado: Enter para enviar
 userInput.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     sendMessage();
   }
 });
-
-// Opcional: exportar funciones si usas módulos
-// export { sendMessage, startListening };
