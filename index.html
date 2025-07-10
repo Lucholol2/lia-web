@@ -1,6 +1,107 @@
-<p class="codepen" data-height="300" data-default-tab="html,result" data-slug-hash="wBKveRB" data-pen-title="Untitled" data-user="lucho-Gabriel" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-  <span>See the Pen <a href="https://codepen.io/lucho-Gabriel/pen/wBKveRB">
-  Untitled</a> by lucho Gabriel (<a href="https://codepen.io/lucho-Gabriel">@lucho-Gabriel</a>)
-  on <a href="https://codepen.io">CodePen</a>.</span>
-</p>
-<script async src="https://public.codepenassets.com/embed/index.js"></script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIA - Tu Compañerita Inteligente</title>
+  <style>
+    /* (Igual que antes, mantenés tus estilos violetas…) */
+  </style>
+</head>
+<body>
+  <h1>👶🏻 Hola, soy LIA</h1>
+  <p class="subtitulo">Tu compañerita con corazón de alfajor 💖</p>
+  <p id="contador">⏱ LIA está activa desde hace 0 segundos</p>
+
+  <div class="chat-container">
+    <div id="chat-box" class="chat-box" aria-live="polite"></div>
+    <div class="input-area">
+      <input id="user-input" type="text" placeholder="Escribime algo..." autocomplete="off" autofocus onkeydown="if(event.key==='Enter') sendMessage()" />
+      <button onclick="sendMessage()">💌</button>
+    </div>
+  </div>
+
+  <button class="clear-btn" onclick="borrarChat()">🗑 Borrar chat</button>
+
+  <script>
+    const chatBox = document.getElementById("chat-box"),
+          userInput = document.getElementById("user-input"),
+          STORAGE_KEY = "lia_chat_mem";
+    let chatHistory = [];
+    let segundosActivos = 0;
+
+    setInterval(() => {
+      segundosActivos++;
+      document.getElementById('contador').textContent =
+        `⏱ LIA está activa desde hace ${segundosActivos} segundo${segundosActivos === 1 ? '' : 's'}`;
+    }, 1000);
+
+    function guardarChat() { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory)); }
+    function cargarChat() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      chatHistory = data ? JSON.parse(data) : [];
+      chatBox.innerHTML = "";
+      chatHistory.forEach(m => agregarMensaje(m.texto, m.clase, false));
+    }
+
+    function agregarMensaje(texto, clase, save = true) {
+      const div = document.createElement('div');
+      div.className = clase;
+      if (clase === 'lia-message') div.innerHTML = texto;
+      else if (clase === 'lia-image') div.innerHTML = `<img src="${texto}" class="chat-img">`;
+      else div.textContent = texto;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      if (save) { chatHistory.push({ texto, clase }); guardarChat(); }
+    }
+
+    async function pedirImagen(prompt) {
+      try {
+        const res = await fetch("https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ inputs: prompt })
+        });
+        if (!res.ok) throw new Error("error generación");
+        const blob = await res.blob();
+        return URL.createObjectURL(blob);
+      } catch(e) {
+        console.error(e);
+        return null;
+      }
+    }
+
+    function sendMessage() {
+      const texto = userInput.value.trim();
+      if (!texto) return;
+      agregarMensaje(texto, 'user-message');
+      userInput.value = '';
+      userInput.focus();
+
+      if (/^(dibuja |\/img )/i.test(texto)) {
+        agregarMensaje("🎨 Generando imagen…", "lia-message");
+        pedirImagen(texto).then(url => {
+          if (url) agregarMensaje(url, "lia-image");
+          else agregarMensaje("😔 No pude generar la imagen. Probá más tarde.", "lia-message");
+        });
+      } else {
+        agregarMensaje("¡Hola! Si querés que dibuje, escribí 'dibuja ...' o '/img ...'", 'lia-message');
+      }
+    }
+
+    function borrarChat() {
+      if (confirm("¿Borrar todo el chat?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        chatHistory = []; chatBox.innerHTML = "";
+        setTimeout(() => agregarMensaje("¡Hola, papá! 😄", 'lia-message'), 400);
+      }
+    }
+
+    window.onload = () => {
+      cargarChat();
+      if (!chatHistory.length)
+        setTimeout(() => agregarMensaje("¡Hola, papá! 😄", 'lia-message'), 500);
+    };
+  </script>
+</body>
+</html>
