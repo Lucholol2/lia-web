@@ -1,154 +1,84 @@
-// Selección de elementos del DOM
+const API_KEY = 'AIzaSyCPafK6G0bNRhRR_WVXIr1EZW-UHTk-0k8';
+const CX = '232b2051090784dc2';
+
 const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 
-// Scroll suave al fondo
 function scrollToBottom() {
-  chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Mostrar mensaje en el chat
-function addMessage(text, className) {
-  const msg = document.createElement('div');
-  msg.className = className;
-  if (className === 'lia-message') {
-    msg.innerHTML = text; // permite HTML como enlaces
+function agregarMensaje(texto, clase) {
+  const div = document.createElement('div');
+  div.className = clase;
+  if (clase === 'lia-message' && texto.includes('<a ')) {
+    div.innerHTML = texto;
   } else {
-    msg.textContent = text;
+    div.textContent = texto;
   }
-  chatBox.appendChild(msg);
+  chatBox.appendChild(div);
   scrollToBottom();
 }
 
-// TTS: Hablar en voz alta
-function speak(text) {
-  if (!window.speechSynthesis) return;
-  const synth = window.speechSynthesis;
-  let voices = synth.getVoices();
-
-  if (!voices.length) {
-    synth.onvoiceschanged = () => speak(text);
-    return;
-  }
-
-  const argentinian = voices.find(v => v.lang === 'es-AR');
-  const fallback = voices.find(v => v.lang.startsWith('es')) || voices[0];
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.voice = argentinian || fallback;
-  utter.lang = utter.voice?.lang || 'es-AR';
-  synth.cancel();
-  synth.speak(utter);
-}
-
-// 🔎 Buscar en Google con la API Custom Search
-async function buscarEnGoogle(query) {
-  const apiKey = 'AIzaSyBVyQ1CmpzvKUqlpPDSskFkR9v2hqoU-Cg';
-  const cx = '232b2051090784dc2';
-
+async function buscarGoogle(query) {
   try {
-    const res = await fetch(
-      `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(query)}`
-    );
-    if (!res.ok) throw new Error("Error de búsqueda");
+    const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Error en búsqueda');
     const data = await res.json();
     return data.items || [];
   } catch (e) {
-    console.error("Error al buscar en Google:", e);
-    return null;
+    console.error('Error en buscarGoogle:', e);
+    return [];
   }
 }
 
-// Enviar mensaje al backend o usar Google
 async function sendMessage() {
-  const text = userInput.value.trim();
-  if (!text) return;
+  const texto = userInput.value.trim();
+  if (!texto) return;
 
-  addMessage(text, 'user-message');
+  agregarMensaje(texto, 'user-message');
   userInput.value = '';
   userInput.disabled = true;
 
-  // Buscar en Google si empieza con "busca" o "/google"
-  if (/^(busca |\/google )/i.test(text)) {
-    const query = text.replace(/^(busca |\/google )/i, "").trim();
-    if (!query) {
-      addMessage("¿Qué querés que busque? 🧐", 'lia-message');
-      userInput.disabled = false;
-      return;
-    }
+  if (texto.toLowerCase().startsWith('busca ') || texto.toLowerCase().startsWith('google ')) {
+    agregarMensaje('🔎 Buscando en Google...', 'lia-message');
+    const query = texto.replace(/^busca |^google /i, '');
+    const resultados = await buscarGoogle(query);
 
-    addMessage("🔎 Buscando en Google…", 'lia-message');
-
-    const resultados = await buscarEnGoogle(query);
-    if (resultados && resultados.length > 0) {
-      resultados.slice(0, 3).forEach(item => {
-        const html = `
-          <strong>📌 ${item.title}</strong><br>
-          <a href="${item.link}" target="_blank">${item.link}</a><br>
-          <em>${item.snippet}</em>
-        `;
-        addMessage(html, 'lia-message');
-      });
+    if (resultados.length === 0) {
+      agregarMensaje('No encontré nada 😕', 'lia-message');
     } else {
-      addMessage("No encontré resultados 😕", 'lia-message');
+      resultados.slice(0, 3).forEach(item => {
+        const link = `<a href="${item.link}" target="_blank" rel="noopener">${item.title}</a><br>${item.snippet}`;
+        agregarMensaje(link, 'lia-message');
+      });
     }
-
-    userInput.disabled = false;
-    userInput.focus();
-    return;
+  } else {
+    // Si no es búsqueda, respondemos con función local (simplificada)
+    const respuesta = elegirRespuesta(texto);
+    agregarMensaje(respuesta, 'lia-message');
   }
 
-  // Envío normal al backend
-  try {
-    const res = await fetch('https://lia-backend-v0ta.onrender.com/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text })
-    });
-
-    const data = await res.json();
-    const reply = data.reply || "Uy, no entendí 😕";
-    addMessage(reply, 'lia-message');
-    speak(reply);
-  } catch (err) {
-    console.error("Error al conectar con el backend:", err);
-    addMessage("Uy, no pude responder 😢", 'lia-message');
-  } finally {
-    userInput.disabled = false;
-    userInput.focus();
-  }
+  userInput.disabled = false;
+  userInput.focus();
 }
 
-// Escuchar voz y enviar mensaje
-function startListening() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    alert("Tu navegador no soporta reconocimiento de voz 😢");
-    return;
-  }
-
-  const recognition = new SpeechRecognition();
-  recognition.lang = 'es-AR';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.start();
-
-  recognition.onresult = function (event) {
-    const spokenText = event.results[0][0].transcript;
-    userInput.value = spokenText;
-    sendMessage();
-  };
-
-  recognition.onerror = function (event) {
-    console.error("Error al escuchar: ", event.error);
-    addMessage("No pude escucharte bien 😕", 'lia-message');
-  };
+// Ejemplo simple de respuestas automáticas
+function elegirRespuesta(input) {
+  input = input.toLowerCase();
+  if (input.includes('hola')) return '¡Hola, papá! 💕';
+  if (input.includes('cómo estás')) return '¡Muy bien! ¿Y vos, papá? 🥰';
+  return 'No entendí muy bien... 😅';
 }
 
-// Atajo Enter para enviar
-userInput.addEventListener('keydown', function (e) {
+userInput.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     sendMessage();
   }
 });
+
+window.onload = () => {
+  setTimeout(() => agregarMensaje('¡Hola, papá! ¿Querés charlar conmigo? 😄', 'lia-message'), 500);
+};
