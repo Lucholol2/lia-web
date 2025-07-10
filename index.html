@@ -163,6 +163,19 @@
       "¡Mirá qué carita feliz tengo ahora! 😁"
     ];
 
+    // Helper para hora local
+    function obtenerHoraLocal() {
+      const ahora = new Date();
+      const formato = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZoneName: 'short'
+      };
+      return ahora.toLocaleTimeString(undefined, formato);
+    }
+
     // Respuestas según palabras clave
     function elegirRespuesta(input) {
       input = input.toLowerCase();
@@ -175,10 +188,13 @@
         input.includes("busca en google que hora es") ||
         input.includes("google que hora es")
       ) {
+        // Incluye la hora local en la respuesta
         return `🕒 Podés consultar la fecha y hora actual aquí:<br>
 - <a href="https://reloj-alarma.es/hora/" target="_blank" rel="noopener">Reloj-Alarma.es</a><br>
 - <a href="https://www.fechadehoy.com/" target="_blank" rel="noopener">Fecha de hoy</a><br>
-- <a href="https://www.kiwireloj.com/hora/" target="_blank" rel="noopener">Kiwi Reloj</a>`;
+- <a href="https://www.kiwireloj.com/hora/" target="_blank" rel="noopener">Kiwi Reloj</a><br>
+<br>
+Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       }
 
       // RESPUESTA DE HORA LOCAL
@@ -201,7 +217,7 @@
           second: '2-digit'
         };
         const textoHora = ahora.toLocaleString('es-AR', opciones);
-        return `🕒 Ahora son las ${textoHora}`;
+        return `🕒 Ahora son las ${textoHora}<br>Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       }
 
       if (input.includes("hola")) return "¡Hola, papá! 👋";
