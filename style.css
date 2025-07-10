@@ -1,223 +1,27 @@
-body, input, button {
-  font-family: sans-serif;
-}
+/* Todo tu CSS anterior + lo siguiente */
 
-body {
-  margin: 20px;
-  background: #7367f0;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
-  background: linear-gradient(120deg, #f3e5f5 0%, #e1bee7 100%);
-  color: #2a1432;
-  min-height: 100vh;
-  padding: 5px 2px;
-  letter-spacing: 0.01em;
-  user-select: none;
-  -webkit-font-smoothing: antialiased;
-}
-
-h1 {
-  margin-bottom: 7px;
-  font-size: 1em;
-  color: #8e24aa;
-  text-shadow: 0 1.5px 5px #f3e5f5, 1px 1px 0 #fff;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
-.subtitulo {
-  color: #9c27b0;
-  font-size: 0.72em;
-  margin-top: -3px;
-  margin-bottom: 10px;
-  font-weight: 500;
-  opacity: 0.82;
-}
-
-#chat {
-  width: 100%;
-  max-width: 400px;
-  height: 60vh;
-  background: #fff;
-  color: #000;
-  border-radius: 10px;
-  overflow-y: auto;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.chat-container {
-  width: 100%;
-  max-width: 230px;
-  height: 18vh;
-  background: rgba(255, 255, 255, 0.97);
-  border-radius: 11px;
-  box-shadow: 0 4px 12px rgba(142, 36, 170, 0.12), 0 1.5px 6px #ce93d8;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1.1px solid #ce93d8;
-  backdrop-filter: blur(0.5px);
-}
-
-#chat-box {
-  flex: 1 1 0;
-  padding: 5px 3px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  background-color: #fbe9f8;
-  scrollbar-width: thin;
-  scrollbar-color: #ce93d8 #fbe9f8;
-  font-size: 0.85em;
-}
-
-#chat-box::-webkit-scrollbar {
-  width: 5px;
-}
-
-#chat-box::-webkit-scrollbar-thumb {
-  background: #ce93d8;
-  border-radius: 6px;
-}
-
-.user, .lia {
-  margin: 6px;
-  padding: 10px;
-  border-radius: 12px;
-  max-width: 75%;
-}
-
-.user-message,
-.lia-message {
-  padding: 5px 8px;
-  max-width: 94%;
-  font-size: 0.92em;
-  word-break: break-word;
-  border-radius: 9px;
-  line-height: 1.32;
-  animation: fadeIn 0.19s cubic-bezier(.38,1.09,.63,1.12);
-  box-shadow: 0 1px 4px rgba(206, 147, 216, .08);
-}
-
-.user {
-  background: #8e24aa;
-  color: #fff;
-  align-self: flex-end;
-}
-
-.user-message {
-  align-self: flex-end;
-  background: linear-gradient(105deg, #8e24aa 85%, #ba68c8 100%);
-  color: #fff;
-  border-bottom-right-radius: 5px;
-  font-weight: 500;
-}
-
-.lia {
-  background: #e1bee7;
-  color: #222;
-  align-self: flex-start;
-}
-
-.lia-message {
-  align-self: flex-start;
-  background: linear-gradient(105deg, #f3e5f5 70%, #e1bee7 100%);
-  color: #3d1747;
-  border-bottom-left-radius: 5px;
-}
-
-.lia a {
-  color: #6a1b9a;
-  text-decoration: underline;
-  word-break: break-word;
-}
-
-#inputArea, .input-container {
-  margin-top: 8px;
-  display: flex;
-  width: 100%;
-  max-width: 400px;
-  gap: 8px;
-  padding: 5px 4px 4px 4px;
-  border-top: 1px solid #ede7f6;
-  background: #fff;
-}
-
-#input, #user-input {
-  flex-grow: 1;
-  padding: 7px 10px;
-  border: 1px solid #ce93d8;
-  border-radius: 14px;
-  font-size: 0.87em;
-  outline: none;
-  background: #f8eaf6;
-  color: #4a256b;
-  font-family: inherit;
-  border: 2px solid #8e24aa;
-}
-
-#input:focus, #user-input:focus {
-  background: #f3e5f5;
-  border-color: #8e24aa;
-  color: #3d1747;
-}
-
-button {
-  background: linear-gradient(120deg, #8e24aa 60%, #6a1b9a 100%);
+#clear-btn {
+  background: linear-gradient(120deg, #d32f2f 60%, #b71c1c 100%);
   color: #fff;
   border: none;
-  border-radius: 50%;
-  width: 19px;
-  height: 19px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.87em;
+  border-radius: 14px;
   cursor: pointer;
   box-shadow: 0 1px 5px #ce93d8;
   transition: background 0.19s, box-shadow 0.16s;
-  flex-shrink: 0;
   user-select: none;
+  font-weight: 600;
 }
 
-button:hover,
-button:focus,
-button.active {
-  background: linear-gradient(120deg, #6a1b9a 80%, #8e24aa 100%);
+#clear-btn:hover,
+#clear-btn:focus {
+  background: linear-gradient(120deg, #b71c1c 80%, #d32f2f 100%);
   box-shadow: 0 1.2px 7px #8e24aa5f;
   outline: none;
 }
 
-a {
-  color: #6a1b9a;
-  text-decoration: underline;
-  word-break: break-word;
+#mic-btn.active {
+  background: linear-gradient(120deg, #43a047 60%, #2e7d32 100%);
+  box-shadow: 0 1.2px 7px #388e3c;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(7px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive */
-@media (max-width: 330px) {
-  .chat-container {
-    height: 22vh;
-  }
-  #user-input {
-    font-size: 0.80em;
-  }
-}
+/* Si quieres, podrías agregar un pequeño icono o animación cuando está activo */
