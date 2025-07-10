@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chat Mejorado con Memoria y Animación</title>
+<title>Chat Mejorado con Saluditos y Más</title>
 <style>
   body, input, button {
     font-family: sans-serif;
@@ -163,7 +163,7 @@
 <body>
 
 <h1>Hola, papá! ¿Querés charlar conmigo? 😄</h1>
-<div class="subtitulo">Probá con "Lista de frutas" o "buscar algo"</div>
+<div class="subtitulo">Probá con "Lista de frutas", "buscar algo" o saludá 😎</div>
 
 <div id="chat-box"></div>
 
@@ -232,6 +232,12 @@
 
   function procesarMensaje(texto) {
     const mensaje = texto.toLowerCase().trim();
+
+    // Saludos simples
+    const saludos = ['hola', 'buenas', 'buen día', 'buenos días', 'buenas tardes', 'buenas noches', 'hi', 'hey', 'hello'];
+    if (saludos.some(s => mensaje === s)) {
+      return '¡Hola! 😊 ¿En qué puedo ayudarte hoy?';
+    }
 
     if (mensaje === 'ver errores' || mensaje === 'mostrar errores' || mensaje === 'errores') {
       if (erroresNoEntendidos.length === 0) {
