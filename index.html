@@ -1,182 +1,250 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chat Visual Mejorado</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chat Visual Mejorado + Animaciones</title>
 <style>
-  body,input,button{font-family:sans-serif}
+  /* Fuente base */
+  body, input, button {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Body y layout */
   body {
-    margin:20px;
-    background:linear-gradient(120deg,#f3e5f5 0%,#e1bee7 100%);
-    color:#2a1432;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    min-height:100vh;
-    padding:5px 2px;
-    user-select:none;
-    -webkit-font-smoothing:antialiased;
+    margin: 20px;
+    background: linear-gradient(120deg, #f3e5f5 0%, #e1bee7 100%);
+    color: #2a1432;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 5px 2px;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
   }
+
   h1 {
-    margin-bottom:7px;
-    font-size:1em;
-    color:#8e24aa;
-    font-weight:700;
+    margin-bottom: 7px;
+    font-size: 1.3em;
+    color: #8e24aa;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-shadow: 0 1.5px 5px #f3e5f5, 1px 1px 0 #fff;
   }
+
   .subtitulo {
-    color:#9c27b0;
-    font-size:.72em;
-    margin:-3px 0 10px;
-    font-weight:500;
-    opacity:.82;
+    color: #9c27b0;
+    font-size: 0.85em;
+    margin: -5px 0 15px;
+    font-weight: 500;
+    opacity: 0.85;
   }
+
+  /* Contenedor de mensajes */
   #chat-box {
-    width:100%;
-    max-width:420px;
-    height:60vh;
-    background:#fff;
-    color:#000;
-    border-radius:10px;
-    overflow-y:auto;
-    padding:10px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    font-size:.92em;
+    width: 100%;
+    max-width: 420px;
+    height: 60vh;
+    background: #fff;
+    color: #000;
+    border-radius: 12px;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 1em;
+    scroll-behavior: smooth;
   }
-  .user,.lia,.typing {
-    margin:6px;
-    padding:10px 15px;
-    border-radius:18px;
-    max-width:75vw;
-    word-break:break-word;
-    line-height:1.4;
+
+  /* Animación fade y slide para mensajes */
+  @keyframes fadeSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
+  .user, .lia, .typing {
+    margin: 6px 0;
+    padding: 12px 18px;
+    border-radius: 20px;
+    max-width: 75vw;
+    word-break: break-word;
+    line-height: 1.5;
+    animation: fadeSlideIn 0.3s ease forwards;
+    box-shadow: 0 2px 7px rgba(0,0,0,0.1);
+    user-select: text !important; /* permitir copiar texto */
+  }
+
+  /* Usuario (yo) */
   .user {
-    background:#8e24aa;
-    color:#fff;
-    align-self:flex-end;
-    font-weight:600;
-    user-select: text !important;
-    box-shadow: 0 2px 6px #6a1b9a88;
+    background: #8e24aa;
+    color: #fff;
+    align-self: flex-end;
+    font-weight: 600;
+    box-shadow: 0 3px 8px #6a1b9aaa;
   }
+
+  /* Lia (bot) */
   .lia {
-    background:#f5e1fa;
-    color:#3d176a;
-    align-self:flex-start;
-    user-select: text !important;
-    box-shadow: 0 2px 8px #c293e4cc;
+    background: #f5e1fa;
+    color: #3d176a;
+    align-self: flex-start;
+    box-shadow: 0 3px 8px #c293e4cc;
     position: relative;
   }
+
+  /* Icono delante del mensaje lia */
   .lia .icon {
     margin-right: 8px;
     font-size: 1.3em;
     vertical-align: middle;
+    user-select: none;
   }
-  /* Estilo especial para enlaces tipo botón */
+
+  /* Enlaces estilo botón dentro de lia */
   .lia a {
     display: inline-block;
     background: #8e24aa;
     color: #fff;
-    padding: 5px 12px;
-    border-radius: 12px;
+    padding: 6px 14px;
+    border-radius: 16px;
     text-decoration: none;
     font-weight: 600;
-    margin-top: 4px;
-    box-shadow: 0 1.5px 5px #6a1b9a99;
+    margin-top: 6px;
+    box-shadow: 0 2px 7px #6a1b9a99;
     transition: background 0.3s ease;
   }
   .lia a:hover, .lia a:focus {
     background: #6a1b9a;
     outline: none;
   }
+
+  /* Mensaje "typing" con puntos animados */
   .typing {
-    background:#d1c4e9;
-    color:#4a256b;
-    font-style:italic;
-    align-self:flex-start;
+    background: #d1c4e9;
+    color: #4a256b;
+    font-style: italic;
+    align-self: flex-start;
+    position: relative;
   }
+
+  .typing::after {
+    content: '';
+    display: inline-block;
+    margin-left: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #4a256b;
+    animation: blinkDots 1.2s infinite ease-in-out;
+    vertical-align: middle;
+  }
+
+  @keyframes blinkDots {
+    0%, 20% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.2;
+    }
+  }
+
+  /* Área de entrada */
   #inputArea {
-    margin-top:8px;
-    display:flex;
-    width:100%;
-    max-width:420px;
-    gap:8px;
-    padding:5px 4px 4px;
-    border-top:1px solid #ede7f6;
-    background:#fff;
-    border-radius:10px;
+    margin-top: 12px;
+    display: flex;
+    width: 100%;
+    max-width: 420px;
+    gap: 10px;
+    padding: 6px 6px 6px 6px;
+    border-top: 2px solid #ede7f6;
+    background: #fff;
+    border-radius: 12px;
   }
+
   #user-input {
-    flex-grow:1;
-    padding:7px 10px;
-    border:2px solid #8e24aa;
-    border-radius:14px;
-    font-size:.87em;
-    outline:none;
-    background:#f8eaf6;
-    color:#4a256b;
-    font-family:inherit;
+    flex-grow: 1;
+    padding: 10px 14px;
+    border: 2px solid #8e24aa;
+    border-radius: 18px;
+    font-size: 1em;
+    outline: none;
+    background: #f8eaf6;
+    color: #4a256b;
   }
   #user-input:focus {
-    background:#f3e5f5;
-    border-color:#8e24aa;
-    color:#3d1747;
+    background: #f3e5f5;
+    border-color: #8e24aa;
+    color: #3d1747;
   }
+
+  /* Botones */
   button {
-    background:linear-gradient(120deg,#8e24aa 60%,#6a1b9a 100%);
-    color:#fff;
-    border:none;
-    border-radius:14px;
-    padding:0 12px;
-    height:35px;
-    cursor:pointer;
-    box-shadow:0 1px 5px #ce93d8;
-    transition:background .19s,box-shadow .16s;
-    user-select:none;
-    font-weight:600;
-    font-size:.9em;
+    background: linear-gradient(120deg, #8e24aa 60%, #6a1b9a 100%);
+    color: #fff;
+    border: none;
+    border-radius: 18px;
+    padding: 0 18px;
+    height: 40px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px #ce93d8;
+    transition: background 0.25s, box-shadow 0.2s;
+    user-select: none;
+    font-weight: 600;
+    font-size: 1em;
   }
-  button:hover,button:focus {
-    background:linear-gradient(120deg,#6a1b9a 80%,#8e24aa 100%);
-    box-shadow:0 1.2px 7px #8e24aa5f;
-    outline:none;
+  button:hover, button:focus {
+    background: linear-gradient(120deg, #6a1b9a 80%, #8e24aa 100%);
+    box-shadow: 0 2.5px 10px #8e24aa99;
+    outline: none;
   }
-  #errors-container {
-    display:none; /* Ya no lo usamos */
-  }
+
   #clear-btn {
-    background:linear-gradient(120deg,#d32f2f 60%,#b71c1c 100%);
-    margin-left:8px;
-    border-radius:14px;
+    background: linear-gradient(120deg, #d32f2f 60%, #b71c1c 100%);
   }
   #clear-btn:hover,#clear-btn:focus {
-    background:linear-gradient(120deg,#b71c1c 80%,#d32f2f 100%);
-    box-shadow:0 1.2px 7px #8e24aa5f;
-    outline:none;
+    background: linear-gradient(120deg, #b71c1c 80%, #d32f2f 100%);
+    box-shadow: 0 2.5px 10px #8e24aa99;
+    outline: none;
   }
+
+  /* Lista comandos */
   #comandos-lista {
-    margin-top:20px;
-    max-width:420px;
-    background:#fafafa;
-    border:1px solid #ddd;
-    border-radius:10px;
-    padding:15px 20px;
-    font-size:0.9em;
-    color:#333;
-    line-height:1.5;
-    user-select:text;
+    margin-top: 25px;
+    max-width: 420px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    padding: 18px 24px;
+    font-size: 1em;
+    color: #333;
+    line-height: 1.6;
+    user-select: text;
   }
   #comandos-lista h2 {
-    color:#8e24aa;
-    margin-bottom:10px;
+    color: #8e24aa;
+    margin-bottom: 14px;
   }
-  @media(max-width:330px) {
+  #comandos-lista ul {
+    margin-left: 20px;
+  }
+
+  @media (max-width: 330px) {
     #chat-box {
-      height:50vh;
+      height: 50vh;
     }
-    #user-input {
-      font-size:.8em;
+    #user-input, button {
+      font-size: 0.9em;
     }
   }
 </style>
@@ -193,8 +261,6 @@
   <button id="send-btn" title="Enviar">Enviar</button>
   <button id="clear-btn" title="Limpiar chat">Limpiar</button>
 </div>
-
-<div id="errors-container"></div>
 
 <!-- Lista de comandos -->
 <div id="comandos-lista">
@@ -224,6 +290,7 @@
     "¿Por qué la computadora fue al médico? Porque tenía un virus. 💻"
   ];
 
+  // Cargar historial guardado en localStorage
   function cargarHistorial() {
     const historial = localStorage.getItem('chatHistorial');
     if (historial) {
@@ -232,6 +299,7 @@
     }
   }
 
+  // Guardar historial en localStorage
   function guardarHistorial() {
     const mensajes = [];
     chatBox.querySelectorAll('div.user, div.lia').forEach(div => {
@@ -240,14 +308,16 @@
     localStorage.setItem('chatHistorial', JSON.stringify(mensajes));
   }
 
+  // Agregar mensaje a chat
   function agregarMensaje(texto, clase, guardar = true) {
     const msg = document.createElement('div');
     msg.className = clase;
 
     if (clase === 'lia') {
+      // Iconos para tipo mensaje
       let icono = '💬';
       if (texto.includes('Buscar "')) icono = '🔍';
-      else if (chistes.some(joke => joke === texto)) icono = '😂';
+      else if (chistes.includes(texto)) icono = '😂';
       else if (texto.match(/Son las \d{2}:\d{2}/)) icono = '⏰';
       else if (texto.startsWith('No entendí')) icono = '❓';
 
@@ -269,6 +339,7 @@
     if (guardar) guardarHistorial();
   }
 
+  // Mostrar "lia está escribiendo..." animado
   function mostrarTyping(callback) {
     const typingMsg = document.createElement('div');
     typingMsg.className = 'typing';
@@ -281,6 +352,7 @@
     }, 1200);
   }
 
+  // Procesar mensaje del usuario y devolver respuesta
   function procesarMensaje(texto) {
     const mensaje = texto.toLowerCase().trim();
 
@@ -318,6 +390,7 @@ Prueba con algunos comandos válidos:
 - Limpiar chat con el botón "Limpiar"`;
   }
 
+  // Enviar mensaje, mostrar typing y respuesta
   function enviarMensaje() {
     const texto = userInput.value.trim();
     if (!texto) return;
