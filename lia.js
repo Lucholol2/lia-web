@@ -1,3 +1,4 @@
+let erroresCapturados = [];
 const API_KEY = 'AIzaSyCPafK6G0bNRhRR_WVXIr1EZW-UHTk-0k8';
 const CX = '232b2051090784dc2';
 
