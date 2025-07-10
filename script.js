@@ -121,6 +121,7 @@ function limpiarHistorial() {
   if (confirm('¿Querés borrar todo el historial de chat?')) {
     chatBox.innerHTML = '';
     localStorage.removeItem('chatHistorial');
+    chatBox.scrollTop = 0;
   }
 }
 
@@ -145,4 +146,3 @@ clearBtn.addEventListener('click', limpiarHistorial);
 
 // Carga inicial
 cargarHistorial();
-    
