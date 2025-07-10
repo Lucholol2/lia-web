@@ -22,9 +22,13 @@
       text-shadow: 1px 2px 6px #0007;
     }
     .subtitulo {
-      margin-bottom: 25px;
+      margin-bottom: 5px;
       color: #f9d9ff;
       font-style: italic;
+    }
+    #contador {
+      color: #fff;
+      margin-bottom: 15px;
     }
     .chat-container {
       width: 100%;
@@ -118,6 +122,7 @@
 <body>
   <h1>👶🏻 Hola, soy LIA</h1>
   <p class="subtitulo">Tu compañerita con corazón de alfajor 💖</p>
+  <p id="contador">⏱ LIA está activa desde hace 0 segundos</p>
 
   <div class="chat-container">
     <div id="chat-box" class="chat-box" aria-live="polite"></div>
@@ -135,10 +140,12 @@
           STORAGE_KEY = "lia_chat_mem";
     let chatHistory = [];
 
+    // Guardar chat en localStorage
     function guardarChat() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
     }
 
+    // Cargar chat previo
     function cargarChat() {
       let data = localStorage.getItem(STORAGE_KEY);
       chatHistory = data ? JSON.parse(data) : [];
@@ -146,12 +153,13 @@
       chatHistory.forEach(m => agregarMensaje(m.texto, m.clase, false));
     }
 
+    // Agregar mensaje a la conversación
     function agregarMensaje(texto, clase, save = true) {
       const div = document.createElement('div');
       div.className = clase;
       if (clase === 'lia-message') {
         div.innerHTML = texto;
-      } else if (clase === 'user-image' || clase === 'lia-image') {
+      } else if (clase === 'lia-image') {
         div.innerHTML = `<img src="${texto}" alt="Imagen generada" class="chat-img">`;
       } else {
         div.textContent = texto;
@@ -164,28 +172,7 @@
       }
     }
 
-    async function pedirImagenAWeb(prompt) {
-      try {
-        const response = await fetch("https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-            // "Authorization": "Bearer TU_API_KEY" // ← opcional si querés usar tu token
-          },
-          body: JSON.stringify({ inputs: prompt })
-        });
-
-        if (!response.ok) throw new Error("Respuesta no válida");
-
-        const blob = await response.blob();
-        const imageUrl = URL.createObjectURL(blob);
-        return imageUrl;
-      } catch (e) {
-        console.error("Error generando imagen:", e);
-        return null;
-      }
-    }
-
+    // Enviar mensaje y responder
     function sendMessage() {
       const texto = userInput.value.trim();
       if (!texto) return;
@@ -196,7 +183,7 @@
       if (texto.toLowerCase().startsWith("dibuja") || texto.toLowerCase().startsWith("/img")) {
         agregarMensaje("🎨 Generando imagen, por favor espera...", "lia-message");
         pedirImagenAWeb(texto).then(url => {
-          if (url && url.startsWith("blob:")) {
+          if(url && url.startsWith("data:image/")){
             agregarMensaje(url, "lia-image");
           } else {
             agregarMensaje("😔 No pude generar la imagen. Probá de nuevo más tarde.", "lia-message");
@@ -207,6 +194,23 @@
       }
     }
 
+    // Generar imagen vía Hugging Face (Stable Diffusion)
+    async function pedirImagenAWeb(prompt) {
+      try {
+        const response = await fetch("https://hf.space/embed/stabilityai/stable-diffusion/api/predict/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: [prompt] })
+        });
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data.data[0] || null;
+      } catch(e) {
+        return null;
+      }
+    }
+
+    // Borrar todo el chat
     function borrarChat() {
       if (confirm("¿Seguro que querés borrar todo el chat?")) {
         localStorage.removeItem(STORAGE_KEY);
@@ -216,9 +220,18 @@
       }
     }
 
+    // ⏱ Contador de segundos
+    let segundosActivos = 0;
+    setInterval(() => {
+      segundosActivos++;
+      const texto = `⏱ LIA está activa desde hace ${segundosActivos} segundo${segundosActivos === 1 ? '' : 's'}`;
+      document.getElementById('contador').textContent = texto;
+    }, 1000);
+
+    // Cargar al inicio
     window.onload = () => {
       cargarChat();
-      if (chatHistory.length === 0)
+      if(chatHistory.length === 0)
         setTimeout(() => agregarMensaje("¡Hola, papá! ¿Querés charlar conmigo? 😄", 'lia-message'), 500);
     };
   </script>
