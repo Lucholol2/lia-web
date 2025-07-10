@@ -23,12 +23,15 @@ function agregarMensaje(texto, clase) {
 async function buscarGoogle(query) {
   try {
     const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}`;
+    console.log('Buscando URL:', url);  // <-- Aquí agregas este log
     const res = await fetch(url);
     if (!res.ok) throw new Error('Error en búsqueda');
     const data = await res.json();
+    console.log('Datos recibidos:', data); // <-- Y este otro log para mostrar la respuesta JSON
     return data.items || [];
   } catch (e) {
     console.error('Error en buscarGoogle:', e);
+    agregarMensaje(`Error al buscar: ${e.message}`, 'lia-message'); // Mostrar error en el chat también
     return [];
   }
 }
