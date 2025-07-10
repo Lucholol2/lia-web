@@ -3,14 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chat Visual Mejorado + Animaciones</title>
+<title>Chat con Aprendizaje Local - Lia</title>
 <style>
-  /* Fuente base */
   body, input, button {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
-
-  /* Body y layout */
   body {
     margin: 20px;
     background: linear-gradient(120deg, #f3e5f5 0%, #e1bee7 100%);
@@ -21,9 +18,7 @@
     min-height: 100vh;
     padding: 5px 2px;
     user-select: none;
-    -webkit-font-smoothing: antialiased;
   }
-
   h1 {
     margin-bottom: 7px;
     font-size: 1.3em;
@@ -32,7 +27,6 @@
     letter-spacing: 0.03em;
     text-shadow: 0 1.5px 5px #f3e5f5, 1px 1px 0 #fff;
   }
-
   .subtitulo {
     color: #9c27b0;
     font-size: 0.85em;
@@ -40,8 +34,6 @@
     font-weight: 500;
     opacity: 0.85;
   }
-
-  /* Contenedor de mensajes */
   #chat-box {
     width: 100%;
     max-width: 420px;
@@ -57,19 +49,6 @@
     font-size: 1em;
     scroll-behavior: smooth;
   }
-
-  /* Animación fade y slide para mensajes */
-  @keyframes fadeSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
   .user, .lia, .typing {
     margin: 6px 0;
     padding: 12px 18px;
@@ -77,12 +56,9 @@
     max-width: 75vw;
     word-break: break-word;
     line-height: 1.5;
-    animation: fadeSlideIn 0.3s ease forwards;
     box-shadow: 0 2px 7px rgba(0,0,0,0.1);
-    user-select: text !important; /* permitir copiar texto */
+    user-select: text !important;
   }
-
-  /* Usuario (yo) */
   .user {
     background: #8e24aa;
     color: #fff;
@@ -90,8 +66,6 @@
     font-weight: 600;
     box-shadow: 0 3px 8px #6a1b9aaa;
   }
-
-  /* Lia (bot) */
   .lia {
     background: #f5e1fa;
     color: #3d176a;
@@ -99,67 +73,6 @@
     box-shadow: 0 3px 8px #c293e4cc;
     position: relative;
   }
-
-  /* Icono delante del mensaje lia */
-  .lia .icon {
-    margin-right: 8px;
-    font-size: 1.3em;
-    vertical-align: middle;
-    user-select: none;
-  }
-
-  /* Enlaces estilo botón dentro de lia */
-  .lia a {
-    display: inline-block;
-    background: #8e24aa;
-    color: #fff;
-    padding: 6px 14px;
-    border-radius: 16px;
-    text-decoration: none;
-    font-weight: 600;
-    margin-top: 6px;
-    box-shadow: 0 2px 7px #6a1b9a99;
-    transition: background 0.3s ease;
-  }
-  .lia a:hover, .lia a:focus {
-    background: #6a1b9a;
-    outline: none;
-  }
-
-  /* Mensaje "typing" con puntos animados */
-  .typing {
-    background: #d1c4e9;
-    color: #4a256b;
-    font-style: italic;
-    align-self: flex-start;
-    position: relative;
-  }
-
-  .typing::after {
-    content: '';
-    display: inline-block;
-    margin-left: 6px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: #4a256b;
-    animation: blinkDots 1.2s infinite ease-in-out;
-    vertical-align: middle;
-  }
-
-  @keyframes blinkDots {
-    0%, 20% {
-      opacity: 0.2;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0.2;
-    }
-  }
-
-  /* Área de entrada */
   #inputArea {
     margin-top: 12px;
     display: flex;
@@ -171,7 +84,6 @@
     background: #fff;
     border-radius: 12px;
   }
-
   #user-input {
     flex-grow: 1;
     padding: 10px 14px;
@@ -187,8 +99,6 @@
     border-color: #8e24aa;
     color: #3d1747;
   }
-
-  /* Botones */
   button {
     background: linear-gradient(120deg, #8e24aa 60%, #6a1b9a 100%);
     color: #fff;
@@ -208,7 +118,6 @@
     box-shadow: 0 2.5px 10px #8e24aa99;
     outline: none;
   }
-
   #clear-btn {
     background: linear-gradient(120deg, #d32f2f 60%, #b71c1c 100%);
   }
@@ -217,61 +126,19 @@
     box-shadow: 0 2.5px 10px #8e24aa99;
     outline: none;
   }
-
-  /* Lista comandos */
-  #comandos-lista {
-    margin-top: 25px;
-    max-width: 420px;
-    background: #fafafa;
-    border: 1px solid #ddd;
-    border-radius: 14px;
-    padding: 18px 24px;
-    font-size: 1em;
-    color: #333;
-    line-height: 1.6;
-    user-select: text;
-  }
-  #comandos-lista h2 {
-    color: #8e24aa;
-    margin-bottom: 14px;
-  }
-  #comandos-lista ul {
-    margin-left: 20px;
-  }
-
-  @media (max-width: 330px) {
-    #chat-box {
-      height: 50vh;
-    }
-    #user-input, button {
-      font-size: 0.9em;
-    }
-  }
 </style>
 </head>
 <body>
 
-<h1>Hola, papá! ¿Querés charlar conmigo? 😄</h1>
-<div class="subtitulo">Probá con "buscar algo", "contar chiste" o saludá 😎</div>
+<h1>Hola, papá! Lia aprende contigo 😊</h1>
+<div class="subtitulo">Escribí algo, y si Lia no sabe, me decís qué responder.</div>
 
 <div id="chat-box"></div>
 
 <div id="inputArea">
   <input type="text" id="user-input" placeholder="Escribí algo..." autocomplete="off" />
   <button id="send-btn" title="Enviar">Enviar</button>
-  <button id="clear-btn" title="Limpiar chat">Limpiar</button>
-</div>
-
-<!-- Lista de comandos -->
-<div id="comandos-lista">
-  <h2>¿Qué puedo hacer?</h2>
-  <ul>
-    <li><b>Saludos:</b> Escribí "hola", "buenas", "hey", etc. para saludar.</li>
-    <li><b>Buscar en Google:</b> Ejemplo: "buscar fútbol", "busca clima Buenos Aires".</li>
-    <li><b>Contar chistes:</b> Escribí "contar chiste" o "decime un chiste".</li>
-    <li><b>Decir la hora actual:</b> Escribí "qué hora es", "hora", "dime la hora".</li>
-    <li><b>Limpiar chat:</b> Usa el botón "Limpiar" para borrar todo el chat y el historial.</li>
-  </ul>
+  <button id="clear-btn" title="Limpiar chat y aprendizaje">Limpiar</button>
 </div>
 
 <script>
@@ -280,137 +147,82 @@
         sendBtn = document.getElementById('send-btn'),
         clearBtn = document.getElementById('clear-btn');
 
-  let erroresNoEntendidos = [], typingTimeout = null;
+  // Clave en localStorage para guardar el "cerebro" de Lia
+  const STORAGE_KEY = 'lia_chat_brain';
 
-  const chistes = [
-    "¿Por qué los pájaros no usan Facebook? Porque ya tienen Twitter. 🐦",
-    "¿Qué le dijo un pez a otro? ¡Nada! 🐠",
-    "¿Cómo se despiden los químicos? Ácido un placer. 🧪",
-    "¿Qué hace una abeja en el gimnasio? ¡Zum-ba! 🐝",
-    "¿Por qué la computadora fue al médico? Porque tenía un virus. 💻"
-  ];
+  // Estado para saber si estamos pidiendo respuesta para aprender
+  let esperandoRespuesta = false;
+  let preguntaPendiente = '';
 
-  // Cargar historial guardado en localStorage
-  function cargarHistorial() {
-    const historial = localStorage.getItem('chatHistorial');
-    if (historial) {
-      const mensajes = JSON.parse(historial);
-      mensajes.forEach(m => agregarMensaje(m.texto, m.clase, false));
-    }
+  // Cargar cerebro de Lia o iniciar vacío
+  let cerebro = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+  // Función para guardar cerebro en localStorage
+  function guardarCerebro() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cerebro));
   }
 
-  // Guardar historial en localStorage
-  function guardarHistorial() {
-    const mensajes = [];
-    chatBox.querySelectorAll('div.user, div.lia').forEach(div => {
-      mensajes.push({ texto: div.innerHTML, clase: div.className });
-    });
-    localStorage.setItem('chatHistorial', JSON.stringify(mensajes));
-  }
-
-  // Agregar mensaje a chat
-  function agregarMensaje(texto, clase, guardar = true) {
+  // Añade mensaje al chat
+  function agregarMensaje(texto, clase) {
     const msg = document.createElement('div');
     msg.className = clase;
-
-    if (clase === 'lia') {
-      // Iconos para tipo mensaje
-      let icono = '💬';
-      if (texto.includes('Buscar "')) icono = '🔍';
-      else if (chistes.includes(texto)) icono = '😂';
-      else if (texto.match(/Son las \d{2}:\d{2}/)) icono = '⏰';
-      else if (texto.startsWith('No entendí')) icono = '❓';
-
-      const iconSpan = document.createElement('span');
-      iconSpan.className = 'icon';
-      iconSpan.textContent = icono;
-
-      const contentSpan = document.createElement('span');
-      contentSpan.innerHTML = texto;
-
-      msg.appendChild(iconSpan);
-      msg.appendChild(contentSpan);
-    } else {
-      msg.textContent = texto;
-    }
-
+    msg.textContent = texto;
     chatBox.appendChild(msg);
     chatBox.scrollTop = chatBox.scrollHeight;
-    if (guardar) guardarHistorial();
   }
 
-  // Mostrar "lia está escribiendo..." animado
-  function mostrarTyping(callback) {
-    const typingMsg = document.createElement('div');
-    typingMsg.className = 'typing';
-    typingMsg.textContent = 'lia está escribiendo...';
-    chatBox.appendChild(typingMsg);
-    chatBox.scrollTop = chatBox.scrollHeight;
-    typingTimeout = setTimeout(() => {
-      chatBox.removeChild(typingMsg);
-      callback();
-    }, 1200);
-  }
-
-  // Procesar mensaje del usuario y devolver respuesta
+  // Procesar mensaje de usuario
   function procesarMensaje(texto) {
-    const mensaje = texto.toLowerCase().trim();
-
-    const saludos = ['hola', 'buenas', 'buen día', 'buenos días', 'buenas tardes', 'buenas noches', 'hi', 'hey', 'hello'];
-    if (saludos.some(s => mensaje === s))
-      return '¡Hola! 😊 ¿En qué puedo ayudarte hoy?';
-
-    const buscarRegex = /^(buscar|busca|buscar en google)\s+(.+)/i;
-    let match = texto.match(buscarRegex);
-    if (match) {
-      const terminoBusqueda = encodeURIComponent(match[2].trim());
-      return `<a href="https://www.google.com/search?q=${terminoBusqueda}" target="_blank" rel="noopener noreferrer">Buscar "${match[2].trim()}" en Google 🔍</a>`;
+    texto = texto.toLowerCase().trim();
+    if (esperandoRespuesta) {
+      // Estamos aprendiendo: guardamos respuesta para pregunta pendiente
+      cerebro[preguntaPendiente] = texto;
+      guardarCerebro();
+      esperandoRespuesta = false;
+      preguntaPendiente = '';
+      return '¡Gracias! He aprendido algo nuevo 😊';
     }
 
-    if (mensaje.includes('contar chiste') || mensaje.includes('decime un chiste') || mensaje.includes('cuéntame un chiste')) {
-      const idx = Math.floor(Math.random() * chistes.length);
-      return chistes[idx];
+    // Si pregunta ya está aprendida, devolver respuesta
+    if (cerebro[texto]) {
+      return cerebro[texto];
     }
 
-    const horaRegex = /(qué hora es|hora|dime la hora|me podes decir la hora|me puedes decir la hora)/i;
-    if (horaRegex.test(mensaje)) {
-      const ahora = new Date();
-      const horaStr = ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
-      return `Son las ${horaStr} ⏰`;
-    }
-
-    erroresNoEntendidos.push(texto);
-    return `No entendí muy bien... 😅
-
-Prueba con algunos comandos válidos:
-- Saludar con "hola", "buenas", etc.
-- Buscar algo escribiendo "buscar [término]"
-- Pedir un chiste con "contar chiste"
-- Pedir la hora con "qué hora es"
-- Limpiar chat con el botón "Limpiar"`;
+    // Sino, no sabe, pide que enseñes
+    esperandoRespuesta = true;
+    preguntaPendiente = texto;
+    return 'No entendí muy bien... ¿Cómo debería responder a eso?';
   }
 
-  // Enviar mensaje, mostrar typing y respuesta
+  // Enviar mensaje y mostrar respuesta
   function enviarMensaje() {
     const texto = userInput.value.trim();
     if (!texto) return;
     agregarMensaje(texto, 'user');
     userInput.value = '';
-    mostrarTyping(() => {
+
+    // Procesar respuesta con retraso para mejor UX
+    setTimeout(() => {
       const respuesta = procesarMensaje(texto);
       agregarMensaje(respuesta, 'lia');
-    });
+    }, 400);
   }
 
-  sendBtn.addEventListener('click', enviarMensaje);
-  userInput.addEventListener('keydown', e => { if (e.key === 'Enter') enviarMensaje(); });
+  // Limpiar chat y cerebro
   clearBtn.addEventListener('click', () => {
-    localStorage.removeItem('chatHistorial');
-    erroresNoEntendidos = [];
-    chatBox.innerHTML = '';
+    if (confirm('¿Seguro querés borrar todo el chat y el aprendizaje de Lia?')) {
+      localStorage.removeItem(STORAGE_KEY);
+      cerebro = {};
+      esperandoRespuesta = false;
+      preguntaPendiente = '';
+      chatBox.innerHTML = '';
+    }
   });
 
-  cargarHistorial();
+  sendBtn.addEventListener('click', enviarMensaje);
+  userInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') enviarMensaje();
+  });
 </script>
 
 </body>
