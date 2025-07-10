@@ -1,121 +1,128 @@
-const chat = document.getElementById("chat-box");
-const input = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
-const micBtn = document.getElementById("mic-btn");
+const chatBox = document.getElementById('chat-box');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+const micBtn = document.getElementById('mic-btn');
 
-// Guarda el historial en localStorage
-function guardarHistorial() {
-  localStorage.setItem("chatHistorial", chat.innerHTML);
-}
+let recognition;
+let recognizing = false;
 
-// Carga historial anterior
+// Cargar historial si hay
 function cargarHistorial() {
-  const hist = localStorage.getItem("chatHistorial");
-  if (hist) {
-    chat.innerHTML = hist;
-    scrollToBottom();
+  const historial = localStorage.getItem('chatHistorial');
+  if (historial) {
+    chatBox.innerHTML = historial;
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
 }
 
-// Scroll automático
-function scrollToBottom() {
-  chat.scrollTop = chat.scrollHeight;
+// Guardar historial
+function guardarHistorial() {
+  localStorage.setItem('chatHistorial', chatBox.innerHTML);
 }
 
-// Añade mensajes al chat
-function addMessage(text, isUser = false) {
-  const div = document.createElement("div");
-  div.className = isUser ? "user-message" : "lia-message";
-  div.textContent = text;
-  chat.appendChild(div);
+// Agregar mensaje al chat
+function agregarMensaje(mensaje, tipo) {
+  const div = document.createElement('div');
+  div.classList.add(tipo);
+  const p = document.createElement('p');
+  p.classList.add(tipo + '-message');
+  p.textContent = mensaje;
+  div.appendChild(p);
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
   guardarHistorial();
-  scrollToBottom();
 }
 
-// Simula respuesta de Lia
-function respuestaLia(text) {
-  const typing = document.createElement("div");
-  typing.className = "lia-message";
-  typing.textContent = "⏳ Lia está escribiendo...";
-  chat.appendChild(typing);
-  scrollToBottom();
+// Respuesta automática simple
+function responder(mensajeUsuario) {
+  let respuesta = "No entendí muy bien... 😅";
 
-  setTimeout(() => {
-    chat.removeChild(typing);
-    // Aquí podés poner respuestas más inteligentes
-    let respuesta = "";
+  const msg = mensajeUsuario.toLowerCase();
 
-    if (text.toLowerCase().includes("hola")) {
-      respuesta = "¡Hola! ¿Cómo estás?";
-    } else if (text.trim() === "") {
-      respuesta = "No entendí muy bien... 😅";
-    } else {
-      respuesta = "Me gusta que me hables, pero no entendí eso. 🤖";
-    }
+  if (msg.includes('hola')) {
+    respuesta = "¡Hola! ¿Cómo estás?";
+  } else if (msg.includes('cómo estás') || msg.includes('como estas')) {
+    respuesta = "Estoy bien, ¡gracias por preguntar! 😊";
+  } else if (msg.includes('adiós') || msg.includes('chao')) {
+    respuesta = "¡Hasta luego! Cuídate mucho.";
+  } else if (msg.includes('gracias')) {
+    respuesta = "De nada, ¡estoy para ayudarte!";
+  }
 
-    addMessage(respuesta, false);
-  }, 1200);
+  return respuesta;
 }
 
-// Enviar mensaje
+// Enviar mensaje (usuario)
 function enviarMensaje() {
-  const texto = input.value.trim();
+  const texto = userInput.value.trim();
   if (!texto) return;
-  addMessage(texto, true);
-  input.value = "";
-  respuestaLia(texto);
+  agregarMensaje(texto, 'user');
+  userInput.value = '';
+  setTimeout(() => {
+    const respuesta = responder(texto);
+    agregarMensaje(respuesta, 'lia');
+  }, 600);
 }
 
-// Reconocimiento por voz
-let reconocimiento;
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+// Manejo de reconocimiento de voz
+function iniciarReconocimiento() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Este navegador no soporta reconocimiento de voz.');
+    return;
+  }
+
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  reconocimiento = new SpeechRecognition();
-  reconocimiento.lang = 'es-AR';
-  reconocimiento.continuous = false;
-  reconocimiento.interimResults = false;
+  recognition = new SpeechRecognition();
 
-  reconocimiento.onstart = () => {
-    micBtn.classList.add("active");
-    micBtn.title = "Escuchando...";
+  recognition.lang = 'es-AR';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    recognizing = true;
+    micBtn.classList.add('active');
   };
 
-  reconocimiento.onend = () => {
-    micBtn.classList.remove("active");
-    micBtn.title = "Hablar 🎤";
+  recognition.onerror = (event) => {
+    console.error('🎤 Error de voz:', event.error);
+    agregarMensaje(`🎤 Error de voz: ${event.error}`, 'lia');
+    recognizing = false;
+    micBtn.classList.remove('active');
   };
 
-  reconocimiento.onerror = (event) => {
-    addMessage(`🎤 Error de voz: ${event.error}`, false);
+  recognition.onend = () => {
+    recognizing = false;
+    micBtn.classList.remove('active');
   };
 
-  reconocimiento.onresult = (event) => {
+  recognition.onresult = (event) => {
     const speechResult = event.results[0][0].transcript;
-    addMessage(speechResult, true);
-    respuestaLia(speechResult);
+    agregarMensaje(speechResult, 'user');
+    setTimeout(() => {
+      const respuesta = responder(speechResult);
+      agregarMensaje(respuesta, 'lia');
+    }, 600);
   };
-} else {
-  micBtn.disabled = true;
-  micBtn.title = "Reconocimiento de voz no soportado en este navegador.";
+
+  recognition.start();
 }
 
-// Event listeners
-sendBtn.addEventListener("click", enviarMensaje);
+// Eventos
+sendBtn.addEventListener('click', enviarMensaje);
 
-input.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
+userInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
     enviarMensaje();
   }
 });
 
-micBtn.addEventListener("click", () => {
-  if (!reconocimiento) return;
-  try {
-    reconocimiento.start();
-  } catch(e) {
-    // Evita error si ya está iniciado
+micBtn.addEventListener('click', () => {
+  if (recognizing) {
+    recognition.stop();
+    return;
   }
+  iniciarReconocimiento();
 });
 
-// Cargar historial al inicio
+// Carga inicial
 cargarHistorial();
