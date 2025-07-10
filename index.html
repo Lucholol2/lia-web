@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chat Mejorado con Comandos</title>
+<title>Chat Mejorado con Comandos y Ayuda</title>
 <style>
   body,input,button{font-family:sans-serif}
   body {
@@ -175,7 +175,7 @@
 <body>
 
 <h1>Hola, papá! ¿Querés charlar conmigo? 😄</h1>
-<div class="subtitulo">Probá con "buscar algo" o saludá 😎</div>
+<div class="subtitulo">Probá con "buscar algo", "contar chiste" o saludá 😎</div>
 
 <div id="chat-box"></div>
 
@@ -193,102 +193,143 @@
   <h2>¿Qué puedo hacer?</h2>
   <ul>
     <li><b>Saludos:</b> Escribí "hola", "buenas", "hey", etc. para saludar.</li>
-    <li><b>Búsquedas en Google:</b> Escribí frases como "buscar fútbol", "busca clima Buenos Aires", "buscar en google recetas".</li>
+    <li><b>Buscar en Google:</b> Ejemplo: "buscar fútbol", "busca clima Buenos Aires".</li>
+    <li><b>Contar chistes:</b> Escribí "contar chiste" o "decime un chiste".</li>
+    <li><b>Decir la hora actual:</b> Escribí "qué hora es", "hora", "dime la hora".</li>
     <li><b>Ver errores:</b> Escribí "ver errores" o "mostrar errores" para ver mensajes que no entendí.</li>
     <li><b>Limpiar chat:</b> Usa el botón "Limpiar" para borrar todo el chat y el historial.</li>
   </ul>
 </div>
 
 <script>
-  const chatBox=document.getElementById('chat-box'),
-    userInput=document.getElementById('user-input'),
-    sendBtn=document.getElementById('send-btn'),
-    showErrorsBtn=document.getElementById('show-errors-btn'),
-    clearBtn=document.getElementById('clear-btn'),
-    errorsContainer=document.getElementById('errors-container');
+  const chatBox = document.getElementById('chat-box'),
+        userInput = document.getElementById('user-input'),
+        sendBtn = document.getElementById('send-btn'),
+        showErrorsBtn = document.getElementById('show-errors-btn'),
+        clearBtn = document.getElementById('clear-btn'),
+        errorsContainer = document.getElementById('errors-container');
 
-  let erroresNoEntendidos=[],typingTimeout=null;
+  let erroresNoEntendidos = [], typingTimeout = null;
 
-  function cargarHistorial(){
-    const historial=localStorage.getItem('chatHistorial');
-    if(historial){
-      const mensajes=JSON.parse(historial);
-      mensajes.forEach(m=>agregarMensaje(m.texto,m.clase,false));
+  const chistes = [
+    "¿Por qué los pájaros no usan Facebook? Porque ya tienen Twitter. 🐦",
+    "¿Qué le dijo un pez a otro? ¡Nada! 🐠",
+    "¿Cómo se despiden los químicos? Ácido un placer. 🧪",
+    "¿Qué hace una abeja en el gimnasio? ¡Zum-ba! 🐝",
+    "¿Por qué la computadora fue al médico? Porque tenía un virus. 💻"
+  ];
+
+  function cargarHistorial() {
+    const historial = localStorage.getItem('chatHistorial');
+    if (historial) {
+      const mensajes = JSON.parse(historial);
+      mensajes.forEach(m => agregarMensaje(m.texto, m.clase, false));
     }
   }
-  function guardarHistorial(){
-    const mensajes=[];
-    chatBox.querySelectorAll('div.user,div.lia').forEach(div=>{
-      mensajes.push({texto:div.innerHTML,clase:div.className});
+
+  function guardarHistorial() {
+    const mensajes = [];
+    chatBox.querySelectorAll('div.user, div.lia').forEach(div => {
+      mensajes.push({ texto: div.innerHTML, clase: div.className });
     });
-    localStorage.setItem('chatHistorial',JSON.stringify(mensajes));
+    localStorage.setItem('chatHistorial', JSON.stringify(mensajes));
   }
 
-  function agregarMensaje(texto,clase,guardar=true){
-    const msg=document.createElement('div');
-    if(clase==='lia') msg.innerHTML=texto;
-    else msg.textContent=texto;
-    msg.className=clase;
+  function agregarMensaje(texto, clase, guardar = true) {
+    const msg = document.createElement('div');
+    if (clase === 'lia') msg.innerHTML = texto;
+    else msg.textContent = texto;
+    msg.className = clase;
     chatBox.appendChild(msg);
-    chatBox.scrollTop=chatBox.scrollHeight;
-    if(guardar) guardarHistorial();
+    chatBox.scrollTop = chatBox.scrollHeight;
+    if (guardar) guardarHistorial();
   }
 
-  function mostrarTyping(callback){
-    const typingMsg=document.createElement('div');
-    typingMsg.className='typing';
-    typingMsg.textContent='lia está escribiendo...';
+  function mostrarTyping(callback) {
+    const typingMsg = document.createElement('div');
+    typingMsg.className = 'typing';
+    typingMsg.textContent = 'lia está escribiendo...';
     chatBox.appendChild(typingMsg);
-    chatBox.scrollTop=chatBox.scrollHeight;
-    typingTimeout=setTimeout(()=>{
+    chatBox.scrollTop = chatBox.scrollHeight;
+    typingTimeout = setTimeout(() => {
       chatBox.removeChild(typingMsg);
       callback();
-    },1200);
+    }, 1200);
   }
 
-  function procesarMensaje(texto){
-    const mensaje=texto.toLowerCase().trim();
-    const saludos=['hola','buenas','buen día','buenos días','buenas tardes','buenas noches','hi','hey','hello'];
-    if(saludos.some(s=>mensaje===s))
+  function procesarMensaje(texto) {
+    const mensaje = texto.toLowerCase().trim();
+
+    // Saludos
+    const saludos = ['hola', 'buenas', 'buen día', 'buenos días', 'buenas tardes', 'buenas noches', 'hi', 'hey', 'hello'];
+    if (saludos.some(s => mensaje === s))
       return '¡Hola! 😊 ¿En qué puedo ayudarte hoy?';
-    if(mensaje==='ver errores'||mensaje==='mostrar errores'||mensaje==='errores'){
-      if(erroresNoEntendidos.length===0) return 'No hay errores para mostrar.';
-      else return 'Mensajes no entendidos:\n'+erroresNoEntendidos.join('\n');
+
+    // Mostrar errores
+    if (mensaje === 'ver errores' || mensaje === 'mostrar errores' || mensaje === 'errores') {
+      if (erroresNoEntendidos.length === 0) return 'No hay errores para mostrar.';
+      else return 'Mensajes no entendidos:\n' + erroresNoEntendidos.join('\n');
     }
-    const buscarRegex=/^(buscar|busca|buscar en google)\s+(.+)/i;
-    const match=texto.match(buscarRegex);
-    if(match){
-      const terminoBusqueda=encodeURIComponent(match[2].trim());
+
+    // Buscar en Google
+    const buscarRegex = /^(buscar|busca|buscar en google)\s+(.+)/i;
+    let match = texto.match(buscarRegex);
+    if (match) {
+      const terminoBusqueda = encodeURIComponent(match[2].trim());
       return `<a href="https://www.google.com/search?q=${terminoBusqueda}" target="_blank" rel="noopener noreferrer">Buscar "${match[2].trim()}" en Google 🔍</a>`;
     }
+
+    // Contar chiste
+    if (mensaje.includes('contar chiste') || mensaje.includes('decime un chiste') || mensaje.includes('cuéntame un chiste')) {
+      const idx = Math.floor(Math.random() * chistes.length);
+      return chistes[idx];
+    }
+
+    // Decir la hora
+    const horaRegex = /(qué hora es|hora|dime la hora|me podes decir la hora|me puedes decir la hora)/i;
+    if (horaRegex.test(mensaje)) {
+      const ahora = new Date();
+      const horaStr = ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+      return `Son las ${horaStr} ⏰`;
+    }
+
+    // Si no entiende el mensaje, guardar error y sugerir comandos
     erroresNoEntendidos.push(texto);
-    return 'No entendí muy bien... 😅';
+    return `No entendí muy bien... 😅
+
+Prueba con algunos comandos válidos:
+- Saludar con "hola", "buenas", etc.
+- Buscar algo escribiendo "buscar [término]"
+- Pedir un chiste con "contar chiste"
+- Pedir la hora con "qué hora es"
+- Ver mensajes no entendidos con "ver errores"
+- Limpiar chat con el botón "Limpiar"`;
   }
 
-  function enviarMensaje(){
-    const texto=userInput.value.trim();
-    if(!texto) return;
-    agregarMensaje(texto,'user');
-    userInput.value='';
-    errorsContainer.style.display='none';
-    mostrarTyping(()=>{
-      const respuesta=procesarMensaje(texto);
-      agregarMensaje(respuesta,'lia');
+  function enviarMensaje() {
+    const texto = userInput.value.trim();
+    if (!texto) return;
+    agregarMensaje(texto, 'user');
+    userInput.value = '';
+    errorsContainer.style.display = 'none';
+    mostrarTyping(() => {
+      const respuesta = procesarMensaje(texto);
+      agregarMensaje(respuesta, 'lia');
     });
   }
 
-  sendBtn.addEventListener('click',enviarMensaje);
-  userInput.addEventListener('keydown',e=>{if(e.key==='Enter') enviarMensaje();});
-  showErrorsBtn.addEventListener('click',()=>{
-    if(erroresNoEntendidos.length===0) errorsContainer.textContent='No hay errores para mostrar.';
-    else errorsContainer.textContent='Mensajes no entendidos:\n'+erroresNoEntendidos.join('\n');
-    errorsContainer.style.display='block';
+  sendBtn.addEventListener('click', enviarMensaje);
+  userInput.addEventListener('keydown', e => { if (e.key === 'Enter') enviarMensaje(); });
+  showErrorsBtn.addEventListener('click', () => {
+    if (erroresNoEntendidos.length === 0) errorsContainer.textContent = 'No hay errores para mostrar.';
+    else errorsContainer.textContent = 'Mensajes no entendidos:\n' + erroresNoEntendidos.join('\n');
+    errorsContainer.style.display = 'block';
   });
-  clearBtn.addEventListener('click',()=>{
+  clearBtn.addEventListener('click', () => {
     localStorage.removeItem('chatHistorial');
-    erroresNoEntendidos=[];
-    chatBox.innerHTML='';
-    errorsContainer.style.display='none';
+    erroresNoEntendidos = [];
+    chatBox.innerHTML = '';
+    errorsContainer.style.display = 'none';
   });
 
   cargarHistorial();
