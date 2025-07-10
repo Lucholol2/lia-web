@@ -3,18 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chat con búsqueda Google y detección de errores</title>
+<title>Chat Mejorado con Memoria y Animación</title>
 <style>
-  /* Reset y base */
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
   body, input, button {
     font-family: sans-serif;
   }
-
   body {
     margin: 20px;
     background: linear-gradient(120deg, #f3e5f5 0%, #e1bee7 100%);
@@ -24,20 +17,15 @@
     align-items: center;
     min-height: 100vh;
     padding: 5px 2px;
-    letter-spacing: 0.01em;
     user-select: none;
     -webkit-font-smoothing: antialiased;
   }
-
   h1 {
     margin-bottom: 7px;
     font-size: 1em;
     color: #8e24aa;
-    text-shadow: 0 1.5px 5px #f3e5f5, 1px 1px 0 #fff;
     font-weight: 700;
-    letter-spacing: 0.01em;
   }
-
   .subtitulo {
     color: #9c27b0;
     font-size: 0.72em;
@@ -46,13 +34,10 @@
     font-weight: 500;
     opacity: 0.82;
   }
-
   #chat-box {
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     height: 60vh;
-    max-height: 60vh;
-    min-height: 200px;
     background: #fff;
     color: #000;
     border-radius: 10px;
@@ -62,10 +47,8 @@
     flex-direction: column;
     gap: 10px;
     font-size: 0.92em;
-    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
   }
-
-  .user, .lia {
+  .user, .lia, .typing {
     margin: 6px;
     padding: 10px;
     border-radius: 12px;
@@ -73,32 +56,34 @@
     word-break: break-word;
     line-height: 1.3;
   }
-
   .user {
     background: #8e24aa;
     color: #fff;
     align-self: flex-end;
     font-weight: 600;
   }
-
   .lia {
     background: #e1bee7;
     color: #222;
     align-self: flex-start;
   }
-
+  .typing {
+    background: #d1c4e9;
+    color: #4a256b;
+    font-style: italic;
+    align-self: flex-start;
+  }
   #inputArea {
     margin-top: 8px;
     display: flex;
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     gap: 8px;
     padding: 5px 4px 4px 4px;
     border-top: 1px solid #ede7f6;
     background: #fff;
     border-radius: 10px;
   }
-
   #user-input {
     flex-grow: 1;
     padding: 7px 10px;
@@ -110,117 +95,31 @@
     color: #4a256b;
     font-family: inherit;
   }
-
   #user-input:focus {
     background: #f3e5f5;
     border-color: #8e24aa;
     color: #3d1747;
   }
-
   button {
     background: linear-gradient(120deg, #8e24aa 60%, #6a1b9a 100%);
     color: #fff;
     border: none;
-    border-radius: 50%;
-    width: 35px;
+    border-radius: 14px;
+    padding: 0 12px;
     height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2em;
     cursor: pointer;
     box-shadow: 0 1px 5px #ce93d8;
     transition: background 0.19s, box-shadow 0.16s;
-    flex-shrink: 0;
     user-select: none;
-    position: relative;
-    overflow: visible;
+    font-weight: 600;
+    font-size: 0.9em;
   }
-
   button:hover,
-  button:focus,
-  button.active {
+  button:focus {
     background: linear-gradient(120deg, #6a1b9a 80%, #8e24aa 100%);
     box-shadow: 0 1.2px 7px #8e24aa5f;
     outline: none;
   }
-
-  /* Ícono para botón enviar */
-  #send-btn::before {
-    content: "✉️";
-    display: block;
-    animation: none;
-    transition: transform 0.5s ease;
-    will-change: transform;
-  }
-
-  /* Animación giro cuando activo */
-  #send-btn.active::before {
-    animation: giro 1s linear infinite;
-  }
-
-  /* Keyframes para giro */
-  @keyframes giro {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Estilos para botón mostrar errores */
-  #show-errors-btn {
-    border-radius: 14px;
-    width: auto;
-    min-width: 100px;
-    padding: 0 12px;
-    font-size: 0.9em;
-    border-radius: 14px;
-    position: relative;
-    font-weight: 600;
-    background: linear-gradient(120deg, #8e24aa 60%, #6a1b9a 100%);
-  }
-
-  /* Icono ⚠️ al inicio */
-  #show-errors-btn::before {
-    content: "⚠️";
-    margin-right: 6px;
-    display: inline-block;
-    animation: pulso 2s infinite;
-    transform-origin: center;
-  }
-
-  /* Animación pulso para icono ⚠️ */
-  @keyframes pulso {
-    0%, 100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.2);
-      opacity: 0.7;
-    }
-  }
-
-  #inputArea button {
-    min-width: 35px;
-    min-height: 35px;
-  }
-
-  #errors-container {
-    display: none;
-    white-space: pre-wrap;
-    margin-top: 10px;
-    background: #fdecea;
-    color: #b00020;
-    padding: 10px;
-    border-radius: 8px;
-    max-width: 400px;
-    font-family: monospace;
-    font-size: 0.9em;
-  }
-
   a {
     color: #6a1b9a;
     text-decoration: underline;
@@ -228,11 +127,32 @@
   a:hover, a:focus {
     color: #8e24aa;
   }
-
+  #errors-container {
+    white-space: pre-wrap;
+    margin-top: 10px;
+    background: #fdecea;
+    color: #b00020;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 420px;
+    font-family: monospace;
+    font-size: 0.9em;
+    display: none;
+  }
+  #clear-btn {
+    background: linear-gradient(120deg, #d32f2f 60%, #b71c1c 100%);
+    margin-left: 8px;
+    border-radius: 14px;
+  }
+  #clear-btn:hover,
+  #clear-btn:focus {
+    background: linear-gradient(120deg, #b71c1c 80%, #d32f2f 100%);
+    box-shadow: 0 1.2px 7px #8e24aa5f;
+    outline: none;
+  }
   @media (max-width: 330px) {
     #chat-box {
       height: 50vh;
-      max-height: 50vh;
     }
     #user-input {
       font-size: 0.80em;
@@ -243,14 +163,15 @@
 <body>
 
 <h1>Hola, papá! ¿Querés charlar conmigo? 😄</h1>
-<div class="subtitulo">Probá con "Lista de frutas" o "buscar gatitos"</div>
+<div class="subtitulo">Probá con "Lista de frutas" o "buscar algo"</div>
 
 <div id="chat-box"></div>
 
 <div id="inputArea">
   <input type="text" id="user-input" placeholder="Escribí algo..." autocomplete="off" />
-  <button id="send-btn" title="Enviar" aria-label="Enviar mensaje"></button>
+  <button id="send-btn" title="Enviar">Enviar</button>
   <button id="show-errors-btn" title="Ver mensajes no entendidos">Ver errores</button>
+  <button id="clear-btn" title="Limpiar chat">Limpiar</button>
 </div>
 
 <div id="errors-container"></div>
@@ -260,26 +181,58 @@
   const userInput = document.getElementById('user-input');
   const sendBtn = document.getElementById('send-btn');
   const showErrorsBtn = document.getElementById('show-errors-btn');
+  const clearBtn = document.getElementById('clear-btn');
   const errorsContainer = document.getElementById('errors-container');
 
   let erroresNoEntendidos = [];
+  let typingTimeout = null;
 
-  function agregarMensaje(texto, clase) {
+  // Carga historial guardado
+  function cargarHistorial() {
+    const historial = localStorage.getItem('chatHistorial');
+    if (historial) {
+      const mensajes = JSON.parse(historial);
+      mensajes.forEach(m => agregarMensaje(m.texto, m.clase, false));
+    }
+  }
+  // Guarda historial actual
+  function guardarHistorial() {
+    const mensajes = [];
+    chatBox.querySelectorAll('div.user, div.lia').forEach(div => {
+      mensajes.push({ texto: div.innerHTML, clase: div.className });
+    });
+    localStorage.setItem('chatHistorial', JSON.stringify(mensajes));
+  }
+
+  function agregarMensaje(texto, clase, guardar = true) {
     const msg = document.createElement('div');
     if (clase === 'lia') {
-      msg.innerHTML = texto; // Permitimos HTML para respuestas del bot (links, emojis, etc.)
+      msg.innerHTML = texto;
     } else {
       msg.textContent = texto;
     }
     msg.className = clase;
     chatBox.appendChild(msg);
     chatBox.scrollTop = chatBox.scrollHeight;
+    if (guardar) guardarHistorial();
+  }
+
+  function mostrarTyping(callback) {
+    const typingMsg = document.createElement('div');
+    typingMsg.className = 'typing';
+    typingMsg.textContent = 'lia está escribiendo...';
+    chatBox.appendChild(typingMsg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    typingTimeout = setTimeout(() => {
+      chatBox.removeChild(typingMsg);
+      callback();
+    }, 1200);
   }
 
   function procesarMensaje(texto) {
     const mensaje = texto.toLowerCase().trim();
 
-    // Comando para mostrar errores desde el chat
     if (mensaje === 'ver errores' || mensaje === 'mostrar errores' || mensaje === 'errores') {
       if (erroresNoEntendidos.length === 0) {
         return 'No hay errores para mostrar.';
@@ -288,7 +241,6 @@
       }
     }
 
-    // Detectar búsqueda en Google con "buscar ..." o "buscar en google ..."
     const buscarRegex = /^(buscar|busca|buscar en google)\s+(.+)/i;
     const match = texto.match(buscarRegex);
     if (match) {
@@ -297,15 +249,9 @@
     }
 
     if (mensaje === 'lista de frutas' || mensaje === 'frutas' || mensaje === 'dame la lista de frutas') {
-      return `🍎 Manzana
-🍌 Banana
-🍊 Naranja
-🍓 Frutilla
-🥭 Mango
-🍇 Uvas`;
+      return `🍎 Manzana<br>🍌 Banana<br>🍊 Naranja<br>🍓 Frutilla<br>🥭 Mango<br>🍇 Uvas`;
     }
 
-    // No entendió, guarda el mensaje
     erroresNoEntendidos.push(texto);
     return 'No entendí muy bien... 😅';
   }
@@ -315,17 +261,14 @@
     if (!texto) return;
 
     agregarMensaje(texto, 'user');
-    const respuesta = procesarMensaje(texto);
-    agregarMensaje(respuesta, 'lia');
 
     userInput.value = '';
-    errorsContainer.style.display = 'none'; // Oculta errores al enviar nuevo mensaje
+    errorsContainer.style.display = 'none';
 
-    // Animar ícono del botón enviar
-    sendBtn.classList.add('active');
-    setTimeout(() => {
-      sendBtn.classList.remove('active');
-    }, 1000);
+    mostrarTyping(() => {
+      const respuesta = procesarMensaje(texto);
+      agregarMensaje(respuesta, 'lia');
+    });
   }
 
   sendBtn.addEventListener('click', enviarMensaje);
@@ -344,6 +287,16 @@
     }
     errorsContainer.style.display = 'block';
   });
+
+  clearBtn.addEventListener('click', () => {
+    localStorage.removeItem('chatHistorial');
+    erroresNoEntendidos = [];
+    chatBox.innerHTML = '';
+    errorsContainer.style.display = 'none';
+  });
+
+  // Carga historial al iniciar
+  cargarHistorial();
 </script>
 
 </body>
