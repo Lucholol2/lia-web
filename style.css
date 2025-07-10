@@ -4,12 +4,14 @@ body, input, button {
 
 body {
   margin: 20px;
-  background: linear-gradient(120deg, #f3e5f5 0%, #e1bee7 100%);
-  color: #2a1432;
+  background: #7367f0;
+  color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  background: linear-gradient(120deg, #f3e5f5 0%, #e1bee7 100%);
+  color: #2a1432;
   min-height: 100vh;
   padding: 5px 2px;
   letter-spacing: 0.01em;
@@ -85,6 +87,13 @@ h1 {
   border-radius: 6px;
 }
 
+.user, .lia {
+  margin: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  max-width: 75%;
+}
+
 .user-message,
 .lia-message {
   padding: 5px 8px;
@@ -97,6 +106,12 @@ h1 {
   box-shadow: 0 1px 4px rgba(206, 147, 216, .08);
 }
 
+.user {
+  background: #8e24aa;
+  color: #fff;
+  align-self: flex-end;
+}
+
 .user-message {
   align-self: flex-end;
   background: linear-gradient(105deg, #8e24aa 85%, #ba68c8 100%);
@@ -105,11 +120,23 @@ h1 {
   font-weight: 500;
 }
 
+.lia {
+  background: #e1bee7;
+  color: #222;
+  align-self: flex-start;
+}
+
 .lia-message {
   align-self: flex-start;
   background: linear-gradient(105deg, #f3e5f5 70%, #e1bee7 100%);
   color: #3d1747;
   border-bottom-left-radius: 5px;
+}
+
+.lia a {
+  color: #6a1b9a;
+  text-decoration: underline;
+  word-break: break-word;
 }
 
 #inputArea, .input-container {
@@ -123,19 +150,20 @@ h1 {
   background: #fff;
 }
 
-#user-input {
+#input, #user-input {
   flex-grow: 1;
   padding: 7px 10px;
-  border: 2px solid #8e24aa;
+  border: 1px solid #ce93d8;
   border-radius: 14px;
   font-size: 0.87em;
   outline: none;
   background: #f8eaf6;
   color: #4a256b;
   font-family: inherit;
+  border: 2px solid #8e24aa;
 }
 
-#user-input:focus {
+#input:focus, #user-input:focus {
   background: #f3e5f5;
   border-color: #8e24aa;
   color: #3d1747;
@@ -146,12 +174,12 @@ button {
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 19px;
+  height: 19px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1em;
+  font-size: 0.87em;
   cursor: pointer;
   box-shadow: 0 1px 5px #ce93d8;
   transition: background 0.19s, box-shadow 0.16s;
@@ -165,6 +193,12 @@ button.active {
   background: linear-gradient(120deg, #6a1b9a 80%, #8e24aa 100%);
   box-shadow: 0 1.2px 7px #8e24aa5f;
   outline: none;
+}
+
+a {
+  color: #6a1b9a;
+  text-decoration: underline;
+  word-break: break-word;
 }
 
 @keyframes fadeIn {
