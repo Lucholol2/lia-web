@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIA - Tu Compañera Inteligente</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="LIA - Tu IA compañera con corazón de alfajor 🍼💖" />
+  <meta name="theme-color" content="#f8bbd0" />
+</head>
+<body>
+  <div class="chat-container" role="main">
+    <header>
+      <h1>👶🏻 Hola, soy <strong>LIA</strong></h1>
+      <p class="subtitulo">Tu compañera con corazón de alfajor 💖</p>
+    </header>
+
+    <section id="chat-box" class="chat-box" aria-live="polite" aria-label="Mensajes del chat">
+      <!-- Aquí aparecen los mensajes -->
+    </section>
+
+    <section class="input-container">
+      <input
+        id="user-input"
+        type="text"
+        placeholder="Escribime algo, papá..."
+        aria-label="Escribí tu mensaje"
+        onkeydown="if(event.key === 'Enter') sendMessage()"
+      />
+      <button onclick="sendMessage()" aria-label="Enviar mensaje">💌</button>
+      <button onclick="startListening()" aria-label="Hablar con LIA por voz">🎤</button>
+    </section>
+  </div>
+
+  <script src="lia.js"></script>
+</body>
+</html>
