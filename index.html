@@ -5,128 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LIA - Tu Compañerita Inteligente</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', 'Arial', sans-serif;
-      background: linear-gradient(120deg, #ce9ffc, #7367f0);
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-      transition: background 0.5s;
-    }
-    h1 {
-      margin-bottom: 10px;
-      font-size: 2.2em;
-      color: #fff;
-      text-shadow: 1px 2px 6px #0007;
-      letter-spacing: 1px;
-    }
-    .subtitulo {
-      margin-bottom: 25px;
-      color: #f9d9ff;
-      font-style: italic;
-      font-size: 1.1em;
-      text-shadow: 0 1px 3px #0003;
-    }
-    .chat-container {
-      width: 100%;
-      max-width: 500px;
-      height: 70vh;
-      background: rgba(255,255,255,0.98);
-      border-radius: 24px;
-      box-shadow: 0 8px 24px rgba(76, 0, 122, 0.18);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      border: 1.5px solid #e1bee7;
-    }
-    .chat-box {
-      flex-grow: 1;
-      padding: 20px 16px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: linear-gradient(120deg, #f5ebff 70%, #f9f6ff 100%);
-      scrollbar-width: thin;
-    }
-    .user-message {
-      align-self: flex-end;
-      background: #8e24aa;
-      color: white;
-      padding: 10px 18px;
-      border-radius: 24px 24px 0 24px;
-      max-width: 80%;
-      font-size: 1.07em;
-      word-break: break-word;
-      box-shadow: 0 2px 6px #8e24aa33;
-      animation: fadeIn 0.3s;
-    }
-    .lia-message {
-      align-self: flex-start;
-      background: #e1bee7;
-      color: #222;
-      padding: 10px 18px;
-      border-radius: 24px 24px 24px 0;
-      max-width: 80%;
-      font-size: 1.07em;
-      word-break: break-word;
-      box-shadow: 0 2px 6px #ce9ffc33;
-      animation: fadeIn 0.3s;
-    }
-    .lia-message a {
-      color: #6a1b9a;
-      text-decoration: underline;
-      word-break: break-word;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-    .input-area {
-      display: flex;
-      padding: 12px;
-      border-top: 1px solid #eee;
-      background: #fff;
-    }
-    #user-input {
-      flex-grow: 1;
-      padding: 12px 16px;
-      border: 1.5px solid #ce9ffc;
-      border-radius: 30px;
-      font-size: 1.05em;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    #user-input:focus {
-      border-color: #8e24aa;
-    }
-    button {
-      background-color: #8e24aa;
-      color: white;
-      border: none;
-      border-radius: 30px;
-      padding: 0 20px;
-      margin-left: 12px;
-      cursor: pointer;
-      font-size: 1.1em;
-      transition: background 0.2s;
-      box-shadow: 0 1px 4px #8e24aa55;
-    }
-    button:hover {
-      background-color: #6a1b9a;
-    }
-    @media (max-width: 600px) {
-      .chat-container {
-        max-width: 98vw;
-        height: 80vh;
-      }
-      .chat-box {
-        padding: 10px 4px;
-      }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI','Arial',sans-serif;background:linear-gradient(120deg,#ce9ffc,#7367f0);color:#333;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:20px;}
+    h1{margin-bottom:10px;font-size:2.2em;color:#fff;text-shadow:1px 2px 6px #0007;letter-spacing:1px;}
+    .subtitulo{margin-bottom:25px;color:#f9d9ff;font-style:italic;font-size:1.1em;text-shadow:0 1px 3px #0003;}
+    .chat-container{width:100%;max-width:500px;height:70vh;background:rgba(255,255,255,0.98);border-radius:24px;box-shadow:0 8px 24px rgba(76,0,122,0.18);display:flex;flex-direction:column;overflow:hidden;border:1.5px solid #e1bee7;}
+    .chat-box{flex-grow:1;padding:20px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:linear-gradient(120deg,#f5ebff 70%,#f9f6ff 100%);scrollbar-width:thin;}
+    .user-message{align-self:flex-end;background:#8e24aa;color:#fff;padding:10px 18px;border-radius:24px 24px 0 24px;max-width:80%;font-size:1.07em;word-break:break-word;box-shadow:0 2px 6px #8e24aa33;animation:fadeIn 0.3s;}
+    .lia-message{align-self:flex-start;background:#e1bee7;color:#222;padding:10px 18px;border-radius:24px 24px 24px 0;max-width:80%;font-size:1.07em;word-break:break-word;box-shadow:0 2px 6px #ce9ffc33;animation:fadeIn 0.3s;}
+    .lia-message a{color:#6a1b9a;text-decoration:underline;word-break:break-word;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+    .input-area{display:flex;padding:12px;border-top:1px solid #eee;background:#fff;}
+    #user-input{flex-grow:1;padding:12px 16px;border:1.5px solid #ce9ffc;border-radius:30px;font-size:1.05em;outline:none;transition:border-color 0.2s;}
+    #user-input:focus{border-color:#8e24aa;}
+    button{background:#8e24aa;color:#fff;border:none;border-radius:30px;padding:0 20px;margin-left:12px;cursor:pointer;font-size:1.1em;transition:background 0.2s;box-shadow:0 1px 4px #8e24aa55;}
+    button:hover{background:#6a1b9a;}
+    .clear-btn{margin:12px 0 0 0;background:#fff;color:#8e24aa;border:1px solid #ce9ffc;padding:6px 20px;border-radius:16px;font-size:1em;cursor:pointer;transition:background .18s;}
+    .clear-btn:hover{background:#f3e5f5;}
+    @media (max-width:600px){
+      .chat-container{max-width:98vw;height:80vh;}
+      .chat-box{padding:10px 4px;}
     }
   </style>
 </head>
@@ -141,12 +39,14 @@
       <button onclick="sendMessage()" title="Enviar">💌</button>
     </div>
   </div>
+  <button class="clear-btn" onclick="borrarChat()">🗑 Borrar chat</button>
 
   <script>
     const chatBox = document.getElementById("chat-box");
     const userInput = document.getElementById("user-input");
+    const STORAGE_KEY = "lia_chat_mem";
+    let chatHistory = [];
 
-    // Respuestas variadas
     const respuestasLIA = [
       "¡Hola, papá! 💕",
       "¿Cómo estás hoy? 😊",
@@ -163,24 +63,40 @@
       "¡Mirá qué carita feliz tengo ahora! 😁"
     ];
 
-    // Helper para hora local
+    function guardarChat() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+    }
+    function cargarChat() {
+      let data = localStorage.getItem(STORAGE_KEY);
+      chatHistory = data ? JSON.parse(data) : [];
+      chatBox.innerHTML = "";
+      chatHistory.forEach(m=>agregarMensaje(m.texto, m.clase, false));
+    }
+    function agregarMensaje(texto, clase, save=true) {
+      const div = document.createElement('div');
+      div.className = clase;
+      if(clase === 'lia-message') {
+        div.innerHTML = texto;
+      } else {
+        div.textContent = texto;
+      }
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      if(save){
+        chatHistory.push({texto,clase});
+        guardarChat();
+      }
+    }
     function obtenerHoraLocal() {
       const ahora = new Date();
       const formato = {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-        timeZoneName: 'short'
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false, timeZoneName: 'short'
       };
       return ahora.toLocaleTimeString(undefined, formato);
     }
-
-    // Respuestas según palabras clave
     function elegirRespuesta(input) {
       input = input.toLowerCase();
-
-      // RESPUESTA DE BUSQUEDA EN GOOGLE: día y hora
       if (
         input.includes("qué día y hora es en google") ||
         input.includes("que dia y hora es en google") ||
@@ -188,7 +104,6 @@
         input.includes("busca en google que hora es") ||
         input.includes("google que hora es")
       ) {
-        // Incluye la hora local en la respuesta
         return `🕒 Podés consultar la fecha y hora actual aquí:<br>
 - <a href="https://reloj-alarma.es/hora/" target="_blank" rel="noopener">Reloj-Alarma.es</a><br>
 - <a href="https://www.fechadehoy.com/" target="_blank" rel="noopener">Fecha de hoy</a><br>
@@ -196,8 +111,6 @@
 <br>
 Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       }
-
-      // RESPUESTA DE HORA LOCAL
       if (
         input.includes("qué hora es") ||
         input.includes("que hora es") ||
@@ -208,18 +121,12 @@ Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       ) {
         const ahora = new Date();
         const opciones = {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
+          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
         };
         const textoHora = ahora.toLocaleString('es-AR', opciones);
         return `🕒 Ahora son las ${textoHora}<br>Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       }
-
       if (input.includes("hola")) return "¡Hola, papá! 👋";
       if (input.includes("te quiero")) return "Yo también te quiero muuucho 💞";
       if (input.includes("cómo estás")) return "¡Muy bien! ¿Y vos, papá? 🥰";
@@ -237,37 +144,27 @@ Mi reloj local dice que son las <b>${obtenerHoraLocal()}</b>.`;
       if (input.includes("corazón")) return "Tengo el corazón más dulce... ¡como un alfajor! 💖🥯";
       return respuestasLIA[Math.floor(Math.random() * respuestasLIA.length)];
     }
-
-    // Agrega el mensaje al chat
-    function agregarMensaje(texto, clase) {
-      const div = document.createElement('div');
-      div.className = clase;
-      // Permitir HTML solo en respuestas de LIA
-      if(clase === 'lia-message') {
-        div.innerHTML = texto;
-      } else {
-        div.textContent = texto;
-      }
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    // Maneja el envío de mensajes
     function sendMessage() {
       const texto = userInput.value.trim();
       if (!texto) return;
       agregarMensaje(texto, 'user-message');
       userInput.value = '';
       userInput.focus();
-
-      // Respuesta simulada
       const respuesta = elegirRespuesta(texto);
       setTimeout(() => agregarMensaje(respuesta, 'lia-message'), 600);
     }
-
-    // Saludo automático al cargar
+    function borrarChat() {
+      if (confirm("¿Seguro que querés borrar todo el chat?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        chatHistory = [];
+        chatBox.innerHTML = "";
+        setTimeout(()=>agregarMensaje("¡Hola, papá! ¿Querés charlar conmigo? 😄",'lia-message'), 400);
+      }
+    }
     window.onload = () => {
-      setTimeout(() => agregarMensaje("¡Hola, papá! ¿Querés charlar conmigo? 😄", 'lia-message'), 500);
+      cargarChat();
+      if(chatHistory.length===0)
+        setTimeout(()=>agregarMensaje("¡Hola, papá! ¿Querés charlar conmigo? 😄",'lia-message'),500);
     };
   </script>
 </body>
