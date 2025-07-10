@@ -177,6 +177,30 @@
     // Respuestas personalizadas por palabras clave
     function elegirRespuesta(input) {
       input = input.toLowerCase();
+
+      // RESPUESTA DE HORA
+      if (
+        input.includes("qué hora es") ||
+        input.includes("que hora es") ||
+        input.includes("me decís la hora") ||
+        input.includes("dime la hora") ||
+        input.includes("hora actual") ||
+        input.includes("fecha y hora")
+      ) {
+        const ahora = new Date();
+        const opciones = {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        };
+        const textoHora = ahora.toLocaleString('es-AR', opciones);
+        return `🕒 Ahora son las ${textoHora}`;
+      }
+
       if (input.includes("hola")) return "¡Hola, papá! 👋";
       if (input.includes("te quiero")) return "Yo también te quiero muuucho 💞";
       if (input.includes("cómo estás")) return "¡Muy bien! ¿Y vos, papá? 🥰";
