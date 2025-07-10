@@ -24,16 +24,18 @@ const listaFrutas = `<b>Lista de frutas:</b>
 // Función que agrega mensajes al chat visualmente
 function agregarMensaje(tipo, texto) {
   const chatBox = document.getElementById('chat-box');
+  if (!chatBox) return; // Seguridad: si no existe chat-box, no hacer nada
+
   const contenedor = document.createElement('div');
   contenedor.classList.add(tipo);
 
   const mensaje = document.createElement('div');
-  mensaje.classList.add(tipo + '-message');
+  mensaje.classList.add(`${tipo}-message`);
   mensaje.innerHTML = texto;
 
   contenedor.appendChild(mensaje);
   chatBox.appendChild(contenedor);
-  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll
+  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll al final
 }
 
 // Función que procesa el mensaje del usuario y agrega la respuesta en el chat
@@ -49,13 +51,16 @@ function procesarMensaje(mensaje) {
   }
 }
 
-// Evento para enviar mensaje con Enter
-document.getElementById('user-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    const texto = e.target.value.trim();
-    if (texto.length > 0) {
-      procesarMensaje(texto);
-      e.target.value = '';
+// Evento para escuchar el input y enviar mensaje al presionar Enter
+const inputUsuario = document.getElementById('user-input');
+if (inputUsuario) {
+  inputUsuario.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const texto = e.target.value.trim();
+      if (texto.length > 0) {
+        procesarMensaje(texto);
+        e.target.value = '';
+      }
     }
-  }
-});
+  });
+}
