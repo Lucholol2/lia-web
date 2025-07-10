@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chat con detección de errores</title>
+<title>Chat con búsqueda Google y detección de errores</title>
 <style>
   /* Reset y base */
   html, body {
@@ -101,4 +101,250 @@
 
   #user-input {
     flex-grow: 1;
-    
+    padding: 7px 10px;
+    border: 2px solid #8e24aa;
+    border-radius: 14px;
+    font-size: 0.87em;
+    outline: none;
+    background: #f8eaf6;
+    color: #4a256b;
+    font-family: inherit;
+  }
+
+  #user-input:focus {
+    background: #f3e5f5;
+    border-color: #8e24aa;
+    color: #3d1747;
+  }
+
+  button {
+    background: linear-gradient(120deg, #8e24aa 60%, #6a1b9a 100%);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 1px 5px #ce93d8;
+    transition: background 0.19s, box-shadow 0.16s;
+    flex-shrink: 0;
+    user-select: none;
+    position: relative;
+    overflow: visible;
+  }
+
+  button:hover,
+  button:focus,
+  button.active {
+    background: linear-gradient(120deg, #6a1b9a 80%, #8e24aa 100%);
+    box-shadow: 0 1.2px 7px #8e24aa5f;
+    outline: none;
+  }
+
+  /* Ícono para botón enviar */
+  #send-btn::before {
+    content: "✉️";
+    display: block;
+    animation: none;
+    transition: transform 0.5s ease;
+    will-change: transform;
+  }
+
+  /* Animación giro cuando activo */
+  #send-btn.active::before {
+    animation: giro 1s linear infinite;
+  }
+
+  /* Keyframes para giro */
+  @keyframes giro {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Estilos para botón mostrar errores */
+  #show-errors-btn {
+    border-radius: 14px;
+    width: auto;
+    min-width: 100px;
+    padding: 0 12px;
+    font-size: 0.9em;
+    border-radius: 14px;
+    position: relative;
+    font-weight: 600;
+    background: linear-gradient(120deg, #8e24aa 60%, #6a1b9a 100%);
+  }
+
+  /* Icono ⚠️ al inicio */
+  #show-errors-btn::before {
+    content: "⚠️";
+    margin-right: 6px;
+    display: inline-block;
+    animation: pulso 2s infinite;
+    transform-origin: center;
+  }
+
+  /* Animación pulso para icono ⚠️ */
+  @keyframes pulso {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.7;
+    }
+  }
+
+  #inputArea button {
+    min-width: 35px;
+    min-height: 35px;
+  }
+
+  #errors-container {
+    display: none;
+    white-space: pre-wrap;
+    margin-top: 10px;
+    background: #fdecea;
+    color: #b00020;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 400px;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+
+  a {
+    color: #6a1b9a;
+    text-decoration: underline;
+  }
+  a:hover, a:focus {
+    color: #8e24aa;
+  }
+
+  @media (max-width: 330px) {
+    #chat-box {
+      height: 50vh;
+      max-height: 50vh;
+    }
+    #user-input {
+      font-size: 0.80em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Hola, papá! ¿Querés charlar conmigo? 😄</h1>
+<div class="subtitulo">Probá con "Lista de frutas" o "buscar gatitos"</div>
+
+<div id="chat-box"></div>
+
+<div id="inputArea">
+  <input type="text" id="user-input" placeholder="Escribí algo..." autocomplete="off" />
+  <button id="send-btn" title="Enviar" aria-label="Enviar mensaje"></button>
+  <button id="show-errors-btn" title="Ver mensajes no entendidos">Ver errores</button>
+</div>
+
+<div id="errors-container"></div>
+
+<script>
+  const chatBox = document.getElementById('chat-box');
+  const userInput = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
+  const showErrorsBtn = document.getElementById('show-errors-btn');
+  const errorsContainer = document.getElementById('errors-container');
+
+  let erroresNoEntendidos = [];
+
+  function agregarMensaje(texto, clase) {
+    const msg = document.createElement('div');
+    if (clase === 'lia') {
+      msg.innerHTML = texto; // Permitimos HTML para respuestas del bot (links, emojis, etc.)
+    } else {
+      msg.textContent = texto;
+    }
+    msg.className = clase;
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function procesarMensaje(texto) {
+    const mensaje = texto.toLowerCase().trim();
+
+    // Comando para mostrar errores desde el chat
+    if (mensaje === 'ver errores' || mensaje === 'mostrar errores' || mensaje === 'errores') {
+      if (erroresNoEntendidos.length === 0) {
+        return 'No hay errores para mostrar.';
+      } else {
+        return 'Mensajes no entendidos:\n' + erroresNoEntendidos.join('\n');
+      }
+    }
+
+    // Detectar búsqueda en Google con "buscar ..." o "buscar en google ..."
+    const buscarRegex = /^(buscar|busca|buscar en google)\s+(.+)/i;
+    const match = texto.match(buscarRegex);
+    if (match) {
+      const terminoBusqueda = encodeURIComponent(match[2].trim());
+      return `<a href="https://www.google.com/search?q=${terminoBusqueda}" target="_blank" rel="noopener noreferrer">Buscar "${match[2].trim()}" en Google 🔍</a>`;
+    }
+
+    if (mensaje === 'lista de frutas' || mensaje === 'frutas' || mensaje === 'dame la lista de frutas') {
+      return `🍎 Manzana
+🍌 Banana
+🍊 Naranja
+🍓 Frutilla
+🥭 Mango
+🍇 Uvas`;
+    }
+
+    // No entendió, guarda el mensaje
+    erroresNoEntendidos.push(texto);
+    return 'No entendí muy bien... 😅';
+  }
+
+  function enviarMensaje() {
+    const texto = userInput.value.trim();
+    if (!texto) return;
+
+    agregarMensaje(texto, 'user');
+    const respuesta = procesarMensaje(texto);
+    agregarMensaje(respuesta, 'lia');
+
+    userInput.value = '';
+    errorsContainer.style.display = 'none'; // Oculta errores al enviar nuevo mensaje
+
+    // Animar ícono del botón enviar
+    sendBtn.classList.add('active');
+    setTimeout(() => {
+      sendBtn.classList.remove('active');
+    }, 1000);
+  }
+
+  sendBtn.addEventListener('click', enviarMensaje);
+
+  userInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      enviarMensaje();
+    }
+  });
+
+  showErrorsBtn.addEventListener('click', () => {
+    if (erroresNoEntendidos.length === 0) {
+      errorsContainer.textContent = 'No hay errores para mostrar.';
+    } else {
+      errorsContainer.textContent = 'Mensajes no entendidos:\n' + erroresNoEntendidos.join('\n');
+    }
+    errorsContainer.style.display = 'block';
+  });
+</script>
+
+</body>
+</html>
