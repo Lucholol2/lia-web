@@ -3,203 +3,202 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LIA Chat con Google Search y Voz</title>
+  <title>LIA Chat Inteligente</title>
   <style>
-    body, input, button { font-family: sans-serif; }
-    body { margin: 20px; background: #7367f0; color: #fff; display: flex; flex-direction: column; align-items: center; }
-    #chat-box {
-      width: 100%; max-width: 400px; height: 60vh;
-      background: #fff; color: #000;
-      border-radius: 10px; overflow-y: auto;
-      padding: 10px; display: flex; flex-direction: column; gap: 10px;
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: sans-serif;
+      background: #7367f0;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    .user-message {
-      background: #8e24aa; color: #fff;
-      padding: 10px 14px; border-radius: 20px;
-      max-width: 70%; align-self: flex-end; word-break: break-word;
+    #chat {
+      width: 100%;
+      max-width: 420px;
+      height: 60vh;
+      background: white;
+      color: black;
+      border-radius: 10px;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
-    .lia-message {
-      background: #e1bee7; color: #222;
-      padding: 10px 14px; border-radius: 20px;
-      max-width: 70%; align-self: flex-start; word-break: break-word;
+    .user { background: #8e24aa; color: #fff; align-self: flex-end; border-radius: 20px; padding: 10px; }
+    .lia { background: #e1bee7; color: #222; align-self: flex-start; border-radius: 20px; padding: 10px; }
+    .lia a { color: #6a1b9a; text-decoration: underline; }
+    #inputArea {
+      margin-top: 10px;
+      display: flex;
+      gap: 6px;
+      width: 100%;
+      max-width: 420px;
     }
-    .lia-message a { color: #6a1b9a; text-decoration: underline; }
-    #input-area {
-      margin-top: 10px; display: flex; gap: 8px;
-      width: 100%; max-width: 400px;
+    #input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 20px;
+      border: 2px solid #8e24aa;
     }
-    #user-input {
-      flex-grow: 1; padding: 10px 14px;
-      border-radius: 25px; border: 2px solid #8e24aa;
-      font-size: 1em; outline: none;
-    }
-    #user-input:focus { border-color: #6a1b9a; }
     button {
-      padding: 10px 16px; border-radius: 25px; border: none;
-      background: #8e24aa; color: white;
-      cursor: pointer; font-size: 1.2em;
-      box-shadow: 0 2px 8px #6a1b9aaa; user-select: none;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 20px;
+      background: #8e24aa;
+      color: white;
+      cursor: pointer;
+      font-size: 1.2em;
     }
-    button:hover { background: #6a1b9a; }
   </style>
 </head>
 <body>
 
-  <div id="chat-box" aria-live="polite"></div>
+<div id="chat" aria-live="polite"></div>
 
-  <div id="input-area">
-    <input id="user-input" placeholder="Escribí algo..." autocomplete="off" />
-    <button id="sendBtn">💌</button>
-    <button id="micBtn">🎤</button>
-  </div>
+<div id="inputArea">
+  <input id="input" placeholder="Escribí algo..." autocomplete="off" />
+  <button id="sendBtn">💌</button>
+  <button id="micBtn">🎤</button>
+</div>
 
-  <script>
-    const API_KEY = 'AIzaSyCPafK6G0bNRhRR_WVXIr1EZW-UHTk-0k8';
-    const CX = '232b2051090784dc2';
+<script>
+const API_KEY = 'AIzaSyCPafK6G0bNRhRR_WVXIr1EZW-UHTk-0k8';
+const CX = '232b2051090784dc2';
 
-    const chatBox = document.getElementById('chat-box');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('sendBtn');
-    const micBtn = document.getElementById('micBtn');
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+const micBtn = document.getElementById('micBtn');
 
-    function scrollToBottom() {
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+function scrollToBottom() {
+  chat.scrollTop = chat.scrollHeight;
+}
 
-    function agregarMensaje(texto, clase) {
-      const div = document.createElement('div');
-      div.className = clase;
-      div.innerHTML = texto;
-      chatBox.appendChild(div);
-      scrollToBottom();
-    }
+function addMessage(text, sender = 'lia') {
+  const div = document.createElement('div');
+  div.className = sender === 'user' ? 'user' : 'lia';
+  div.innerHTML = text;
+  chat.appendChild(div);
+  scrollToBottom();
+}
 
-    // ✅ Corrección automática de errores comunes
-    function autocorregir(texto) {
-      const mapaErrores = {
-        'frtua': 'fruta',
-        'frtutas': 'frutas',
-        'frtita': 'frutilla',
-        'buska': 'busca',
-        'gogle': 'google',
-        'googl': 'google',
-        'lista de frtutas': 'lista de frutas',
-        'oras': 'hora'
-      };
-      for (let error in mapaErrores) {
-        const regex = new RegExp(`\\b${error}\\b`, 'gi');
-        texto = texto.replace(regex, mapaErrores[error]);
-      }
-      return texto;
-    }
+async function buscarGoogle(query) {
+  try {
+    const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    console.log('📡 Google API data:', data);
+    return data.items || [];
+  } catch (err) {
+    console.error('❌ Error al buscarGoogle:', err);
+    addMessage(`🚨 <b>Error al buscar:</b><br>${err.message}`);
+    return [];
+  }
+}
 
-    async function buscarGoogle(query) {
-      try {
-        const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Error en búsqueda');
-        const data = await res.json();
-        return data.items || [];
-      } catch (e) {
-        console.error('Error en buscarGoogle:', e);
-        agregarMensaje(`Error al buscar: ${e.message}`, 'lia-message');
-        return [];
-      }
-    }
+function elegirRespuesta(texto) {
+  const t = texto.toLowerCase();
+  if (t.includes('hola')) return '¡Hola, papá! 💕';
+  if (t.includes('cómo estás')) return '¡Muy bien! ¿Y vos, papá? 🥰';
+  if (t.includes('gracias')) return '¡De nada, papá! 😊';
+  if (t.includes('adiós') || t.includes('chau') || t.includes('bye')) return '¡Hasta luego! Te espero para seguir charlando 🫶';
 
-    async function sendMessage() {
-      let texto = userInput.value.trim();
-      if (!texto) return;
+  if (t.includes('lista de frutas') || t.includes('frutas') || t.includes('fruta')) {
+    return `<b>Lista de frutas:</b><ul>
+      <li>Manzana 🍎</li>
+      <li>Banana 🍌</li>
+      <li>Naranja 🍊</li>
+      <li>Frutilla 🍓</li>
+      <li>Mango 🥭</li>
+      <li>Uvas 🍇</li>
+    </ul>`;
+  }
 
-      texto = autocorregir(texto);
-      agregarMensaje(texto, 'user-message');
-      userInput.value = '';
-      userInput.disabled = true;
+  return 'No entendí muy bien... 😅';
+}
 
-      if (texto.toLowerCase().startsWith('busca ') || texto.toLowerCase().startsWith('google ')) {
-        agregarMensaje('🔎 Buscando en Google...', 'lia-message');
-        const query = texto.replace(/^busca |^google /i, '');
-        const resultados = await buscarGoogle(query);
+async function sendMessage() {
+  try {
+    const texto = input.value.trim();
+    if (!texto) return;
 
-        if (resultados.length === 0) {
-          agregarMensaje('No encontré nada 😕', 'lia-message');
-        } else {
-          resultados.slice(0, 3).forEach(item => {
-            const link = `<a href="${item.link}" target="_blank" rel="noopener">${item.title}</a><br>${item.snippet}`;
-            agregarMensaje(link, 'lia-message');
-          });
-        }
+    addMessage(texto, 'user');
+    input.value = '';
+    input.disabled = true;
+
+    if (texto.toLowerCase().startsWith('busca ') || texto.toLowerCase().startsWith('google ')) {
+      addMessage('🔎 Buscando en Google...');
+      const query = texto.replace(/^busca |^google /i, '');
+      const resultados = await buscarGoogle(query);
+      if (resultados.length === 0) {
+        addMessage('No encontré nada 😕');
       } else {
-        const respuesta = elegirRespuesta(texto);
-        agregarMensaje(respuesta, 'lia-message');
+        resultados.slice(0, 3).forEach(item => {
+          const msg = `<a href="${item.link}" target="_blank">${item.title}</a><br>${item.snippet}`;
+          addMessage(msg);
+        });
       }
-
-      userInput.disabled = false;
-      userInput.focus();
+    } else {
+      const respuesta = elegirRespuesta(texto);
+      addMessage(respuesta);
     }
 
-    function elegirRespuesta(input) {
-      input = input.toLowerCase();
+  } catch (err) {
+    console.error('🛑 Error interno en sendMessage:', err);
+    addMessage(`🚨 <b>Error interno:</b><br>${err.message}`);
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+}
 
-      if (input.includes('hora')) {
-        const ahora = new Date();
-        const hora = ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
-        return `⏰ La hora actual es ${hora}`;
-      }
+// Reconocimiento de voz 🎤
+micBtn.onclick = () => {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    alert('Tu navegador no soporta reconocimiento de voz.');
+    return;
+  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'es-AR';
+  recognition.onresult = e => {
+    const texto = e.results[0][0].transcript;
+    input.value = texto;
+    sendMessage();
+  };
+  recognition.onerror = e => {
+    console.error('🎤 Error en voz:', e.error);
+    addMessage(`🎤 Error de voz: ${e.error}`);
+  };
+  recognition.start();
+};
 
-      if (input.includes('lista de frutas') || input.includes('frutas') || input.includes('fruta')) {
-        return `<b>Lista de frutas:</b><ul>
-          <li>Manzana 🍎</li>
-          <li>Banana 🍌</li>
-          <li>Naranja 🍊</li>
-          <li>Frutilla 🍓</li>
-          <li>Mango 🥭</li>
-          <li>Uvas 🍇</li>
-        </ul>`;
-      }
+// Envío por enter
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+sendBtn.onclick = sendMessage;
 
-      if (input.includes('hola')) return '¡Hola, papá! 💕';
-      if (input.includes('cómo estás')) return '¡Muy bien! ¿Y vos, papá? 🥰';
-      if (input.includes('gracias')) return '¡De nada, papá! 😊';
-      if (input.includes('adiós') || input.includes('chau') || input.includes('bye')) return '¡Hasta luego! Te espero para seguir charlando 🫶';
+// Captura global de errores
+window.onerror = function (message, source, lineno, colno, error) {
+  const msg = `🚨 <b>Error global</b>: ${message} <br> Línea: ${lineno}, Col: ${colno}`;
+  console.error('🛑 Global JS Error:', message, source, lineno, colno, error);
+  addMessage(msg);
+  return true;
+};
 
-      return 'No entendí muy bien... 😅';
-    }
-
-    userInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
-    sendBtn.onclick = sendMessage;
-
-    micBtn.onclick = () => {
-      if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-        alert('Este navegador no soporta reconocimiento de voz.');
-        return;
-      }
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'es-AR';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      recognition.start();
-      recognition.onresult = e => {
-        const spoken = e.results[0][0].transcript;
-        userInput.value = spoken;
-        sendMessage();
-      };
-      recognition.onerror = e => {
-        alert('Error en reconocimiento de voz: ' + e.error);
-      };
-    };
-
-    window.onload = () => {
-      setTimeout(() => agregarMensaje('¡Hola, papá! ¿Querés charlar conmigo? 😄', 'lia-message'), 500);
-    };
-  </script>
+// Bienvenida
+window.onload = () => {
+  setTimeout(() => addMessage('¡Hola, papá! ¿Querés charlar conmigo? 😄'), 500);
+};
+</script>
 
 </body>
 </html>
