@@ -2,181 +2,160 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<title>Chat con voz y lista de frutas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chat con detección de errores</title>
 <style>
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: Arial, sans-serif;
+    margin: 20px;
     background: linear-gradient(120deg, #f3e5f5 0%, #e1bee7 100%);
     color: #2a1432;
-    margin: 20px;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
   }
   #chat-box {
-    width: 350px;
-    height: 350px;
+    width: 100%;
+    max-width: 400px;
+    height: 300px;
+    overflow-y: auto;
     background: white;
     border-radius: 10px;
     padding: 10px;
-    overflow-y: auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    box-shadow: 0 4px 12px rgba(142, 36, 170, 0.12);
+    margin-bottom: 10px;
   }
-  .lia-message {
-    background: #e1bee7;
-    padding: 8px;
-    border-radius: 10px;
-    color: #3d1747;
+  .message {
+    margin: 6px 0;
+    padding: 8px 12px;
+    border-radius: 12px;
     max-width: 80%;
-    align-self: flex-start;
+    word-wrap: break-word;
   }
-  .user-message {
+  .user {
     background: #8e24aa;
     color: white;
-    padding: 8px;
-    border-radius: 10px;
-    max-width: 80%;
     align-self: flex-end;
+    margin-left: auto;
+  }
+  .bot {
+    background: #e1bee7;
+    color: #222;
+    align-self: flex-start;
+    margin-right: auto;
+  }
+  #input-area {
+    display: flex;
+    width: 100%;
+    max-width: 400px;
   }
   #user-input {
-    width: 280px;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 2px solid #8e24aa;
+    border-radius: 20px;
     font-size: 1em;
+    outline: none;
   }
-  #controls {
-    margin-top: 10px;
-    display: flex;
-    gap: 5px;
-  }
-  button {
-    cursor: pointer;
-    border: none;
+  #send-btn, #show-errors-btn {
     background: #8e24aa;
     color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    transition: background 0.3s;
+    border: none;
+    border-radius: 20px;
+    margin-left: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
   }
-  button:hover {
-    background: #6a1b9a;
+  #errors-container {
+    width: 100%;
+    max-width: 400px;
+    background: #fbe9f8;
+    border: 1px solid #ce93d8;
+    border-radius: 10px;
+    padding: 10px;
+    max-height: 120px;
+    overflow-y: auto;
+    display: none;
+    color: #8e24aa;
+    font-size: 0.9em;
   }
 </style>
 </head>
 <body>
 
-<h1>Chat con voz y texto</h1>
+<h1>Chat con detección de errores</h1>
 
 <div id="chat-box"></div>
 
-<div id="controls">
-  <input id="user-input" type="text" placeholder="Escribí un mensaje..." autocomplete="off" />
+<div id="input-area">
+  <input id="user-input" type="text" placeholder="Escribí tu mensaje..." />
   <button id="send-btn">Enviar</button>
-  <button id="voice-btn">🎤 Hablar</button>
+  <button id="show-errors-btn">Ver errores</button>
 </div>
+
+<div id="errors-container"></div>
 
 <script>
   const chatBox = document.getElementById('chat-box');
   const userInput = document.getElementById('user-input');
   const sendBtn = document.getElementById('send-btn');
-  const voiceBtn = document.getElementById('voice-btn');
+  const showErrorsBtn = document.getElementById('show-errors-btn');
+  const errorsContainer = document.getElementById('errors-container');
 
-  function agregarMensaje(texto, tipo) {
+  // Lista para almacenar mensajes no entendidos
+  let erroresNoEntendidos = [];
+
+  function addMessage(text, sender) {
     const div = document.createElement('div');
-    div.className = tipo === 'user' ? 'user-message' : 'lia-message';
-
-    if (tipo === 'lia' && texto === 'LISTA_FRUTAS') {
-      div.innerHTML = `
-        <b>Lista de frutas:</b>
-        <ul>
-          <li>Manzana 🍎</li>
-          <li>Banana 🍌</li>
-          <li>Naranja 🍊</li>
-          <li>Frutilla 🍓</li>
-          <li>Mango 🥭</li>
-          <li>Uvas 🍇</li>
-        </ul>
-      `;
-    } else {
-      div.textContent = texto;
-    }
-
+    div.classList.add('message', sender);
+    div.textContent = text;
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function responder(mensajeUsuario) {
-    const msg = mensajeUsuario.toLowerCase().trim();
-    if (msg.includes('lista de frutas') || msg.includes('frutas')) {
-      return 'LISTA_FRUTAS';
+  function procesarMensaje(msg) {
+    const texto = msg.toLowerCase().trim();
+
+    if (texto === 'lista de frutas' || texto === 'frutas' || texto === 'dame la lista de frutas') {
+      return '🍎 Manzana\n🍌 Banana\n🍊 Naranja\n🍓 Frutilla\n🥭 Mango\n🍇 Uvas';
     }
-    return "No entendí muy bien... 😅";
+
+    // Aquí podés agregar más respuestas conocidas
+
+    // Si no entiende
+    erroresNoEntendidos.push(msg);
+    return 'No entendí muy bien... 😅';
   }
 
-  function enviarMensaje() {
-    const texto = userInput.value.trim();
-    if (!texto) return;
-    agregarMensaje(texto, 'user');
+  sendBtn.addEventListener('click', () => {
+    const mensaje = userInput.value.trim();
+    if (!mensaje) return;
+
+    addMessage(mensaje, 'user');
+
+    const respuesta = procesarMensaje(mensaje);
+    addMessage(respuesta, 'bot');
+
     userInput.value = '';
+  });
 
-    setTimeout(() => {
-      const respuesta = responder(texto);
-      agregarMensaje(respuesta, 'lia');
-    }, 500);
-  }
-
-  sendBtn.addEventListener('click', enviarMensaje);
-  userInput.addEventListener('keydown', (e) => {
+  // Permite presionar Enter para enviar
+  userInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
-      enviarMensaje();
+      sendBtn.click();
     }
   });
 
-  // Reconocimiento de voz
-  let reconocimiento;
-  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    reconocimiento = new SpeechRecognition();
-    reconocimiento.lang = 'es-AR';
-    reconocimiento.continuous = false;
-    reconocimiento.interimResults = false;
-
-    reconocimiento.onstart = () => {
-      voiceBtn.textContent = '🎙️ Escuchando...';
-      voiceBtn.disabled = true;
-    };
-
-    reconocimiento.onerror = (event) => {
-      agregarMensaje(`🎤 Error de voz: ${event.error}`, 'lia');
-      voiceBtn.textContent = '🎤 Hablar';
-      voiceBtn.disabled = false;
-    };
-
-    reconocimiento.onend = () => {
-      voiceBtn.textContent = '🎤 Hablar';
-      voiceBtn.disabled = false;
-    };
-
-    reconocimiento.onresult = (event) => {
-      const textoVoz = event.results[0][0].transcript;
-      agregarMensaje(textoVoz, 'user');
-      const respuesta = responder(textoVoz);
-      agregarMensaje(respuesta, 'lia');
-    };
-
-    voiceBtn.addEventListener('click', () => {
-      reconocimiento.start();
-    });
-  } else {
-    voiceBtn.disabled = true;
-    voiceBtn.textContent = '🎤 No soportado';
-  }
+  // Mostrar errores acumulados en el contenedor
+  showErrorsBtn.addEventListener('click', () => {
+    if (erroresNoEntendidos.length === 0) {
+      errorsContainer.textContent = 'No hay errores para mostrar.';
+    } else {
+      errorsContainer.textContent = 'Mensajes no entendidos:\n' + erroresNoEntendidos.join('\n');
+    }
+    errorsContainer.style.display = 'block';
+  });
 </script>
 
 </body>
