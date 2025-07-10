@@ -70,10 +70,26 @@ async function sendMessage() {
 // Ejemplo simple de respuestas automáticas
 function elegirRespuesta(input) {
   input = input.toLowerCase();
+
+  if (input.includes('lista de frutas') || input.includes('frutas')) {
+    // Devuelve una lista en HTML para que se muestre bonita
+    return `<b>Lista de frutas:</b><ul>
+      <li>Manzana 🍎</li>
+      <li>Banana 🍌</li>
+      <li>Naranja 🍊</li>
+      <li>Frutilla 🍓</li>
+      <li>Mango 🥭</li>
+      <li>Uvas 🍇</li>
+    </ul>`;
+  }
+
   if (input.includes('hola')) return '¡Hola, papá! 💕';
   if (input.includes('cómo estás')) return '¡Muy bien! ¿Y vos, papá? 🥰';
+  if (input.includes('gracias')) return '¡De nada, papá! 😊';
+  if (input.includes('adiós') || input.includes('chau') || input.includes('bye')) return '¡Hasta luego! Te espero para seguir charlando 🫶';
   return 'No entendí muy bien... 😅';
 }
+
 
 userInput.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) {
