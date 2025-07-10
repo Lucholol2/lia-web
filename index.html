@@ -3,305 +3,154 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>LIA - Tu Compañerita Inteligente</title>
+<title>LIA - Chat Inteligente</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', 'Arial', sans-serif;
-    background: linear-gradient(120deg, #ce9ffc, #7367f0);
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-  }
-  h1 {
-    margin-bottom: 10px;
-    font-size: 2.2em;
-    color: #fff;
-    text-shadow: 1px 2px 6px #0007;
-    letter-spacing: 1px;
-  }
-  .subtitulo {
-    margin-bottom: 25px;
-    color: #f9d9ff;
-    font-style: italic;
-    font-size: 1.1em;
-    text-shadow: 0 1px 3px #0003;
-  }
-  .chat-container {
-    width: 100%;
-    max-width: 500px;
-    height: 70vh;
-    background: rgba(255,255,255,0.98);
-    border-radius: 24px;
-    box-shadow: 0 8px 24px rgba(76, 0, 122, 0.18);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border: 1.5px solid #e1bee7;
-  }
-  .chat-box {
-    flex-grow: 1;
-    padding: 20px 16px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background: linear-gradient(120deg, #f5ebff 70%, #f9f6ff 100%);
-    scrollbar-width: thin;
-  }
-  .user-message {
-    align-self: flex-end;
-    background: #8e24aa;
-    color: white;
-    padding: 10px 18px;
-    border-radius: 24px 24px 0 24px;
-    max-width: 80%;
-    font-size: 1.07em;
-    word-break: break-word;
-    box-shadow: 0 2px 6px #8e24aa33;
-    animation: fadeIn 0.3s;
-  }
-  .lia-message {
-    align-self: flex-start;
-    background: #e1bee7;
-    color: #222;
-    padding: 10px 18px;
-    border-radius: 24px 24px 24px 0;
-    max-width: 80%;
-    font-size: 1.07em;
-    word-break: break-word;
-    box-shadow: 0 2px 6px #ce9ffc33;
-    animation: fadeIn 0.3s;
-  }
-  .lia-message a {
-    color: #6a1b9a;
-    text-decoration: underline;
-    word-break: break-word;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px);}
-    to { opacity: 1; transform: translateY(0);}
-  }
-  .input-area {
-    display: flex;
-    padding: 12px;
-    border-top: 1px solid #eee;
-    background: #fff;
-  }
-  #user-input {
-    flex-grow: 1;
-    padding: 12px 16px;
-    border: 1.5px solid #ce9ffc;
-    border-radius: 30px;
-    font-size: 1.05em;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  #user-input:focus {
-    border-color: #8e24aa;
-  }
-  button {
-    background-color: #8e24aa;
-    color: white;
-    border: none;
-    border-radius: 30px;
-    padding: 0 20px;
-    margin-left: 12px;
-    cursor: pointer;
-    font-size: 1.1em;
-    transition: background 0.2s;
-    box-shadow: 0 1px 4px #8e24aa55;
-  }
-  button:hover {
-    background-color: #6a1b9a;
-  }
-  @media (max-width: 600px) {
-    .chat-container { max-width: 98vw; height: 80vh;}
-    .chat-box { padding: 10px 4px;}
-  }
-  .btn-mic {
-    background: #8e24aa;
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    margin-left: 8px;
-    font-size: 1.5em;
-    color: white;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 2px 8px #6a1b9a88;
-  }
-  .btn-mic.active {
-    background: #c64bd1;
-    box-shadow: 0 2px 12px #c64bd1cc;
-  }
+  body, input, button { font-family:sans-serif; }
+  body { margin:20px; background:#7367f0; color:#fff; display:flex; flex-direction:column; align-items:center; }
+  #chat { width: 100%; max-width: 400px; height: 60vh; background:#fff; color:#000; border-radius:10px; overflow-y:auto; padding:10px; }
+  .user, .lia { margin:6px; padding:10px; border-radius:12px; max-width: 75%; }
+  .user { background:#8e24aa; color:#fff; align-self:flex-end; }
+  .lia { background:#e1bee7; color:#222; align-self:flex-start; }
+  #inputArea { margin-top:8px; display:flex; width:100%; max-width:400px; }
+  #input { flex:1; padding:8px; border-radius:20px; border:1px solid #8e24aa; outline:none; }
+  button { margin-left:6px; padding:8px 14px; border:none; border-radius:20px; background:#8e24aa; color:#fff; cursor:pointer; }
+  button.active { background:#c64bd1; }
+  a { color:#6a1b9a; text-decoration:underline; }
 </style>
 </head>
 <body>
-<h1>👶🏻 Hola, soy LIA</h1>
-<p class="subtitulo">Tu compañerita con corazón de alfajor 💖</p>
 
-<div class="chat-container">
-  <div id="chat-box" class="chat-box" aria-live="polite"></div>
-  <div class="input-area">
-    <input id="user-input" type="text" placeholder="Escribime algo, papá..." autocomplete="off" />
-    <button onclick="sendMessage()" title="Enviar">💌</button>
-    <button id="mic-btn" class="btn-mic" title="Hablar">&#127908;</button>
-  </div>
+<h2>LIA 💖</h2>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="input" placeholder="Escribí algo..." autocomplete="off" />
+  <button id="micBtn" title="Hablar">&#127908;</button>
+  <button id="sendBtn" title="Enviar">💌</button>
 </div>
 
 <script>
-  const API_KEY = 'AIzaSyCPafK6G0bNRhRR_WVXIr1EZW-UHTk-0k8';  // Tu API key aquí
-  const CX = '232b2051090784dc2';                            // Tu Custom Search Engine ID aquí
+const API_KEY = 'AIzaSyCPafK6G0bNRhRR_WVXIr1EZW-UHTk-0k8';
+const CX = '232b2051090784dc2';
 
-  const chatBox = document.getElementById('chat-box');
-  const userInput = document.getElementById('user-input');
-  const micBtn = document.getElementById('mic-btn');
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const micBtn = document.getElementById('micBtn');
+const sendBtn = document.getElementById('sendBtn');
 
-  function scrollToBottom() {
-    chatBox.scrollTop = chatBox.scrollHeight;
+function addMsg(text, cls) {
+  const div = document.createElement('div');
+  div.className = cls;
+  if(cls === 'lia' && text.includes('<a ')) div.innerHTML = text;
+  else div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function googleSearch(q) {
+  try {
+    const res = await fetch(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(q)}`);
+    if(!res.ok) throw 'Error en búsqueda';
+    const data = await res.json();
+    return data.items || [];
+  } catch(e) {
+    addMsg('Error al buscar: ' + e, 'lia');
+    return [];
   }
+}
 
-  function agregarMensaje(texto, clase) {
-    const div = document.createElement('div');
-    div.className = clase;
-    if (clase === 'lia-message' && texto.includes('<a ')) {
-      div.innerHTML = texto;
-    } else {
-      div.textContent = texto;
-    }
-    chatBox.appendChild(div);
-    scrollToBottom();
+function speak(text) {
+  if(!window.speechSynthesis) return;
+  const synth = window.speechSynthesis;
+  let voices = synth.getVoices();
+  if(!voices.length) {
+    synth.onvoiceschanged = () => speak(text);
+    return;
   }
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.voice = voices.find(v => v.lang === 'es-AR') || voices.find(v => v.lang.startsWith('es')) || voices[0];
+  utter.lang = utter.voice.lang;
+  synth.cancel();
+  synth.speak(utter);
+}
 
-  async function buscarGoogle(query) {
-    try {
-      const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Error en búsqueda');
-      const data = await res.json();
-      return data.items || [];
-    } catch (e) {
-      agregarMensaje(`Error al buscar: ${e.message}`, 'lia-message');
-      return [];
-    }
+async function sendMessage() {
+  const text = input.value.trim();
+  if(!text) return;
+  addMsg(text, 'user');
+  input.value = '';
+  input.disabled = true;
+
+  if(text.toLowerCase().startsWith('busca ') || text.toLowerCase().startsWith('google ')) {
+    addMsg('🔎 Buscando en Google...', 'lia');
+    const query = text.replace(/^busca |^google /i, '');
+    const results = await googleSearch(query);
+    if(results.length === 0) addMsg('No encontré nada 😕', 'lia');
+    else results.slice(0,3).forEach(r => {
+      addMsg(`<a href="${r.link}" target="_blank">${r.title}</a><br>${r.snippet}`, 'lia');
+    });
+  } else {
+    const reply = simpleResponse(text);
+    addMsg(reply, 'lia');
+    speak(reply);
   }
+  input.disabled = false;
+  input.focus();
+}
 
-  function speak(text) {
-    if (!window.speechSynthesis) return;
-    const synth = window.speechSynthesis;
-    let voices = synth.getVoices();
+function simpleResponse(input) {
+  input = input.toLowerCase();
+  if(input.includes('hola')) return '¡Hola, papá! 💕';
+  if(input.includes('cómo estás')) return '¡Muy bien! ¿Y vos? 🥰';
+  if(input.includes('adiós')) return '¡Hasta luego! 🫶';
+  return 'No entendí muy bien... 😅';
+}
 
-    if (!voices.length) {
-      synth.onvoiceschanged = () => speak(text);
-      return;
-    }
+// Voz
+let recognition;
+if('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'es-AR';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
 
-    const argentinian = voices.find(v => v.lang === 'es-AR');
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.voice = argentinian || voices.find(v => v.lang.startsWith('es')) || voices[0];
-    utter.lang = utter.voice.lang || 'es-AR';
-    synth.cancel();
-    synth.speak(utter);
-  }
-
-  async function sendMessage() {
-    const texto = userInput.value.trim();
-    if (!texto) return;
-
-    agregarMensaje(texto, 'user-message');
-    userInput.value = '';
-    userInput.disabled = true;
-
-    if (texto.toLowerCase().startsWith('busca ') || texto.toLowerCase().startsWith('google ')) {
-      agregarMensaje('🔎 Buscando en Google...', 'lia-message');
-      const query = texto.replace(/^busca |^google /i, '');
-      const resultados = await buscarGoogle(query);
-
-      if (resultados.length === 0) {
-        agregarMensaje('No encontré nada 😕', 'lia-message');
-      } else {
-        resultados.slice(0, 3).forEach(item => {
-          const link = `<a href="${item.link}" target="_blank" rel="noopener">${item.title}</a><br>${item.snippet}`;
-          agregarMensaje(link, 'lia-message');
-        });
-      }
-    } else {
-      // Respuesta simple
-      const respuesta = elegirRespuesta(texto);
-      agregarMensaje(respuesta, 'lia-message');
-      speak(respuesta);
-    }
-
-    userInput.disabled = false;
-    userInput.focus();
-  }
-
-  function elegirRespuesta(input) {
-    input = input.toLowerCase();
-    if (input.includes('hola')) return '¡Hola, papá! 💕';
-    if (input.includes('cómo estás')) return '¡Muy bien! ¿Y vos, papá? 🥰';
-    if (input.includes('adiós')) return '¡Hasta luego! Te espero para seguir charlando 🫶';
-    return 'No entendí muy bien... 😅';
-  }
-
-  // Reconocimiento de voz
-  let recognition;
-  if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
-    recognition.lang = 'es-AR';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = e => {
-      const textoVoz = e.results[0][0].transcript;
-      userInput.value = textoVoz;
-      sendMessage();
-      toggleMic(false);
-    };
-
-    recognition.onerror = e => {
-      agregarMensaje('No pude escucharte bien 😕', 'lia-message');
-      toggleMic(false);
-    };
-
-    recognition.onend = () => {
-      toggleMic(false);
-    };
-  }
-
-  function toggleMic(state) {
-    if (state) {
-      micBtn.classList.add('active');
-      recognition.start();
-    } else {
-      micBtn.classList.remove('active');
-      if (recognition) recognition.stop();
-    }
-  }
-
-  micBtn.addEventListener('click', () => {
-    if (micBtn.classList.contains('active')) {
-      toggleMic(false);
-    } else {
-      toggleMic(true);
-    }
-  });
-
-  userInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-
-  window.onload = () => {
-    setTimeout(() => agregarMensaje('¡Hola, papá! ¿Querés charlar conmigo? 😄', 'lia-message'), 500);
+  recognition.onresult = e => {
+    input.value = e.results[0][0].transcript;
+    sendMessage();
+    toggleMic(false);
   };
+  recognition.onerror = () => { addMsg('No pude escucharte bien 😕', 'lia'); toggleMic(false); };
+  recognition.onend = () => toggleMic(false);
+}
+
+function toggleMic(on) {
+  if(on) {
+    micBtn.classList.add('active');
+    recognition.start();
+  } else {
+    micBtn.classList.remove('active');
+    recognition.stop();
+  }
+}
+
+micBtn.onclick = () => {
+  if(micBtn.classList.contains('active')) toggleMic(false);
+  else toggleMic(true);
+};
+
+sendBtn.onclick = sendMessage;
+input.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+window.onload = () => {
+  addMsg('¡Hola, papá! ¿Querés charlar conmigo? 😄', 'lia');
+  input.focus();
+};
 </script>
+
 </body>
 </html>
