@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>LIA Chat con Google Search y Voz</title>
+<title>Chat LIA con Google Search</title>
 <style>
   body, input, button { font-family: sans-serif; }
   body {
@@ -14,7 +14,7 @@
     flex-direction: column;
     align-items: center;
   }
-  #chat {
+  #chat-box {
     width: 100%;
     max-width: 400px;
     height: 60vh;
@@ -27,7 +27,7 @@
     flex-direction: column;
     gap: 10px;
   }
-  .user {
+  .user-message {
     background: #8e24aa;
     color: #fff;
     padding: 10px 14px;
@@ -36,7 +36,7 @@
     align-self: flex-end;
     word-break: break-word;
   }
-  .lia {
+  .lia-message {
     background: #e1bee7;
     color: #222;
     padding: 10px 14px;
@@ -45,18 +45,18 @@
     align-self: flex-start;
     word-break: break-word;
   }
-  .lia a {
+  .lia-message a {
     color: #6a1b9a;
     text-decoration: underline;
   }
-  #inputArea {
+  #input-area {
     margin-top: 10px;
     display: flex;
     gap: 8px;
     width: 100%;
     max-width: 400px;
   }
-  #input {
+  #user-input {
     flex-grow: 1;
     padding: 10px 14px;
     border-radius: 25px;
@@ -64,7 +64,7 @@
     font-size: 1em;
     outline: none;
   }
-  #input:focus {
+  #user-input:focus {
     border-color: #6a1b9a;
   }
   button {
@@ -85,36 +85,34 @@
 </head>
 <body>
 
-<div id="chat" aria-live="polite"></div>
+<div id="chat-box" aria-live="polite"></div>
 
-<div id="inputArea">
-  <input id="input" placeholder="Escribí algo..." autocomplete="off" />
-  <button id="sendBtn" title="Enviar">💌</button>
-  <button id="micBtn" title="Hablar">🎤</button>
+<div id="input-area">
+  <input id="user-input" placeholder="Escribí algo..." autocomplete="off" />
+  <button id="send-btn" title="Enviar">💌</button>
 </div>
 
 <script>
   const API_KEY = 'AIzaSyCPafK6G0bNRhRR_WVXIr1EZW-UHTk-0k8';
   const CX = '232b2051090784dc2';
 
-  const chat = document.getElementById('chat');
-  const input = document.getElementById('input');
-  const sendBtn = document.getElementById('sendBtn');
-  const micBtn = document.getElementById('micBtn');
+  const chatBox = document.getElementById('chat-box');
+  const userInput = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
 
   function scrollToBottom() {
-    chat.scrollTop = chat.scrollHeight;
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function addMessage(text, sender) {
+  function agregarMensaje(texto, clase) {
     const div = document.createElement('div');
-    div.className = sender === 'user' ? 'user' : 'lia';
-    if (sender === 'lia' && text.includes('<a ')) {
-      div.innerHTML = text;
+    div.className = clase;
+    if (clase === 'lia-message') {
+      div.innerHTML = texto;  // Aquí permitimos HTML para mensajes IA
     } else {
-      div.textContent = text;
+      div.textContent = texto;
     }
-    chat.appendChild(div);
+    chatBox.appendChild(div);
     scrollToBottom();
   }
 
@@ -126,47 +124,50 @@
       const data = await res.json();
       return data.items || [];
     } catch (e) {
-      console.error('Error en buscarGoogle:', e);
-      addMessage(`Error al buscar: ${e.message}`, 'lia');
+      agregarMensaje(`Error al buscar: ${e.message}`, 'lia-message');
       return [];
     }
   }
 
   async function sendMessage() {
-    const texto = input.value.trim();
+    const texto = userInput.value.trim();
     if (!texto) return;
 
-    addMessage(texto, 'user');
-    input.value = '';
-    input.disabled = true;
+    agregarMensaje(texto, 'user-message');
+    userInput.value = '';
+    userInput.disabled = true;
 
     if (texto.toLowerCase().startsWith('busca ') || texto.toLowerCase().startsWith('google ')) {
-      addMessage('🔎 Buscando en Google...', 'lia');
+      agregarMensaje('🔎 Buscando en Google...', 'lia-message');
       const query = texto.replace(/^busca |^google /i, '');
       const resultados = await buscarGoogle(query);
 
       if (resultados.length === 0) {
-        addMessage('No encontré nada 😕', 'lia');
+        agregarMensaje('No encontré nada 😕', 'lia-message');
       } else {
         resultados.slice(0, 3).forEach(item => {
           const link = `<a href="${item.link}" target="_blank" rel="noopener">${item.title}</a><br>${item.snippet}`;
-          addMessage(link, 'lia');
+          agregarMensaje(link, 'lia-message');
         });
       }
     } else {
-      // Respuestas simples
       const respuesta = elegirRespuesta(texto);
-      addMessage(respuesta, 'lia');
+      agregarMensaje(respuesta, 'lia-message');
     }
 
-    input.disabled = false;
-    input.focus();
+    userInput.disabled = false;
+    userInput.focus();
   }
 
   function elegirRespuesta(input) {
     input = input.toLowerCase();
 
-    if (input.includes('lista') && (input.includes('fruta') || input.includes('frutas'))) {
+    if (
+      input.includes('lista de frutas') ||
+      input.includes('lista de fruta') ||
+      input.includes('frutas') ||
+      input.includes('fruta')
+    ) {
       return `<b>Lista de frutas:</b><ul>
         <li>Manzana 🍎</li>
         <li>Banana 🍌</li>
@@ -186,36 +187,16 @@
   }
 
   sendBtn.onclick = sendMessage;
-  input.addEventListener('keydown', e => {
+
+  userInput.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   });
 
-  micBtn.onclick = () => {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      alert('Este navegador no soporta reconocimiento de voz.');
-      return;
-    }
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'es-AR';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.start();
-    recognition.onresult = e => {
-      const spoken = e.results[0][0].transcript;
-      input.value = spoken;
-      sendMessage();
-    };
-    recognition.onerror = e => {
-      alert('Error en reconocimiento de voz: ' + e.error);
-    };
-  };
-
   window.onload = () => {
-    setTimeout(() => addMessage('¡Hola, papá! ¿Querés charlar conmigo? 😄', 'lia'), 500);
+    setTimeout(() => agregarMensaje('¡Hola, papá! ¿Querés charlar conmigo? 😄', 'lia-message'), 500);
   };
 </script>
 
