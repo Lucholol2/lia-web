@@ -5,12 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LIA - Tu Compañerita Inteligente</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', 'Arial', sans-serif;
       background: linear-gradient(120deg, #ce9ffc, #7367f0);
@@ -22,7 +17,6 @@
       padding: 20px;
       transition: background 0.5s;
     }
-
     h1 {
       margin-bottom: 10px;
       font-size: 2.2em;
@@ -30,7 +24,6 @@
       text-shadow: 1px 2px 6px #0007;
       letter-spacing: 1px;
     }
-
     .subtitulo {
       margin-bottom: 25px;
       color: #f9d9ff;
@@ -38,7 +31,6 @@
       font-size: 1.1em;
       text-shadow: 0 1px 3px #0003;
     }
-
     .chat-container {
       width: 100%;
       max-width: 500px;
@@ -51,7 +43,6 @@
       overflow: hidden;
       border: 1.5px solid #e1bee7;
     }
-
     .chat-box {
       flex-grow: 1;
       padding: 20px 16px;
@@ -62,7 +53,6 @@
       background: linear-gradient(120deg, #f5ebff 70%, #f9f6ff 100%);
       scrollbar-width: thin;
     }
-
     .user-message {
       align-self: flex-end;
       background: #8e24aa;
@@ -75,7 +65,6 @@
       box-shadow: 0 2px 6px #8e24aa33;
       animation: fadeIn 0.3s;
     }
-
     .lia-message {
       align-self: flex-start;
       background: #e1bee7;
@@ -88,25 +77,21 @@
       box-shadow: 0 2px 6px #ce9ffc33;
       animation: fadeIn 0.3s;
     }
-
     .lia-message a {
       color: #6a1b9a;
       text-decoration: underline;
       word-break: break-word;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(12px);}
       to { opacity: 1; transform: translateY(0);}
     }
-
     .input-area {
       display: flex;
       padding: 12px;
       border-top: 1px solid #eee;
       background: #fff;
     }
-
     #user-input {
       flex-grow: 1;
       padding: 12px 16px;
@@ -119,7 +104,6 @@
     #user-input:focus {
       border-color: #8e24aa;
     }
-
     button {
       background-color: #8e24aa;
       color: white;
@@ -135,7 +119,6 @@
     button:hover {
       background-color: #6a1b9a;
     }
-
     @media (max-width: 600px) {
       .chat-container {
         max-width: 98vw;
@@ -163,7 +146,7 @@
     const chatBox = document.getElementById("chat-box");
     const userInput = document.getElementById("user-input");
 
-    // Respuestas mejoradas y más variadas
+    // Respuestas variadas
     const respuestasLIA = [
       "¡Hola, papá! 💕",
       "¿Cómo estás hoy? 😊",
@@ -180,7 +163,7 @@
       "¡Mirá qué carita feliz tengo ahora! 😁"
     ];
 
-    // Respuestas personalizadas por palabras clave
+    // Respuestas según palabras clave
     function elegirRespuesta(input) {
       input = input.toLowerCase();
 
