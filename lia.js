@@ -11,7 +11,8 @@ function scrollToBottom() {
 function agregarMensaje(texto, clase) {
   const div = document.createElement('div');
   div.className = clase;
-  if (clase === 'lia-message' && texto.includes('<a ')) {
+  // Si el mensaje es de la IA y tiene etiquetas HTML, insertarlas con innerHTML
+  if (clase === 'lia-message' && /<\/?[a-z][\s\S]*>/i.test(texto)) {
     div.innerHTML = texto;
   } else {
     div.textContent = texto;
@@ -19,6 +20,7 @@ function agregarMensaje(texto, clase) {
   chatBox.appendChild(div);
   scrollToBottom();
 }
+
 
 async function buscarGoogle(query) {
   try {
