@@ -14,68 +14,69 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 20px;
+      padding: 12px;
       transition: background 0.5s;
     }
     h1 {
-      margin-bottom: 10px;
-      font-size: 2.2em;
+      margin-bottom: 7px;
+      font-size: 1.21em;
       color: #fff;
       text-shadow: 1px 2px 6px #0007;
       letter-spacing: 1px;
     }
     .subtitulo {
-      margin-bottom: 25px;
+      margin-bottom: 14px;
       color: #f9d9ff;
       font-style: italic;
-      font-size: 1.1em;
+      font-size: 0.93em;
       text-shadow: 0 1px 3px #0003;
     }
     .chat-container {
       width: 100%;
-      max-width: 500px;
-      height: 70vh;
+      max-width: 220px;
+      height: 20vh;
       background: rgba(255,255,255,0.98);
-      border-radius: 24px;
-      box-shadow: 0 8px 24px rgba(76, 0, 122, 0.18);
+      border-radius: 13px;
+      box-shadow: 0 4px 16px rgba(76, 0, 122, 0.12);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      border: 1.5px solid #e1bee7;
+      border: 1.2px solid #e1bee7;
     }
     .chat-box {
       flex-grow: 1;
-      padding: 20px 16px;
+      padding: 7px 5px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      background: linear-gradient(120deg, #f5ebff 70%, #f9f6ff 100%);
+      gap: 5px;
+      background: linear-gradient(120deg, #f5ebff 80%, #f9f6ff 100%);
       scrollbar-width: thin;
+      font-size: 0.93em;
     }
     .user-message {
       align-self: flex-end;
       background: #8e24aa;
       color: white;
-      padding: 10px 18px;
-      border-radius: 24px 24px 0 24px;
-      max-width: 80%;
-      font-size: 1.07em;
+      padding: 6px 10px;
+      border-radius: 13px 13px 0 13px;
+      max-width: 90%;
+      font-size: 0.97em;
       word-break: break-word;
-      box-shadow: 0 2px 6px #8e24aa33;
-      animation: fadeIn 0.3s;
+      box-shadow: 0 1px 4px #8e24aa22;
+      animation: fadeIn 0.23s;
     }
     .lia-message {
       align-self: flex-start;
       background: #e1bee7;
       color: #222;
-      padding: 10px 18px;
-      border-radius: 24px 24px 24px 0;
-      max-width: 80%;
-      font-size: 1.07em;
+      padding: 6px 10px;
+      border-radius: 13px 13px 13px 0;
+      max-width: 90%;
+      font-size: 0.97em;
       word-break: break-word;
-      box-shadow: 0 2px 6px #ce9ffc33;
-      animation: fadeIn 0.3s;
+      box-shadow: 0 1px 4px #ce9ffc22;
+      animation: fadeIn 0.23s;
     }
     .lia-message a {
       color: #6a1b9a;
@@ -83,21 +84,21 @@
       word-break: break-word;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px);}
+      from { opacity: 0; transform: translateY(8px);}
       to { opacity: 1; transform: translateY(0);}
     }
     .input-area {
       display: flex;
-      padding: 12px;
+      padding: 7px;
       border-top: 1px solid #eee;
       background: #fff;
     }
     #user-input {
       flex-grow: 1;
-      padding: 12px 16px;
-      border: 1.5px solid #ce9ffc;
-      border-radius: 30px;
-      font-size: 1.05em;
+      padding: 7px 10px;
+      border: 1px solid #ce9ffc;
+      border-radius: 18px;
+      font-size: 0.93em;
       outline: none;
       transition: border-color 0.2s;
     }
@@ -108,83 +109,87 @@
       background-color: #8e24aa;
       color: white;
       border: none;
-      border-radius: 30px;
-      padding: 0 20px;
-      margin-left: 12px;
+      border-radius: 18px;
+      padding: 0 12px;
+      margin-left: 7px;
       cursor: pointer;
-      font-size: 1.1em;
-      transition: background 0.2s;
-      box-shadow: 0 1px 4px #8e24aa55;
+      font-size: 1em;
+      transition: background 0.18s;
+      box-shadow: 0 1px 3px #8e24aa33;
+      height: 30px;
+      min-width: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     button:hover {
       background-color: #6a1b9a;
     }
     /* Ta Te Ti styles */
     .tateti-container {
-      margin: 25px auto 0 auto;
+      margin: 18px auto 0 auto;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 7px;
       background: #f3e6ff;
-      border-radius: 14px;
-      padding: 16px 0 12px 0;
-      box-shadow: 0 3px 12px #ab47bc22;
-      width: 300px;
+      border-radius: 10px;
+      padding: 10px 0 8px 0;
+      box-shadow: 0 2px 8px #ab47bc18;
+      width: 180px;
     }
     .tateti-board {
       display: grid;
-      grid-template-columns: repeat(3, 60px);
-      grid-template-rows: repeat(3, 60px);
-      gap: 8px;
-      margin-bottom: 10px;
+      grid-template-columns: repeat(3, 32px);
+      grid-template-rows: repeat(3, 32px);
+      gap: 5px;
+      margin-bottom: 7px;
     }
     .tateti-cell {
       background: #fff;
-      border: 2px solid #ae7cc1;
-      border-radius: 10px;
-      width: 60px;
-      height: 60px;
-      font-size: 2em;
+      border: 1.3px solid #ae7cc1;
+      border-radius: 7px;
+      width: 32px;
+      height: 32px;
+      font-size: 1.25em;
       color: #7c1684;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.18s;
       user-select: none;
     }
     .tateti-cell:hover {
       background: #f3e6ff;
     }
     .tateti-status {
-      font-size: 1.1em;
+      font-size: 0.93em;
       color: #6a1b9a;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       text-align: center;
-      min-height: 28px;
+      min-height: 20px;
     }
     .tateti-reset {
       background: #8e24aa;
       color: #fff;
       border: none;
-      border-radius: 20px;
-      padding: 6px 20px;
-      font-size: 1em;
-      margin-top: 5px;
+      border-radius: 16px;
+      padding: 3px 11px;
+      font-size: 0.92em;
+      margin-top: 2px;
       cursor: pointer;
-      transition: background 0.2s;
-      box-shadow: 0 1px 4px #8e24aa22;
+      transition: background 0.18s;
+      box-shadow: 0 1px 3px #8e24aa18;
     }
     .tateti-reset:hover {
       background: #6a1b9a;
     }
-    @media (max-width: 600px) {
-      .chat-container { max-width: 98vw; height: 80vh;}
-      .chat-box { padding: 10px 4px;}
-      .tateti-container { width: 98vw;}
-      .tateti-board { grid-template-columns: repeat(3, 18vw); grid-template-rows: repeat(3, 18vw);}
-      .tateti-cell { width: 18vw; height: 18vw; font-size: 2.3em;}
+    @media (max-width: 400px) {
+      .chat-container { max-width: 96vw; }
+      .tateti-container { width: 97vw;}
+      .tateti-board { grid-template-columns: repeat(3, 22vw); grid-template-rows: repeat(3, 22vw);}
+      .tateti-cell { width: 22vw; height: 22vw; font-size: 1.1em;}
     }
   </style>
 </head>
