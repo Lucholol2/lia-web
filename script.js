@@ -1,16 +1,21 @@
+// Lista para guardar mensajes no entendidos
+const erroresNoEntendidos = [];
+
 // Función que decide la respuesta según mensaje del usuario
 function responder(mensajeUsuario) {
   const msg = mensajeUsuario.toLowerCase().trim();
 
-  // Detecta cualquier mensaje que contenga "lista" y "frutas" o solo "fruta(s)"
   if ((msg.includes('lista') && msg.includes('frutas')) || msg.includes('fruta')) {
     return 'LISTA_FRUTAS';
   }
 
+  // Guardar el mensaje no reconocido
+  erroresNoEntendidos.push(mensajeUsuario);
+
   return "No entendí muy bien... 😅";
 }
 
-// Mensaje con la lista de frutas
+// Mensaje con la lista de frutas en HTML
 const listaFrutas = `<b>Lista de frutas:</b>
 <ul>
   <li>Manzana 🍎</li>
@@ -21,41 +26,4 @@ const listaFrutas = `<b>Lista de frutas:</b>
   <li>Uvas 🍇</li>
 </ul>`;
 
-// Función que procesa el mensaje del usuario y agrega la respuesta en el chat
-function procesarMensaje(mensaje) {
-  agregarMensaje('user', mensaje);
-
-  const respuesta = responder(mensaje);
-
-  if (respuesta === 'LISTA_FRUTAS') {
-    agregarMensaje('lia', listaFrutas);
-  } else {
-    agregarMensaje('lia', respuesta);
-  }
-}
-
-// Función que agrega mensajes al chat visualmente
-function agregarMensaje(tipo, texto) {
-  const chatBox = document.getElementById('chat-box');
-  const contenedor = document.createElement('div');
-  contenedor.classList.add(tipo);
-
-  const mensaje = document.createElement('div');
-  mensaje.classList.add(tipo + '-message');
-  mensaje.innerHTML = texto;
-
-  contenedor.appendChild(mensaje);
-  chatBox.appendChild(contenedor);
-  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll
-}
-
-// Ejemplo de uso: escuchar el input y enviar mensaje al presionar Enter
-document.getElementById('user-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    const texto = e.target.value.trim();
-    if (texto.length > 0) {
-      procesarMensaje(texto);
-      e.target.value = '';
-    }
-  }
-});
+// Función que procesa el mensaje
