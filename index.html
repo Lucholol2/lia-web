@@ -2,25 +2,110 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat con Lia Mejorado</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Chat con Lista de frutas</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, #f3e5f5 0%, #e1bee7 100%);
+      color: #2a1432;
+      margin: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    #chat-box {
+      width: 350px;
+      height: 300px;
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      overflow-y: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .lia-message {
+      background: #e1bee7;
+      padding: 8px;
+      border-radius: 10px;
+      margin: 5px 0;
+      color: #3d1747;
+    }
+    .user-message {
+      background: #8e24aa;
+      color: white;
+      padding: 8px;
+      border-radius: 10px;
+      margin: 5px 0;
+      text-align: right;
+    }
+  </style>
 </head>
 <body>
-  <h1>Hola, papá! ¿Querés charlar conmigo? 😄</h1>
-  <div class="subtitulo">Prueba el chat con voz y texto</div>
+  <h1>Chat con Lista de frutas</h1>
+  <div id="chat-box"></div>
 
-  <div id="chat" class="chat-container">
-    <div id="chat-box"></div>
-  </div>
+  <input type="text" id="user-input" placeholder="Escribí tu mensaje" style="width: 350px; margin-top: 10px; padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
+  <button id="send-btn" style="margin-top: 10px;">Enviar</button>
 
-  <div id="inputArea" class="input-container">
-    <input type="text" id="user-input" placeholder="Escribí tu mensaje..." autocomplete="off" />
-    <button id="send-btn" title="Enviar">➤</button>
-    <button id="mic-btn" title="Hablar 🎤">🎤</button>
-    <button id="clear-btn" title="Borrar historial" style="border-radius:14px; width:auto; padding: 0 10px; font-size: 0.8em;">🗑️ Limpiar</button>
-  </div>
+  <script>
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
 
-  <script src="script.js"></script>
+    function agregarMensaje(texto, tipo) {
+      const div = document.createElement('div');
+      div.className = tipo === 'user' ? 'user-message' : 'lia-message';
+
+      if (tipo === 'lia' && texto === 'LISTA_FRUTAS') {
+        // Mensaje especial: lista de frutas en formato HTML
+        div.innerHTML = `
+          <b>Lista de frutas:</b>
+          <ul>
+            <li>Manzana 🍎</li>
+            <li>Banana 🍌</li>
+            <li>Naranja 🍊</li>
+            <li>Frutilla 🍓</li>
+            <li>Mango 🥭</li>
+            <li>Uvas 🍇</li>
+          </ul>
+        `;
+      } else {
+        div.textContent = texto;
+      }
+
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function responder(mensajeUsuario) {
+      const msg = mensajeUsuario.toLowerCase();
+
+      if (msg.includes('lista de frutas') || msg.includes('frutas')) {
+        return 'LISTA_FRUTAS'; // Señal especial para mostrar la lista HTML
+      }
+
+      return "No entendí muy bien... 😅";
+    }
+
+    function enviarMensaje() {
+      const texto = userInput.value.trim();
+      if (!texto) return;
+
+      agregarMensaje(texto, 'user');
+      userInput.value = '';
+
+      setTimeout(() => {
+        const respuesta = responder(texto);
+        agregarMensaje(respuesta, 'lia');
+      }, 500);
+    }
+
+    sendBtn.addEventListener('click', enviarMensaje);
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        enviarMensaje();
+      }
+    });
+  </script>
 </body>
 </html>
