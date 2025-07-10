@@ -11,7 +11,11 @@ function scrollToBottom() {
 function addMessage(text, className) {
   const msg = document.createElement('div');
   msg.className = className;
-  msg.textContent = text;
+  if (className === 'lia-message') {
+    msg.innerHTML = text; // permite HTML como enlaces
+  } else {
+    msg.textContent = text;
+  }
   chatBox.appendChild(msg);
   scrollToBottom();
 }
@@ -22,21 +26,40 @@ function speak(text) {
   const synth = window.speechSynthesis;
   let voices = synth.getVoices();
 
-  // Safari: el array puede estar vacío la primera vez
+  // Safari: puede estar vacío al principio
   if (!voices.length) {
     synth.onvoiceschanged = () => speak(text);
     return;
   }
 
   const argentinian = voices.find(v => v.lang === 'es-AR');
+  const fallback = voices.find(v => v.lang.startsWith('es')) || voices[0];
   const utter = new SpeechSynthesisUtterance(text);
-  utter.voice = argentinian || voices.find(v => v.lang.startsWith('es')) || voices[0];
-  utter.lang = utter.voice.lang || 'es-AR';
+  utter.voice = argentinian || fallback;
+  utter.lang = utter.voice?.lang || 'es-AR';
   synth.cancel();
   synth.speak(utter);
 }
 
-// Enviar mensaje al backend y manejar respuesta
+// Consultar a Google con Custom Search API
+async function buscarEnGoogle(query) {
+  const apiKey = 'AIzaSyBVyQ1CmpzvKUqlpPDSskFkR9v2hqoU-Cg';
+  const cx = '232b2051090784dc2';
+
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(query)}`
+    );
+    if (!res.ok) throw new Error("Error de búsqueda");
+    const data = await res.json();
+    return data.items || [];
+  } catch (e) {
+    console.error("Error al buscar en Google:", e);
+    return null;
+  }
+}
+
+// Enviar mensaje al backend o consultar Google
 async function sendMessage() {
   const text = userInput.value.trim();
   if (!text) return;
@@ -45,59 +68,24 @@ async function sendMessage() {
   userInput.value = '';
   userInput.disabled = true;
 
-  try {
-    const res = await fetch('https://lia-backend-v0ta.onrender.com/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text })
-    });
-    const data = await res.json();
-    const reply = data.reply || "Uy, no entendí 😕";
-    addMessage(reply, 'lia-message');
-    speak(reply);
-  } catch (err) {
-    console.error("Error al conectar con el backend:", err);
-    addMessage("Uy, no pude responder 😢", 'lia-message');
-  } finally {
-    userInput.disabled = false;
-    userInput.focus();
-  }
-}
+  // Detectar comando de búsqueda
+  if (/^(busca |\/google )/i.test(text)) {
+    const query = text.replace(/^(busca |\/google )/i, "").trim();
+    if (!query) {
+      addMessage("¿Qué querés que busque? 🧐", 'lia-message');
+      userInput.disabled = false;
+      return;
+    }
 
-// Escuchar voz y enviar mensaje
-function startListening() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    alert("Tu navegador no soporta reconocimiento de voz 😢");
-    return;
-  }
+    addMessage("🔎 Buscando en Google…", 'lia-message');
 
-  const recognition = new SpeechRecognition();
-  recognition.lang = 'es-AR';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.start();
-
-  recognition.onresult = function (event) {
-    const spokenText = event.results[0][0].transcript;
-    userInput.value = spokenText;
-    sendMessage();
-  };
-
-  recognition.onerror = function (event) {
-    console.error("Error al escuchar: ", event.error);
-    addMessage("No pude escucharte bien 😕", 'lia-message');
-  };
-}
-
-// Atajos de teclado y UX
-userInput.addEventListener('keydown', function (e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-});
-
-// Opcional: exportar funciones si usas módulos
-// export { sendMessage, startListening };
+    const resultados = await buscarEnGoogle(query);
+    if (resultados && resultados.length > 0) {
+      resultados.slice(0, 3).forEach(item => {
+        const html = `
+          <strong>📌 ${item.title}</strong><br>
+          <a href="${item.link}" target="_blank">${item.link}</a><br>
+          <em>${item.snippet}</em>
+        `;
+        addMe
+        
