@@ -2,7 +2,7 @@
 const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 
-// Utilidad: Scroll suave al final del chat
+// Scroll suave al fondo
 function scrollToBottom() {
   chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
 }
@@ -20,13 +20,12 @@ function addMessage(text, className) {
   scrollToBottom();
 }
 
-// TTS: Hablar en voz alta (voz argentina si está disponible)
+// TTS: Hablar en voz alta
 function speak(text) {
   if (!window.speechSynthesis) return;
   const synth = window.speechSynthesis;
   let voices = synth.getVoices();
 
-  // Safari: puede estar vacío al principio
   if (!voices.length) {
     synth.onvoiceschanged = () => speak(text);
     return;
@@ -41,7 +40,7 @@ function speak(text) {
   synth.speak(utter);
 }
 
-// Consultar a Google con Custom Search API
+// 🔎 Buscar en Google con la API Custom Search
 async function buscarEnGoogle(query) {
   const apiKey = 'AIzaSyBVyQ1CmpzvKUqlpPDSskFkR9v2hqoU-Cg';
   const cx = '232b2051090784dc2';
@@ -59,7 +58,7 @@ async function buscarEnGoogle(query) {
   }
 }
 
-// Enviar mensaje al backend o consultar Google
+// Enviar mensaje al backend o usar Google
 async function sendMessage() {
   const text = userInput.value.trim();
   if (!text) return;
@@ -68,7 +67,7 @@ async function sendMessage() {
   userInput.value = '';
   userInput.disabled = true;
 
-  // Detectar comando de búsqueda
+  // Buscar en Google si empieza con "busca" o "/google"
   if (/^(busca |\/google )/i.test(text)) {
     const query = text.replace(/^(busca |\/google )/i, "").trim();
     if (!query) {
@@ -87,5 +86,69 @@ async function sendMessage() {
           <a href="${item.link}" target="_blank">${item.link}</a><br>
           <em>${item.snippet}</em>
         `;
-        addMe
-        
+        addMessage(html, 'lia-message');
+      });
+    } else {
+      addMessage("No encontré resultados 😕", 'lia-message');
+    }
+
+    userInput.disabled = false;
+    userInput.focus();
+    return;
+  }
+
+  // Envío normal al backend
+  try {
+    const res = await fetch('https://lia-backend-v0ta.onrender.com/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await res.json();
+    const reply = data.reply || "Uy, no entendí 😕";
+    addMessage(reply, 'lia-message');
+    speak(reply);
+  } catch (err) {
+    console.error("Error al conectar con el backend:", err);
+    addMessage("Uy, no pude responder 😢", 'lia-message');
+  } finally {
+    userInput.disabled = false;
+    userInput.focus();
+  }
+}
+
+// Escuchar voz y enviar mensaje
+function startListening() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("Tu navegador no soporta reconocimiento de voz 😢");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'es-AR';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+
+  recognition.onresult = function (event) {
+    const spokenText = event.results[0][0].transcript;
+    userInput.value = spokenText;
+    sendMessage();
+  };
+
+  recognition.onerror = function (event) {
+    console.error("Error al escuchar: ", event.error);
+    addMessage("No pude escucharte bien 😕", 'lia-message');
+  };
+}
+
+// Atajo Enter para enviar
+userInput.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
