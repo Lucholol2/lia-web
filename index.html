@@ -199,17 +199,7 @@
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function procesarMensaje(texto) {
-    const mensaje = texto.toLowerCase().trim();
-
-    if (mensaje === 'lista de frutas' || mensaje === 'frutas' || mensaje === 'dame la lista de frutas') {
-      return `🍎 Manzana
-🍌 Banana
-🍊 Naranja
-🍓 Frutilla
-🥭 Mango
-🍇 Uvas`;
-    }
+  
 
     // No entendió, guarda el mensaje
     erroresNoEntendidos.push(texto);
