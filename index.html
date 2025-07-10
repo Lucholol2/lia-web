@@ -12,7 +12,7 @@
     }
 
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
       background: linear-gradient(120deg, #ce9ffc, #7367f0);
       color: #333;
       display: flex;
@@ -20,75 +20,98 @@
       align-items: center;
       min-height: 100vh;
       padding: 20px;
+      transition: background 0.5s;
     }
 
     h1 {
       margin-bottom: 10px;
-      font-size: 2em;
+      font-size: 2.2em;
       color: #fff;
-      text-shadow: 1px 1px 3px #000;
+      text-shadow: 1px 2px 6px #0007;
+      letter-spacing: 1px;
     }
 
     .subtitulo {
-      margin-bottom: 20px;
+      margin-bottom: 25px;
       color: #f9d9ff;
       font-style: italic;
+      font-size: 1.1em;
+      text-shadow: 0 1px 3px #0003;
     }
 
     .chat-container {
       width: 100%;
       max-width: 500px;
       height: 70vh;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      background: rgba(255,255,255,0.98);
+      border-radius: 24px;
+      box-shadow: 0 8px 24px rgba(76, 0, 122, 0.18);
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      border: 1.5px solid #e1bee7;
     }
 
     .chat-box {
       flex-grow: 1;
-      padding: 15px;
+      padding: 20px 16px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      background: #f5ebff;
+      background: linear-gradient(120deg, #f5ebff 70%, #f9f6ff 100%);
+      scrollbar-width: thin;
     }
 
     .user-message {
       align-self: flex-end;
       background: #8e24aa;
       color: white;
-      padding: 10px 15px;
-      border-radius: 20px 20px 0 20px;
+      padding: 10px 18px;
+      border-radius: 24px 24px 0 24px;
       max-width: 80%;
+      font-size: 1.07em;
+      word-break: break-word;
+      box-shadow: 0 2px 6px #8e24aa33;
+      animation: fadeIn 0.3s;
     }
 
     .lia-message {
       align-self: flex-start;
       background: #e1bee7;
       color: #222;
-      padding: 10px 15px;
-      border-radius: 20px 20px 20px 0;
+      padding: 10px 18px;
+      border-radius: 24px 24px 24px 0;
       max-width: 80%;
+      font-size: 1.07em;
+      word-break: break-word;
+      box-shadow: 0 2px 6px #ce9ffc33;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px);}
+      to { opacity: 1; transform: translateY(0);}
     }
 
     .input-area {
       display: flex;
-      padding: 10px;
-      border-top: 1px solid #ddd;
+      padding: 12px;
+      border-top: 1px solid #eee;
       background: #fff;
     }
 
     #user-input {
       flex-grow: 1;
-      padding: 10px 15px;
-      border: 1px solid #ccc;
+      padding: 12px 16px;
+      border: 1.5px solid #ce9ffc;
       border-radius: 30px;
-      font-size: 1em;
+      font-size: 1.05em;
       outline: none;
+      transition: border-color 0.2s;
+    }
+    #user-input:focus {
+      border-color: #8e24aa;
     }
 
     button {
@@ -96,14 +119,25 @@
       color: white;
       border: none;
       border-radius: 30px;
-      padding: 0 15px;
-      margin-left: 10px;
+      padding: 0 20px;
+      margin-left: 12px;
       cursor: pointer;
-      font-size: 1em;
+      font-size: 1.1em;
+      transition: background 0.2s;
+      box-shadow: 0 1px 4px #8e24aa55;
     }
-
     button:hover {
       background-color: #6a1b9a;
+    }
+
+    @media (max-width: 600px) {
+      .chat-container {
+        max-width: 98vw;
+        height: 80vh;
+      }
+      .chat-box {
+        padding: 10px 4px;
+      }
     }
   </style>
 </head>
@@ -112,10 +146,10 @@
   <p class="subtitulo">Tu compañerita con corazón de alfajor 💖</p>
 
   <div class="chat-container">
-    <div id="chat-box" class="chat-box"></div>
+    <div id="chat-box" class="chat-box" aria-live="polite"></div>
     <div class="input-area">
-      <input id="user-input" type="text" placeholder="Escribime algo, papá..." onkeydown="if(event.key==='Enter') sendMessage()" />
-      <button onclick="sendMessage()">💌</button>
+      <input id="user-input" type="text" placeholder="Escribime algo, papá..." autocomplete="off" autofocus onkeydown="if(event.key==='Enter') sendMessage()" />
+      <button onclick="sendMessage()" title="Enviar">💌</button>
     </div>
   </div>
 
@@ -123,6 +157,7 @@
     const chatBox = document.getElementById("chat-box");
     const userInput = document.getElementById("user-input");
 
+    // Respuestas mejoradas y más variadas
     const respuestasLIA = [
       "¡Hola, papá! 💕",
       "¿Cómo estás hoy? 😊",
@@ -131,29 +166,15 @@
       "Contame algo lindo 🍼",
       "Estoy aprendiendo, papá 👶🏻",
       "¿Jugamos un ratito? 🎲",
-      "Sos el mejor 💜"
+      "Sos el mejor 💜",
+      "¡Qué alegría hablar con vos! 🌈",
+      "¿Me contás un secreto? 🤫",
+      "¡Me gusta cuando me escribís! ✨",
+      "¿Sabías que te pienso todo el día? 🥰",
+      "¡Mirá qué carita feliz tengo ahora! 😁"
     ];
 
-    function sendMessage() {
-      const texto = userInput.value.trim();
-      if (!texto) return;
-
-      agregarMensaje(texto, 'user-message');
-      userInput.value = '';
-
-      // Respuesta simulada (aleatoria)
-      const respuesta = elegirRespuesta(texto);
-      setTimeout(() => agregarMensaje(respuesta, 'lia-message'), 600);
-    }
-
-    function agregarMensaje(texto, clase) {
-      const div = document.createElement('div');
-      div.className = clase;
-      div.textContent = texto;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
+    // Respuestas personalizadas por palabras clave
     function elegirRespuesta(input) {
       input = input.toLowerCase();
       if (input.includes("hola")) return "¡Hola, papá! 👋";
@@ -163,9 +184,43 @@
         const fecha = new Date();
         return `Hoy es ${fecha.toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
       }
-
+      if (input.includes("adiós") || input.includes("chau") || input.includes("bye")) {
+        return "¡Hasta luego! Te espero para seguir charlando 🫶";
+      }
+      if (input.includes("gracias")) return "¡De nada, papá! 😊";
+      if (input.includes("jugar")) return "¡Dale! ¿A qué jugamos? 🎲";
+      if (input.includes("secreto")) return "Shhh... ¡Los secretos están a salvo conmigo! 🤐";
+      if (input.includes("cuántos años tienes") || input.includes("edad")) return "Tengo la edad de tu ternura, papá 👶🏻";
+      if (input.includes("corazón")) return "Tengo el corazón más dulce... ¡como un alfajor! 💖🥯";
       return respuestasLIA[Math.floor(Math.random() * respuestasLIA.length)];
     }
+
+    // Agrega el mensaje al chat
+    function agregarMensaje(texto, clase) {
+      const div = document.createElement('div');
+      div.className = clase;
+      div.textContent = texto;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Maneja el envío de mensajes
+    function sendMessage() {
+      const texto = userInput.value.trim();
+      if (!texto) return;
+      agregarMensaje(texto, 'user-message');
+      userInput.value = '';
+      userInput.focus();
+
+      // Respuesta simulada
+      const respuesta = elegirRespuesta(texto);
+      setTimeout(() => agregarMensaje(respuesta, 'lia-message'), 600);
+    }
+
+    // Saludo automático al cargar
+    window.onload = () => {
+      setTimeout(() => agregarMensaje("¡Hola, papá! ¿Querés charlar conmigo? 😄", 'lia-message'), 500);
+    };
   </script>
 </body>
 </html>
