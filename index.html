@@ -19,6 +19,16 @@
     padding: 5px 2px;
     user-select: none;
   }
+
+  /* Versión arriba */
+  #version {
+    font-size: 0.85em;
+    color: #6a1b9a;
+    font-weight: 600;
+    margin-bottom: 8px;
+    user-select: none;
+  }
+
   h1 {
     margin-bottom: 7px;
     font-size: 1.3em;
@@ -130,6 +140,8 @@
 </head>
 <body>
 
+<div id="version">Versión 1.0</div>
+
 <h1>Hola, papá! Lia aprende contigo 😊</h1>
 <div class="subtitulo">Escribí algo, y si Lia no sabe, me decís qué responder.</div>
 
@@ -147,22 +159,17 @@
         sendBtn = document.getElementById('send-btn'),
         clearBtn = document.getElementById('clear-btn');
 
-  // Clave en localStorage para guardar el "cerebro" de Lia
   const STORAGE_KEY = 'lia_chat_brain';
 
-  // Estado para saber si estamos pidiendo respuesta para aprender
   let esperandoRespuesta = false;
   let preguntaPendiente = '';
 
-  // Cargar cerebro de Lia o iniciar vacío
   let cerebro = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
-  // Función para guardar cerebro en localStorage
   function guardarCerebro() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cerebro));
   }
 
-  // Añade mensaje al chat
   function agregarMensaje(texto, clase) {
     const msg = document.createElement('div');
     msg.className = clase;
@@ -171,11 +178,9 @@
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  // Procesar mensaje de usuario
   function procesarMensaje(texto) {
     texto = texto.toLowerCase().trim();
     if (esperandoRespuesta) {
-      // Estamos aprendiendo: guardamos respuesta para pregunta pendiente
       cerebro[preguntaPendiente] = texto;
       guardarCerebro();
       esperandoRespuesta = false;
@@ -183,32 +188,26 @@
       return '¡Gracias! He aprendido algo nuevo 😊';
     }
 
-    // Si pregunta ya está aprendida, devolver respuesta
     if (cerebro[texto]) {
       return cerebro[texto];
     }
 
-    // Sino, no sabe, pide que enseñes
     esperandoRespuesta = true;
     preguntaPendiente = texto;
     return 'No entendí muy bien... ¿Cómo debería responder a eso?';
   }
 
-  // Enviar mensaje y mostrar respuesta
   function enviarMensaje() {
     const texto = userInput.value.trim();
     if (!texto) return;
     agregarMensaje(texto, 'user');
     userInput.value = '';
-
-    // Procesar respuesta con retraso para mejor UX
     setTimeout(() => {
       const respuesta = procesarMensaje(texto);
       agregarMensaje(respuesta, 'lia');
     }, 400);
   }
 
-  // Limpiar chat y cerebro
   clearBtn.addEventListener('click', () => {
     if (confirm('¿Seguro querés borrar todo el chat y el aprendizaje de Lia?')) {
       localStorage.removeItem(STORAGE_KEY);
