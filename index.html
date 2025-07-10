@@ -82,6 +82,15 @@
       text-decoration: underline;
       word-break: break-word;
     }
+    ul {
+      padding-left: 20px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      color: #3d1747;
+    }
+    li {
+      margin-bottom: 4px;
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(12px);}
       to { opacity: 1; transform: translateY(0);}
@@ -132,26 +141,65 @@
   <div class="chat-container">
     <div id="chat-box" class="chat-box" aria-live="polite"></div>
     <div class="input-area">
-      <input id="user-input" type="text" placeholder="Escribime algo, papá..." autocomplete="off" autofocus onkeydown="if(event.key==='Enter') sendMessage()" />
+      <input
+        id="user-input"
+        type="text"
+        placeholder="Escribime algo, papá..."
+        autocomplete="off"
+        autofocus
+        onkeydown="if(event.key==='Enter') sendMessage()"
+      />
       <button onclick="sendMessage()" title="Enviar">💌</button>
     </div>
   </div>
 
   <script>
-    const API_KEY = 'AIzaSyCPafK6G0bNRhRR_WVXIr1EZW-UHTk-0k8';
-    const CX = '232b2051090784dc2';
+    const chatBox = document.getElementById("chat-box");
+    const userInput = document.getElementById("user-input");
 
-    const chatBox = document.getElementById('chat-box');
-    const userInput = document.getElementById('user-input');
-
+    // Función para hacer scroll al final
     function scrollToBottom() {
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
+    // Crear lista HTML a partir de array
+    function generarLista(items) {
+      const elementos = items.map(item => `<li>${item.trim()}</li>`).join('');
+      return `<ul>${elementos}</ul>`;
+    }
+
+    // Función para elegir la respuesta de LIA
+    function elegirRespuesta(input) {
+      input = input.toLowerCase();
+
+      if (input.includes('lista de frutas')) {
+        const frutas = ['Manzana', 'Banana', 'Naranja', 'Frutilla', 'Kiwi'];
+        return `Acá tenés una lista de frutas:${generarLista(frutas)}`;
+      }
+
+      if (input.includes('lista de colores')) {
+        const colores = ['Rojo', 'Azul', 'Verde', 'Amarillo', 'Violeta'];
+        return `Estos son algunos colores:${generarLista(colores)}`;
+      }
+
+      if (input.includes('lista de animales')) {
+        const animales = ['Perro', 'Gato', 'Elefante', 'Tigre', 'Jirafa'];
+        return `Aquí tenés una lista de animales:${generarLista(animales)}`;
+      }
+
+      if (input.includes('hola')) return '¡Hola, papá! 💕';
+      if (input.includes('cómo estás')) return '¡Muy bien! ¿Y vos, papá? 🥰';
+      if (input.includes('gracias')) return '¡De nada, papá! 😊';
+
+      return 'No entendí muy bien... 😅';
+    }
+
+    // Función para agregar mensaje al chat
     function agregarMensaje(texto, clase) {
       const div = document.createElement('div');
       div.className = clase;
-      if (clase === 'lia-message' && texto.includes('<a ')) {
+      // Si es mensaje de LIA y contiene HTML (listas, links), usar innerHTML
+      if (clase === 'lia-message' && (texto.includes('<ul>') || texto.includes('<a '))) {
         div.innerHTML = texto;
       } else {
         div.textContent = texto;
@@ -160,21 +208,8 @@
       scrollToBottom();
     }
 
-    async function buscarGoogle(query) {
-      try {
-        const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Error en búsqueda');
-        const data = await res.json();
-        return data.items || [];
-      } catch (e) {
-        console.error('Error en buscarGoogle:', e);
-        agregarMensaje(`Error al buscar: ${e.message}`, 'lia-message');
-        return [];
-      }
-    }
-
-    async function sendMessage() {
+    // Función principal que envía mensaje
+    function sendMessage() {
       const texto = userInput.value.trim();
       if (!texto) return;
 
@@ -182,42 +217,15 @@
       userInput.value = '';
       userInput.disabled = true;
 
-      if (texto.toLowerCase().startsWith('busca ') || texto.toLowerCase().startsWith('google ')) {
-        agregarMensaje('🔎 Buscando en Google...', 'lia-message');
-        const query = texto.replace(/^busca |^google /i, '');
-        const resultados = await buscarGoogle(query);
-
-        if (resultados.length === 0) {
-          agregarMensaje('No encontré nada 😕', 'lia-message');
-        } else {
-          resultados.slice(0, 3).forEach(item => {
-            const link = `<a href="${item.link}" target="_blank" rel="noopener">${item.title}</a><br>${item.snippet}`;
-            agregarMensaje(link, 'lia-message');
-          });
-        }
-      } else {
+      setTimeout(() => {
         const respuesta = elegirRespuesta(texto);
         agregarMensaje(respuesta, 'lia-message');
-      }
-
-      userInput.disabled = false;
-      userInput.focus();
+        userInput.disabled = false;
+        userInput.focus();
+      }, 600);
     }
 
-    function elegirRespuesta(input) {
-      input = input.toLowerCase();
-      if (input.includes('hola')) return '¡Hola, papá! 💕';
-      if (input.includes('cómo estás')) return '¡Muy bien! ¿Y vos, papá? 🥰';
-      return 'No entendí muy bien... 😅';
-    }
-
-    userInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
+    // Mensaje inicial al cargar la página
     window.onload = () => {
       setTimeout(() => agregarMensaje('¡Hola, papá! ¿Querés charlar conmigo? 😄', 'lia-message'), 500);
     };
