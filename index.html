@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lia - Asistente con Voz</title>
+  <title>Lia - Voz y Teclado Predictivo</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     body { background: linear-gradient(135deg, #f3e5f5, #ce93d8); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 12px; }
@@ -31,7 +31,7 @@
     #chat {
       width: 100%;
       max-width: 440px;
-      height: 60vh;
+      height: 58vh;
       background: #fff;
       border-radius: 16px;
       padding: 14px;
@@ -47,12 +47,42 @@
     .lia { background: #f3e5f5; color: #3d176a; align-self: flex-start; border-bottom-left-radius: 4px; }
     .lia a { color: #6a1b9a; font-weight: bold; }
 
+    /* Barra predictiva estilo Google */
+    #predict-bar {
+      width: 100%;
+      max-width: 440px;
+      min-height: 38px;
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      overflow-x: auto;
+      padding: 2px 0;
+      align-items: center;
+    }
+
+    .chip-predict {
+      background: #ffffff;
+      color: #6a1b9a;
+      border: 1px solid #d1a9e6;
+      border-radius: 14px;
+      padding: 6px 12px;
+      font-size: 0.88em;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .chip-predict:hover { background: #f3e5f5; }
+    .chip-predict:active { transform: scale(0.95); }
+
     .bar {
       width: 100%;
       max-width: 440px;
       display: flex;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 6px;
       align-items: center;
     }
 
@@ -108,15 +138,18 @@
 <body>
 
   <div class="top-bar">
-    <h1>Lia - Asistente con Voz 🎙️</h1>
+    <h1>Lia - Voz y Predictivo 🎙️</h1>
     <button id="toggle-voice" class="voice-toggle">Voz: Activada 🔊</button>
   </div>
 
   <div id="chat"></div>
 
+  <!-- Barra predictiva -->
+  <div id="predict-bar"></div>
+
   <div class="bar">
     <button id="mic-btn" class="action-btn" title="Hablar por micrófono">🎙️</button>
-    <input type="text" id="txt" placeholder="Escribí o tocá el micrófono..." autocomplete="off" />
+    <input type="text" id="txt" placeholder="Escribí acá o usá el micrófono..." autocomplete="off" />
     <button id="send-btn" class="action-btn">Enviar</button>
   </div>
 
@@ -126,32 +159,40 @@
     const sendBtn = document.getElementById('send-btn');
     const micBtn = document.getElementById('mic-btn');
     const toggleVoiceBtn = document.getElementById('toggle-voice');
+    const predictBar = document.getElementById('predict-bar');
 
     let vozHabilitada = true;
 
-    // Cambiar estado de la voz
+    // Palabras para sugerir en el teclado predictivo
+    const palabrasBase = [
+      "hola", "buen día", "cómo estás", "clima", "clima de hoy", "temperatura", 
+      "hora", "qué hora es", "fecha", "hoy", "un chiste", "contame un chiste", 
+      "gracias", "chau", "te quiero", "buscar", "hacés", "comer", "mate"
+    ];
+
+    // Interruptor de sonido
     toggleVoiceBtn.addEventListener('click', () => {
       vozHabilitada = !vozHabilitada;
       toggleVoiceBtn.textContent = vozHabilitada ? 'Voz: Activada 🔊' : 'Voz: Silencio 🔇';
       if (!vozHabilitada) window.speechSynthesis.cancel();
     });
 
-    // Función para que Lia hable
+    // Función para hablar
     function hablar(texto) {
       if (!vozHabilitada || !('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel(); // Detiene audios previos
+      window.speechSynthesis.cancel();
 
-      // Limpia enlaces o etiquetas HTML antes de pronunciarlo
+      // Limpia enlaces o etiquetas HTML antes de hablar
       const textoLimpio = texto.replace(/<[^>]*>/g, '').replace(/https?:\/\/\S+/g, '');
       const utterance = new SpeechSynthesisUtterance(textoLimpio);
-      utterance.lang = 'es-AR'; // Español rioplatense / general
-      utterance.rate = 1.0;     // Velocidad normal
-      utterance.pitch = 1.1;    // Tono ligeramente amigable
+      utterance.lang = 'es-AR';
+      utterance.rate = 1.0;
+      utterance.pitch = 1.1;
 
       window.speechSynthesis.speak(utterance);
     }
 
-    // Reconocimiento de voz (Micrófono)
+    // Micrófono
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;
 
@@ -174,23 +215,62 @@
 
       recognition.onend = () => {
         micBtn.classList.remove('listening');
-        input.placeholder = 'Escribí o tocá el micrófono...';
+        input.placeholder = 'Escribí acá o usá el micrófono...';
       };
 
       recognition.onerror = () => {
         micBtn.classList.remove('listening');
-        input.placeholder = 'No se pudo escuchar. Probá de nuevo.';
       };
 
       micBtn.addEventListener('click', () => {
-        try {
-          recognition.start();
-        } catch (e) {
-          recognition.stop();
-        }
+        try { recognition.start(); } catch (e) { recognition.stop(); }
       });
     } else {
-      micBtn.style.display = 'none'; // Oculta botón si el navegador no lo soporta
+      micBtn.style.display = 'none';
+    }
+
+    // Funciones del teclado predictivo
+    function actualizarPredicciones() {
+      const val = input.value;
+      predictBar.innerHTML = '';
+
+      if (!val.trim()) {
+        mostrarChips(["hola", "clima de hoy", "qué hora es", "contame un chiste"]);
+        return;
+      }
+
+      const partes = val.split(' ');
+      const palabraActual = partes[partes.length - 1].toLowerCase();
+
+      if (!palabraActual) return;
+
+      const coincidencias = palabrasBase.filter(p => 
+        p.toLowerCase().startsWith(palabraActual) || p.toLowerCase().includes(palabraActual)
+      ).slice(0, 4);
+
+      if (coincidencias.length > 0) {
+        mostrarChips(coincidencias, true);
+      }
+    }
+
+    function mostrarChips(lista, reemplazarUltima = false) {
+      lista.forEach(palabra => {
+        const chip = document.createElement('div');
+        chip.className = 'chip-predict';
+        chip.textContent = palabra;
+        chip.addEventListener('click', () => {
+          if (reemplazarUltima) {
+            const partes = input.value.split(' ');
+            partes[partes.length - 1] = palabra;
+            input.value = partes.join(' ') + ' ';
+          } else {
+            input.value = palabra;
+          }
+          input.focus();
+          actualizarPredicciones();
+        });
+        predictBar.appendChild(chip);
+      });
     }
 
     function ponerMensaje(texto, tipo, esHtml = false) {
@@ -212,7 +292,7 @@
         const ciudad = data.nearest_area[0].areaName[0].value;
         return `El clima en ${ciudad} es de ${temp} grados, con sensación térmica de ${sensacion} grados.`;
       } catch (e) {
-        return 'Podés ver el pronóstico del clima tocando acá: <a href="https://www.google.com/search?q=clima+hoy" target="_blank">Ver Clima</a>';
+        return 'Podés ver el pronóstico tocando acá: <a href="https://www.google.com/search?q=clima+hoy" target="_blank">Ver Clima</a>';
       }
     }
 
@@ -224,8 +304,7 @@
         return { texto: climaTxt, esHtml: climaTxt.includes('<a') };
       }
       if (/hora/.test(t)) {
-        const ahora = new Date();
-        const hora = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         return { texto: `Son las ${hora}.`, esHtml: false };
       }
       if (/dia|fecha/.test(t)) {
@@ -233,10 +312,10 @@
         return { texto: `Hoy es ${fecha}.`, esHtml: false };
       }
       if (/hola|buen dia|buenas/.test(t)) return { texto: "¡Hola! ¿Cómo estás hoy?", esHtml: false };
-      if (/como estas|todo bien/.test(t)) return { texto: "¡Todo muy bien! Contento de charlar con vos.", esHtml: false };
+      if (/como estas|todo bien/.test(t)) return { texto: "¡Todo muy bien! Contenta de charlar con vos.", esHtml: false };
       if (/chiste/.test(t)) return { texto: "¿Qué le dice una taza a otra? ¿Qué taza ciendo? ¡Ja, ja, ja!", esHtml: false };
       if (/te quiero|genia/.test(t)) return { texto: "¡Muchas gracias! Yo también te quiero un montón.", esHtml: false };
-      if (/chau|adios|hasta luego/.test(t)) return { texto: "¡Hasta luego! Cuidate mucho.", esHtml: false };
+      if (/chau|adios/.test(t)) return { texto: "¡Hasta luego! Cuidate mucho.", esHtml: false };
 
       const query = encodeURIComponent(texto);
       return {
@@ -250,17 +329,20 @@
       if (!v) return;
       ponerMensaje(v, 'user');
       input.value = '';
+      actualizarPredicciones();
 
       const resp = await responder(v);
       ponerMensaje(resp.texto, 'lia', resp.esHtml);
       hablar(resp.texto);
     }
 
+    input.addEventListener('input', actualizarPredicciones);
     sendBtn.addEventListener('click', enviar);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') enviar(); });
 
     window.onload = () => {
-      const bienvenida = "¡Hola, papá! Ya puedo hablarte en voz alta y escuchar tu micrófono.";
+      actualizarPredicciones();
+      const bienvenida = "¡Hola, papá! Ya tengo el teclado predictivo y te respondo con voz en alta voz.";
       ponerMensaje(bienvenida, "lia");
     };
   </script>
