@@ -3,16 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lia - Teclado Predictivo</title>
+  <title>Lia - Asistente con Voz</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     body { background: linear-gradient(135deg, #f3e5f5, #ce93d8); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 12px; }
-    h1 { color: #6a1b9a; font-size: 1.25em; margin: 4px 0 8px; }
     
+    .top-bar {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    h1 { color: #6a1b9a; font-size: 1.25em; }
+    .voice-toggle {
+      background: #ffffff;
+      border: 1px solid #ce93d8;
+      border-radius: 16px;
+      padding: 4px 10px;
+      font-size: 0.85em;
+      cursor: pointer;
+      font-weight: 600;
+      color: #6a1b9a;
+    }
+
     #chat {
       width: 100%;
       max-width: 440px;
-      height: 58vh;
+      height: 60vh;
       background: #fff;
       border-radius: 16px;
       padding: 14px;
@@ -22,53 +41,19 @@
       gap: 10px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    
+
     .msg { padding: 10px 14px; border-radius: 16px; max-width: 82%; font-size: 0.95em; line-height: 1.4; word-break: break-word; }
     .user { background: #8e24aa; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
     .lia { background: #f3e5f5; color: #3d176a; align-self: flex-start; border-bottom-left-radius: 4px; }
     .lia a { color: #6a1b9a; font-weight: bold; }
 
-    /* Barra predictiva estilo Google Keyboard */
-    #predict-bar {
-      width: 100%;
-      max-width: 440px;
-      min-height: 38px;
-      display: flex;
-      gap: 6px;
-      margin-top: 8px;
-      overflow-x: auto;
-      padding: 2px 0;
-      align-items: center;
-    }
-
-    .chip-predict {
-      background: #ffffff;
-      color: #6a1b9a;
-      border: 1px solid #d1a9e6;
-      border-radius: 14px;
-      padding: 6px 12px;
-      font-size: 0.88em;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.06);
-      transition: background 0.15s, transform 0.1s;
-    }
-
-    .chip-predict:hover {
-      background: #f3e5f5;
-    }
-
-    .chip-predict:active {
-      transform: scale(0.95);
-    }
-
     .bar {
       width: 100%;
       max-width: 440px;
       display: flex;
-      gap: 8px;
-      margin-top: 6px;
+      gap: 6px;
+      margin-top: 10px;
+      align-items: center;
     }
 
     input {
@@ -79,48 +64,134 @@
       outline: none;
       font-size: 0.95em;
     }
-
     input:focus { border-color: #8e24aa; }
 
-    button {
-      padding: 0 18px;
+    .action-btn {
       border: none;
       border-radius: 20px;
-      background: #8e24aa;
-      color: #fff;
+      height: 42px;
       font-weight: bold;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .action-btn:active { transform: scale(0.95); }
+
+    #mic-btn {
+      background: #ffffff;
+      border: 2px solid #8e24aa;
+      color: #8e24aa;
+      width: 42px;
+      font-size: 1.1em;
+    }
+    #mic-btn.listening {
+      background: #e53935;
+      color: #fff;
+      border-color: #e53935;
+      animation: pulse 1s infinite alternate;
     }
 
-    button:active { opacity: 0.8; }
+    #send-btn {
+      background: #8e24aa;
+      color: #fff;
+      padding: 0 16px;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.08); }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Lia - Teclado Inteligente 😊</h1>
+  <div class="top-bar">
+    <h1>Lia - Asistente con Voz 🎙️</h1>
+    <button id="toggle-voice" class="voice-toggle">Voz: Activada 🔊</button>
+  </div>
+
   <div id="chat"></div>
 
-  <!-- Barra de predicciones estilo Gboard -->
-  <div id="predict-bar"></div>
-
   <div class="bar">
-    <input type="text" id="txt" placeholder="Empezá a escribir..." autocomplete="off" />
-    <button id="btn">Enviar</button>
+    <button id="mic-btn" class="action-btn" title="Hablar por micrófono">🎙️</button>
+    <input type="text" id="txt" placeholder="Escribí o tocá el micrófono..." autocomplete="off" />
+    <button id="send-btn" class="action-btn">Enviar</button>
   </div>
 
   <script>
     const box = document.getElementById('chat');
     const input = document.getElementById('txt');
-    const btn = document.getElementById('btn');
-    const predictBar = document.getElementById('predict-bar');
+    const sendBtn = document.getElementById('send-btn');
+    const micBtn = document.getElementById('mic-btn');
+    const toggleVoiceBtn = document.getElementById('toggle-voice');
 
-    // Diccionario predictivo base
-    const palabrasBase = [
-      "hola", "buen día", "buenas tardes", "cómo estás", "clima", "clima de hoy", 
-      "temperatura", "hora", "qué hora es", "fecha", "hoy", "un chiste", 
-      "contame un chiste", "gracias", "chau", "te quiero", "buscar", "noticias", 
-      "hacés", "sos", "papá", "amigo", "comer", "mate"
-    ];
+    let vozHabilitada = true;
+
+    // Cambiar estado de la voz
+    toggleVoiceBtn.addEventListener('click', () => {
+      vozHabilitada = !vozHabilitada;
+      toggleVoiceBtn.textContent = vozHabilitada ? 'Voz: Activada 🔊' : 'Voz: Silencio 🔇';
+      if (!vozHabilitada) window.speechSynthesis.cancel();
+    });
+
+    // Función para que Lia hable
+    function hablar(texto) {
+      if (!vozHabilitada || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel(); // Detiene audios previos
+
+      // Limpia enlaces o etiquetas HTML antes de pronunciarlo
+      const textoLimpio = texto.replace(/<[^>]*>/g, '').replace(/https?:\/\/\S+/g, '');
+      const utterance = new SpeechSynthesisUtterance(textoLimpio);
+      utterance.lang = 'es-AR'; // Español rioplatense / general
+      utterance.rate = 1.0;     // Velocidad normal
+      utterance.pitch = 1.1;    // Tono ligeramente amigable
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Reconocimiento de voz (Micrófono)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'es-AR';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        micBtn.classList.add('listening');
+        input.placeholder = 'Escuchando tu voz...';
+      };
+
+      recognition.onresult = (event) => {
+        const vozTexto = event.results[0][0].transcript;
+        input.value = vozTexto;
+        enviar();
+      };
+
+      recognition.onend = () => {
+        micBtn.classList.remove('listening');
+        input.placeholder = 'Escribí o tocá el micrófono...';
+      };
+
+      recognition.onerror = () => {
+        micBtn.classList.remove('listening');
+        input.placeholder = 'No se pudo escuchar. Probá de nuevo.';
+      };
+
+      micBtn.addEventListener('click', () => {
+        try {
+          recognition.start();
+        } catch (e) {
+          recognition.stop();
+        }
+      });
+    } else {
+      micBtn.style.display = 'none'; // Oculta botón si el navegador no lo soporta
+    }
 
     function ponerMensaje(texto, tipo, esHtml = false) {
       const d = document.createElement('div');
@@ -131,51 +202,6 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    // Actualiza las palabras sugeridas en tiempo real
-    function actualizarPredicciones() {
-      const val = input.value;
-      predictBar.innerHTML = '';
-
-      if (!val.trim()) {
-        // Sugerencias por defecto rápidas
-        mostrarChips(["hola", "clima de hoy", "qué hora es", "contame un chiste"]);
-        return;
-      }
-
-      const partes = val.split(' ');
-      const palabraActual = partes[partes.length - 1].toLowerCase();
-
-      if (!palabraActual) return;
-
-      const coincidencias = palabrasBase.filter(p => 
-        p.toLowerCase().startsWith(palabraActual) || p.toLowerCase().includes(palabraActual)
-      ).slice(0, 4);
-
-      if (coincidencias.length > 0) {
-        mostrarChips(coincidencias, true);
-      }
-    }
-
-    function mostrarChips(lista, reemplazarUltima = false) {
-      lista.forEach(palabra => {
-        const chip = document.createElement('div');
-        chip.className = 'chip-predict';
-        chip.textContent = palabra;
-        chip.addEventListener('click', () => {
-          if (reemplazarUltima) {
-            const partes = input.value.split(' ');
-            partes[partes.length - 1] = palabra;
-            input.value = partes.join(' ') + ' ';
-          } else {
-            input.value = palabra;
-          }
-          input.focus();
-          actualizarPredicciones();
-        });
-        predictBar.appendChild(chip);
-      });
-    }
-
     async function obtenerClima() {
       try {
         const res = await fetch('https://wttr.in/?format=j1');
@@ -184,9 +210,9 @@
         const temp = actual.temp_C;
         const sensacion = actual.FeelsLikeC;
         const ciudad = data.nearest_area[0].areaName[0].value;
-        return `🌡️ El clima en ${ciudad} es de ${temp}°C (sensación térmica de ${sensacion}°C).`;
+        return `El clima en ${ciudad} es de ${temp} grados, con sensación térmica de ${sensacion} grados.`;
       } catch (e) {
-        return '☀️ Consultá el clima actual tocando acá: <a href="https://www.google.com/search?q=clima+hoy" target="_blank">Ver pronóstico</a>';
+        return 'Podés ver el pronóstico del clima tocando acá: <a href="https://www.google.com/search?q=clima+hoy" target="_blank">Ver Clima</a>';
       }
     }
 
@@ -194,23 +220,27 @@
       const t = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
       if (/clima|temperatura|tiempo|llueve|frio|calor/.test(t)) {
-        return { texto: await obtenerClima(), esHtml: true };
+        const climaTxt = await obtenerClima();
+        return { texto: climaTxt, esHtml: climaTxt.includes('<a') };
       }
       if (/hora/.test(t)) {
-        const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        return { texto: `Son las ${hora} ⏰`, esHtml: false };
+        const ahora = new Date();
+        const hora = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return { texto: `Son las ${hora}.`, esHtml: false };
       }
       if (/dia|fecha/.test(t)) {
         const fecha = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
         return { texto: `Hoy es ${fecha}.`, esHtml: false };
       }
-      if (/hola|buen dia|buenas/.test(t)) return { texto: "¡Hola! ¿Cómo andás?", esHtml: false };
-      if (/como estas|todo bien/.test(t)) return { texto: "¡Todo muy bien! ¿Vos cómo estás?", esHtml: false };
-      if (/chiste/.test(t)) return { texto: "¿Por qué los pájaros vuelan para el sur? ¡Porque caminando tardan mucho! 😂", esHtml: false };
+      if (/hola|buen dia|buenas/.test(t)) return { texto: "¡Hola! ¿Cómo estás hoy?", esHtml: false };
+      if (/como estas|todo bien/.test(t)) return { texto: "¡Todo muy bien! Contento de charlar con vos.", esHtml: false };
+      if (/chiste/.test(t)) return { texto: "¿Qué le dice una taza a otra? ¿Qué taza ciendo? ¡Ja, ja, ja!", esHtml: false };
+      if (/te quiero|genia/.test(t)) return { texto: "¡Muchas gracias! Yo también te quiero un montón.", esHtml: false };
+      if (/chau|adios|hasta luego/.test(t)) return { texto: "¡Hasta luego! Cuidate mucho.", esHtml: false };
 
       const query = encodeURIComponent(texto);
       return {
-        texto: `No conozco eso todavía, pero podés buscarlo acá: <a href="https://www.google.com/search?q=${query}" target="_blank">Buscar "${texto}" en Google 🔍</a>`,
+        texto: `No estoy segura de eso todavía, pero podés mirarlo acá: <a href="https://www.google.com/search?q=${query}" target="_blank">Buscar en Google 🔍</a>`,
         esHtml: true
       };
     }
@@ -220,20 +250,18 @@
       if (!v) return;
       ponerMensaje(v, 'user');
       input.value = '';
-      actualizarPredicciones();
 
       const resp = await responder(v);
       ponerMensaje(resp.texto, 'lia', resp.esHtml);
+      hablar(resp.texto);
     }
 
-    // Eventos
-    input.addEventListener('input', actualizarPredicciones);
-    btn.addEventListener('click', enviar);
+    sendBtn.addEventListener('click', enviar);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') enviar(); });
 
     window.onload = () => {
-      ponerMensaje("¡Hola! Ahora tengo texto predictivo arriba de la barra para que escribas más rápido.", "lia");
-      actualizarPredicciones();
+      const bienvenida = "¡Hola, papá! Ya puedo hablarte en voz alta y escuchar tu micrófono.";
+      ponerMensaje(bienvenida, "lia");
     };
   </script>
 </body>
