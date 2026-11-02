@@ -3,18 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lia - Asistente Virtual</title>
+  <title>Lia - Asistente con Voz e Imágenes</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     body { background: linear-gradient(135deg, #f3e5f5, #ce93d8); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 10px; }
     .header { width: 100%; max-width: 420px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     h1 { color: #6a1b9a; font-size: 1.2em; }
     .btn-toggle { background: #fff; border: 1px solid #ce93d8; border-radius: 14px; padding: 4px 8px; font-size: 0.8em; cursor: pointer; color: #6a1b9a; font-weight: 600; }
+    
     #chat { width: 100%; max-width: 420px; height: 58vh; background: #fff; border-radius: 16px; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
     .msg { padding: 8px 12px; border-radius: 16px; max-width: 82%; font-size: 0.9em; line-height: 1.35; word-break: break-word; }
     .user { background: #8e24aa; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
     .lia { background: #f3e5f5; color: #3d176a; align-self: flex-start; border-bottom-left-radius: 4px; }
     .lia a { color: #6a1b9a; font-weight: bold; }
+    
+    /* Contenedor de la Imagen Generada */
+    .img-container { margin-top: 6px; border-radius: 8px; overflow: hidden; border: 1px solid #d1a9e6; max-width: 100%; display: flex; flex-direction: column; background: #fff; }
+    .img-generated { width: 100%; height: auto; max-height: 250px; object-fit: cover; cursor: pointer; display: block; }
+    .img-btn { background: #8e24aa; color: #fff; border: none; padding: 6px; font-size: 0.8em; font-weight: bold; text-align: center; cursor: pointer; width: 100%; text-decoration: none; display: block; }
+
     #predict-bar { width: 100%; max-width: 420px; min-height: 34px; display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; align-items: center; }
     .chip { background: #fff; color: #6a1b9a; border: 1px solid #d1a9e6; border-radius: 12px; padding: 4px 10px; font-size: 0.82em; font-weight: 600; cursor: pointer; white-space: nowrap; }
     .chip:hover { background: #f3e5f5; }
@@ -28,7 +35,7 @@
 <body>
 
   <div class="header">
-    <h1>Lia - Asistente Virtual 🎙️</h1>
+    <h1>Lia - Voz e Imágenes 🎨🎙️</h1>
     <button id="toggle-voice" class="btn-toggle">Voz: ON 🔊</button>
   </div>
 
@@ -37,7 +44,7 @@
 
   <div class="bar">
     <button id="mic-btn" title="Micrófono">🎙️</button>
-    <input type="text" id="txt" placeholder="Escribí o hablá..." autocomplete="off" />
+    <input type="text" id="txt" placeholder="Escribí, hablá o pedí 'dibujá un...'" autocomplete="off" />
     <button id="send-btn">Enviar</button>
   </div>
 
@@ -48,7 +55,7 @@
 
     let vozActiva = true;
     let notas = JSON.parse(localStorage.getItem('lia_notas') || '[]');
-    const palabras = ["hola", "clima", "hora", "fecha", "chiste", "anotar", "mis notas", "gracias", "te quiero"];
+    const palabras = ["hola", "clima", "hora", "chiste", "dibujá un", "generá una", "mis notas", "gracias"];
 
     toggleVoice.onclick = () => {
       vozActiva = !vozActiva;
@@ -79,7 +86,7 @@
     function mostrarPredicciones() {
       predictBar.innerHTML = '';
       const v = input.value.trim().toLowerCase();
-      const sugerencias = v ? palabras.filter(p => p.startsWith(v.split(' ').pop())).slice(0, 4) : ["hola", "clima", "hora", "chiste"];
+      const sugerencias = v ? palabras.filter(p => p.startsWith(v.split(' ').pop())).slice(0, 4) : ["hola", "clima", "chiste", "dibujá un"];
       sugerencias.forEach(s => {
         const c = document.createElement('div');
         c.className = 'chip';
@@ -101,10 +108,28 @@
       esHtml ? d.innerHTML = txt : d.textContent = txt;
       box.appendChild(d);
       box.scrollTop = box.scrollHeight;
+      return d;
     }
 
     async function responder(texto) {
       const t = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+      // NUEVO: Detección para generación de imágenes por IA (Pollinations AI)
+      const matchDibujo = texto.match(/^(?:dibuja|dibujá|genera|generá|crea|creá|imagen de|mostrame un|mostrame una)\s+(.+)/i);
+      if (matchDibujo) {
+        const prompt = encodeURIComponent(matchDibujo[1].trim());
+        const imageUrl = `https://image.pollinations.ai/p/${prompt}?width=512&height=512&nologo=true&private=true`;
+        
+        return {
+          t: `🎨 Acá está el dibujo que me pediste de "${matchDibujo[1]}":
+              <div class="img-container">
+                <img class="img-generated" src="${imageUrl}" alt="${matchDibujo[1]}" onload="this.style.opacity=1" style="opacity:0.5;transition:opacity 0.5s;">
+                <a class="img-btn" href="${imageUrl}" target="_blank">Abrir en tamaño grande 🔍</a>
+              </div>`,
+          h: true,
+          habla: `¡Hecho! Acá tenés el dibujo que me pediste.`
+        };
+      }
 
       if (/clima|temperatura|tiempo/.test(t)) {
         try {
@@ -142,9 +167,10 @@
       poner(v, 'user');
       input.value = '';
       mostrarPredicciones();
+      
       const r = await responder(v);
       poner(r.t, 'lia', r.h);
-      hablar(r.t);
+      hablar(r.habla || r.t);
     }
 
     input.oninput = mostrarPredicciones;
@@ -153,7 +179,7 @@
 
     window.onload = () => {
       mostrarPredicciones();
-      poner("¡Hola, papá! Ya podés escribirme, tocar las sugerencias o usar el micrófono.", "lia");
+      poner("¡Hola, papá! Ya podés pedirme que dibuje cosas, por ejemplo: 'dibujá un astronauta en moto'.", "lia");
     };
   </script>
 </body>
