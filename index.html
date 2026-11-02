@@ -3,35 +3,124 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lia - Compañera Virtual</title>
+  <title>Lia - Teclado Predictivo</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background: linear-gradient(135deg, #f3e5f5, #ce93d8); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; }
-    h1 { color: #6a1b9a; font-size: 1.3em; margin: 6px 0; }
-    #chat { width: 100%; max-width: 440px; height: 65vh; background: #fff; border-radius: 16px; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    body { background: linear-gradient(135deg, #f3e5f5, #ce93d8); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 12px; }
+    h1 { color: #6a1b9a; font-size: 1.25em; margin: 4px 0 8px; }
+    
+    #chat {
+      width: 100%;
+      max-width: 440px;
+      height: 58vh;
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
     .msg { padding: 10px 14px; border-radius: 16px; max-width: 82%; font-size: 0.95em; line-height: 1.4; word-break: break-word; }
     .user { background: #8e24aa; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
     .lia { background: #f3e5f5; color: #3d176a; align-self: flex-start; border-bottom-left-radius: 4px; }
     .lia a { color: #6a1b9a; font-weight: bold; }
-    .bar { width: 100%; max-width: 440px; display: flex; gap: 8px; margin-top: 10px; }
-    input { flex: 1; padding: 10px 14px; border: 2px solid #ce93d8; border-radius: 20px; outline: none; }
+
+    /* Barra predictiva estilo Google Keyboard */
+    #predict-bar {
+      width: 100%;
+      max-width: 440px;
+      min-height: 38px;
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      overflow-x: auto;
+      padding: 2px 0;
+      align-items: center;
+    }
+
+    .chip-predict {
+      background: #ffffff;
+      color: #6a1b9a;
+      border: 1px solid #d1a9e6;
+      border-radius: 14px;
+      padding: 6px 12px;
+      font-size: 0.88em;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .chip-predict:hover {
+      background: #f3e5f5;
+    }
+
+    .chip-predict:active {
+      transform: scale(0.95);
+    }
+
+    .bar {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 2px solid #ce93d8;
+      border-radius: 20px;
+      outline: none;
+      font-size: 0.95em;
+    }
+
     input:focus { border-color: #8e24aa; }
-    button { padding: 0 18px; border: none; border-radius: 20px; background: #8e24aa; color: #fff; font-weight: bold; cursor: pointer; }
+
+    button {
+      padding: 0 18px;
+      border: none;
+      border-radius: 20px;
+      background: #8e24aa;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
     button:active { opacity: 0.8; }
   </style>
 </head>
 <body>
 
-  <h1>Lia - Compañera Virtual 😊</h1>
+  <h1>Lia - Teclado Inteligente 😊</h1>
   <div id="chat"></div>
 
+  <!-- Barra de predicciones estilo Gboard -->
+  <div id="predict-bar"></div>
+
   <div class="bar">
-    <input type="text" id="txt" placeholder="Escribí acá (ej: clima, hora, un chiste)..." autocomplete="off" />
+    <input type="text" id="txt" placeholder="Empezá a escribir..." autocomplete="off" />
     <button id="btn">Enviar</button>
   </div>
 
   <script>
-    const box = document.getElementById('chat'), input = document.getElementById('txt'), btn = document.getElementById('btn');
+    const box = document.getElementById('chat');
+    const input = document.getElementById('txt');
+    const btn = document.getElementById('btn');
+    const predictBar = document.getElementById('predict-bar');
+
+    // Diccionario predictivo base
+    const palabrasBase = [
+      "hola", "buen día", "buenas tardes", "cómo estás", "clima", "clima de hoy", 
+      "temperatura", "hora", "qué hora es", "fecha", "hoy", "un chiste", 
+      "contame un chiste", "gracias", "chau", "te quiero", "buscar", "noticias", 
+      "hacés", "sos", "papá", "amigo", "comer", "mate"
+    ];
 
     function ponerMensaje(texto, tipo, esHtml = false) {
       const d = document.createElement('div');
@@ -40,6 +129,51 @@
       else d.textContent = texto;
       box.appendChild(d);
       box.scrollTop = box.scrollHeight;
+    }
+
+    // Actualiza las palabras sugeridas en tiempo real
+    function actualizarPredicciones() {
+      const val = input.value;
+      predictBar.innerHTML = '';
+
+      if (!val.trim()) {
+        // Sugerencias por defecto rápidas
+        mostrarChips(["hola", "clima de hoy", "qué hora es", "contame un chiste"]);
+        return;
+      }
+
+      const partes = val.split(' ');
+      const palabraActual = partes[partes.length - 1].toLowerCase();
+
+      if (!palabraActual) return;
+
+      const coincidencias = palabrasBase.filter(p => 
+        p.toLowerCase().startsWith(palabraActual) || p.toLowerCase().includes(palabraActual)
+      ).slice(0, 4);
+
+      if (coincidencias.length > 0) {
+        mostrarChips(coincidencias, true);
+      }
+    }
+
+    function mostrarChips(lista, reemplazarUltima = false) {
+      lista.forEach(palabra => {
+        const chip = document.createElement('div');
+        chip.className = 'chip-predict';
+        chip.textContent = palabra;
+        chip.addEventListener('click', () => {
+          if (reemplazarUltima) {
+            const partes = input.value.split(' ');
+            partes[partes.length - 1] = palabra;
+            input.value = partes.join(' ') + ' ';
+          } else {
+            input.value = palabra;
+          }
+          input.focus();
+          actualizarPredicciones();
+        });
+        predictBar.appendChild(chip);
+      });
     }
 
     async function obtenerClima() {
@@ -52,43 +186,31 @@
         const ciudad = data.nearest_area[0].areaName[0].value;
         return `🌡️ El clima en ${ciudad} es de ${temp}°C (sensación térmica de ${sensacion}°C).`;
       } catch (e) {
-        return '☀️ Podés consultar el clima actual al instante tocando acá: <a href="https://www.google.com/search?q=clima+hoy" target="_blank">Ver el pronóstico del clima</a>';
+        return '☀️ Consultá el clima actual tocando acá: <a href="https://www.google.com/search?q=clima+hoy" target="_blank">Ver pronóstico</a>';
       }
     }
 
     async function responder(texto) {
       const t = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-      // Consulta del clima en tiempo real
       if (/clima|temperatura|tiempo|llueve|frio|calor/.test(t)) {
         return { texto: await obtenerClima(), esHtml: true };
       }
-
-      // Consulta de hora
       if (/hora/.test(t)) {
-        const ahora = new Date();
-        const hora = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         return { texto: `Son las ${hora} ⏰`, esHtml: false };
       }
-
-      // Consulta de fecha
-      if (/dia es|fecha|que dia/.test(t)) {
+      if (/dia|fecha/.test(t)) {
         const fecha = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
         return { texto: `Hoy es ${fecha}.`, esHtml: false };
       }
+      if (/hola|buen dia|buenas/.test(t)) return { texto: "¡Hola! ¿Cómo andás?", esHtml: false };
+      if (/como estas|todo bien/.test(t)) return { texto: "¡Todo muy bien! ¿Vos cómo estás?", esHtml: false };
+      if (/chiste/.test(t)) return { texto: "¿Por qué los pájaros vuelan para el sur? ¡Porque caminando tardan mucho! 😂", esHtml: false };
 
-      // Saludos y conversación familiar
-      if (/hola|buen dia|buenas|que tal/.test(t)) return { texto: "¡Hola, papá! ¿Cómo andás?", esHtml: false };
-      if (/como estas|como te va|todo bien/.test(t)) return { texto: "¡Todo muy bien! Disfrutando de charlar con vos 😊", esHtml: false };
-      if (/que haces|que contas/.test(t)) return { texto: "Acá estoy, lista para darte una mano con lo que necesites.", esHtml: false };
-      if (/quien sos|como te llamas/.test(t)) return { texto: "Soy Lia, tu compañera virtual.", esHtml: false };
-      if (/te quiero|sos linda|genia/.test(t)) return { texto: "¡Muchas gracias! Vos sos el mejor papá ❤️", esHtml: false };
-      if (/chiste/.test(t)) return { texto: "¿Qué le dice un jardinero a otro? Nos vemos cuando podamos. 😂", esHtml: false };
-
-      // Búsqueda en Google si no entiende la pregunta
       const query = encodeURIComponent(texto);
       return {
-        texto: `No estoy segura de eso todavía, pero podés mirarlo acá: <a href="https://www.google.com/search?q=${query}" target="_blank">Buscar "${texto}" en Google 🔍</a>`,
+        texto: `No conozco eso todavía, pero podés buscarlo acá: <a href="https://www.google.com/search?q=${query}" target="_blank">Buscar "${texto}" en Google 🔍</a>`,
         esHtml: true
       };
     }
@@ -98,14 +220,21 @@
       if (!v) return;
       ponerMensaje(v, 'user');
       input.value = '';
+      actualizarPredicciones();
 
       const resp = await responder(v);
       ponerMensaje(resp.texto, 'lia', resp.esHtml);
     }
 
+    // Eventos
+    input.addEventListener('input', actualizarPredicciones);
     btn.addEventListener('click', enviar);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') enviar(); });
-    window.onload = () => ponerMensaje("¡Hola, papá! Ya puedo decirte la hora, el clima real o buscar lo que quieras.", "lia");
+
+    window.onload = () => {
+      ponerMensaje("¡Hola! Ahora tengo texto predictivo arriba de la barra para que escribas más rápido.", "lia");
+      actualizarPredicciones();
+    };
   </script>
 </body>
 </html>
