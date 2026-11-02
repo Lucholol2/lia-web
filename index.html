@@ -3,184 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lia - Asistente con Voz e Imágenes</title>
+  <title>Lia</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background: linear-gradient(135deg, #f3e5f5, #ce93d8); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 10px; }
-    .header { width: 100%; max-width: 420px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    h1 { color: #6a1b9a; font-size: 1.2em; }
-    .btn-toggle { background: #fff; border: 1px solid #ce93d8; border-radius: 14px; padding: 4px 8px; font-size: 0.8em; cursor: pointer; color: #6a1b9a; font-weight: 600; }
-    
-    #chat { width: 100%; max-width: 420px; height: 58vh; background: #fff; border-radius: 16px; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .msg { padding: 8px 12px; border-radius: 16px; max-width: 82%; font-size: 0.9em; line-height: 1.35; word-break: break-word; }
-    .user { background: #8e24aa; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .lia { background: #f3e5f5; color: #3d176a; align-self: flex-start; border-bottom-left-radius: 4px; }
-    .lia a { color: #6a1b9a; font-weight: bold; }
-    
-    /* Contenedor de la Imagen Generada */
-    .img-container { margin-top: 6px; border-radius: 8px; overflow: hidden; border: 1px solid #d1a9e6; max-width: 100%; display: flex; flex-direction: column; background: #fff; }
-    .img-generated { width: 100%; height: auto; max-height: 250px; object-fit: cover; cursor: pointer; display: block; }
-    .img-btn { background: #8e24aa; color: #fff; border: none; padding: 6px; font-size: 0.8em; font-weight: bold; text-align: center; cursor: pointer; width: 100%; text-decoration: none; display: block; }
-
-    #predict-bar { width: 100%; max-width: 420px; min-height: 34px; display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; align-items: center; }
-    .chip { background: #fff; color: #6a1b9a; border: 1px solid #d1a9e6; border-radius: 12px; padding: 4px 10px; font-size: 0.82em; font-weight: 600; cursor: pointer; white-space: nowrap; }
-    .chip:hover { background: #f3e5f5; }
-    .bar { width: 100%; max-width: 420px; display: flex; gap: 6px; margin-top: 6px; }
-    input { flex: 1; padding: 8px 12px; border: 2px solid #ce93d8; border-radius: 20px; outline: none; }
-    button { padding: 0 14px; border: none; border-radius: 20px; background: #8e24aa; color: #fff; font-weight: bold; cursor: pointer; height: 38px; }
-    #mic-btn { background: #fff; border: 2px solid #8e24aa; color: #8e24aa; width: 38px; padding: 0; }
-    #mic-btn.active { background: #e53935; color: #fff; border-color: #e53935; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+    body { background: #e1bee7; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 10px; }
+    .top { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    h1 { color: #4a148c; font-size: 1.1em; }
+    #chat { width: 100%; max-width: 400px; height: 58vh; background: #fff; border-radius: 14px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .msg { padding: 8px 12px; border-radius: 14px; max-width: 85%; font-size: 0.9em; word-break: break-word; }
+    .user { background: #8e24aa; color: #fff; align-self: flex-end; }
+    .lia { background: #f3e5f5; color: #3d176a; align-self: flex-start; }
+    .img-box { margin-top: 6px; border-radius: 8px; overflow: hidden; border: 1px solid #ce93d8; }
+    .img-box img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
+    .img-box a { display: block; background: #8e24aa; color: #fff; text-align: center; padding: 5px; font-size: 0.75em; text-decoration: none; font-weight: bold; }
+    #chips { width: 100%; max-width: 400px; display: flex; gap: 5px; margin: 6px 0; overflow-x: auto; }
+    .chip { background: #fff; color: #6a1b9a; border: 1px solid #ce93d8; border-radius: 12px; padding: 3px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    .bar { width: 100%; max-width: 400px; display: flex; gap: 5px; }
+    input { flex: 1; padding: 8px 12px; border: 2px solid #ce93d8; border-radius: 18px; outline: none; }
+    button { border: none; border-radius: 18px; background: #8e24aa; color: #fff; font-weight: bold; cursor: pointer; padding: 0 12px; height: 36px; }
+    #mic.on { background: #e53935; }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>Lia - Voz e Imágenes 🎨🎙️</h1>
-    <button id="toggle-voice" class="btn-toggle">Voz: ON 🔊</button>
+  <div class="top">
+    <h1>Lia Asistente 🎨🎙️</h1>
+    <button id="tog" style="font-size:0.75em; background:#fff; color:#4a148c; border:1px solid #ce93d8;">Voz: ON 🔊</button>
   </div>
 
   <div id="chat"></div>
-  <div id="predict-bar"></div>
+  <div id="chips"></div>
 
   <div class="bar">
-    <button id="mic-btn" title="Micrófono">🎙️</button>
-    <input type="text" id="txt" placeholder="Escribí, hablá o pedí 'dibujá un...'" autocomplete="off" />
-    <button id="send-btn">Enviar</button>
+    <button id="mic" style="background:#fff; color:#8e24aa; border:2px solid #8e24aa;">🎙️</button>
+    <input type="text" id="txt" placeholder="Escribí o pedí 'dibujá un...'" autocomplete="off" />
+    <button id="send">Enviar</button>
   </div>
 
   <script>
-    const box = document.getElementById('chat'), input = document.getElementById('txt');
-    const sendBtn = document.getElementById('send-btn'), micBtn = document.getElementById('mic-btn');
-    const toggleVoice = document.getElementById('toggle-voice'), predictBar = document.getElementById('predict-bar');
+    const box = document.getElementById('chat'), txt = document.getElementById('txt'), send = document.getElementById('send');
+    const mic = document.getElementById('mic'), tog = document.getElementById('tog'), chips = document.getElementById('chips');
+    let voz = true, rec = null;
+    const palabras = ["hola", "clima", "hora", "chiste", "dibujá un martillo", "dibujá un gato", "dibujá un mate"];
 
-    let vozActiva = true;
-    let notas = JSON.parse(localStorage.getItem('lia_notas') || '[]');
-    const palabras = ["hola", "clima", "hora", "chiste", "dibujá un", "generá una", "mis notas", "gracias"];
+    tog.onclick = () => { voz = !voz; tog.textContent = voz ? 'Voz: ON 🔊' : 'Voz: OFF 🔇'; if (!voz) speechSynthesis.cancel(); };
 
-    toggleVoice.onclick = () => {
-      vozActiva = !vozActiva;
-      toggleVoice.textContent = vozActiva ? 'Voz: ON 🔊' : 'Voz: OFF 🔇';
-      if (!vozActiva) speechSynthesis.cancel();
-    };
-
-    function hablar(txt) {
-      if (!vozActiva || !('speechSynthesis' in window)) return;
+    function hablar(t) {
+      if (!voz || !('speechSynthesis' in window)) return;
       speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(txt.replace(/<[^>]*>/g, '').replace(/https?:\/\/\S+/g, ''));
+      const u = new SpeechSynthesisUtterance(t.replace(/<[^>]*>/g, ''));
       u.lang = 'es-AR';
       speechSynthesis.speak(u);
     }
 
-    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRec) {
-      const rec = new SpeechRec();
-      rec.lang = 'es-AR';
-      rec.onstart = () => micBtn.classList.add('active');
-      rec.onend = () => micBtn.classList.remove('active');
-      rec.onresult = e => { input.value = e.results[0][0].transcript; enviar(); };
-      micBtn.onclick = () => rec.start();
-    } else {
-      micBtn.style.display = 'none';
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SR) {
+      rec = new SR(); rec.lang = 'es-AR';
+      rec.onstart = () => mic.classList.add('on');
+      rec.onend = () => mic.classList.remove('on');
+      rec.onresult = e => { txt.value = e.results[0][0].transcript; enviar(); };
+      mic.onclick = () => { try { rec.start(); } catch(e) { rec.stop(); } };
+    } else { mic.style.display = 'none'; }
+
+    function poner(t, tipo, html = false) {
+      const d = document.createElement('div');
+      d.className = `msg ${tipo}`;
+      html ? d.innerHTML = t : d.textContent = t;
+      box.appendChild(d);
+      box.scrollTop = box.scrollHeight;
     }
 
-    function mostrarPredicciones() {
-      predictBar.innerHTML = '';
-      const v = input.value.trim().toLowerCase();
-      const sugerencias = v ? palabras.filter(p => p.startsWith(v.split(' ').pop())).slice(0, 4) : ["hola", "clima", "chiste", "dibujá un"];
-      sugerencias.forEach(s => {
-        const c = document.createElement('div');
-        c.className = 'chip';
-        c.textContent = s;
-        c.onclick = () => {
-          const parts = input.value.split(' ');
-          v ? parts[parts.length - 1] = s : parts[0] = s;
-          input.value = parts.join(' ') + ' ';
-          input.focus();
-          mostrarPredicciones();
-        };
-        predictBar.appendChild(c);
+    function pintarChips() {
+      chips.innerHTML = '';
+      const v = txt.value.trim().toLowerCase();
+      const lista = v ? palabras.filter(p => p.includes(v)).slice(0, 4) : ["hola", "clima", "chiste", "dibujá un martillo"];
+      lista.forEach(p => {
+        const c = document.createElement('div'); c.className = 'chip'; c.textContent = p;
+        c.onclick = () => { txt.value = p; txt.focus(); pintarChips(); };
+        chips.appendChild(c);
       });
     }
 
-    function poner(txt, tipo, esHtml = false) {
-      const d = document.createElement('div');
-      d.className = `msg ${tipo}`;
-      esHtml ? d.innerHTML = txt : d.textContent = txt;
-      box.appendChild(d);
-      box.scrollTop = box.scrollHeight;
-      return d;
-    }
+    async function responder(t) {
+      const limpio = t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-    async function responder(texto) {
-      const t = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-
-      // NUEVO: Detección para generación de imágenes por IA (Pollinations AI)
-      const matchDibujo = texto.match(/^(?:dibuja|dibujá|genera|generá|crea|creá|imagen de|mostrame un|mostrame una)\s+(.+)/i);
-      if (matchDibujo) {
-        const prompt = encodeURIComponent(matchDibujo[1].trim());
-        const imageUrl = `https://image.pollinations.ai/p/${prompt}?width=512&height=512&nologo=true&private=true`;
-        
+      // Generar imagen con traducción automática de palabras clave
+      const m = t.match(/^(?:dibuja|dibujá|genera|generá|crea|creá|imagen de)\s+(.+)/i);
+      if (m) {
+        let p = m[1].trim().toLowerCase();
+        const dic = { 'martillo': 'tool hammer', 'un martillo': 'tool hammer', 'mate': 'yerba mate drink', 'gato': 'cat', 'perro': 'dog', 'auto': 'car' };
+        const q = encodeURIComponent(dic[p] || p);
+        const url = `https://image.pollinations.ai/p/${q}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*9999)}`;
         return {
-          t: `🎨 Acá está el dibujo que me pediste de "${matchDibujo[1]}":
-              <div class="img-container">
-                <img class="img-generated" src="${imageUrl}" alt="${matchDibujo[1]}" onload="this.style.opacity=1" style="opacity:0.5;transition:opacity 0.5s;">
-                <a class="img-btn" href="${imageUrl}" target="_blank">Abrir en tamaño grande 🔍</a>
-              </div>`,
-          h: true,
-          habla: `¡Hecho! Acá tenés el dibujo que me pediste.`
+          t: `🎨 Acá tenés "${m[1]}":<div class="img-box"><img src="${url}"><a href="${url}" target="_blank">Ver grande 🔍</a></div>`,
+          h: true, voz: '¡Hecho! Acá tenés el dibujo.'
         };
       }
 
-      if (/clima|temperatura|tiempo/.test(t)) {
+      if (/clima|temperatura/.test(limpio)) {
         try {
           const r = await fetch('https://wttr.in/?format=j1');
           const d = await r.json();
-          const cur = d.current_condition[0];
-          return { t: `El clima en ${d.nearest_area[0].areaName[0].value} es de ${cur.temp_C}°C con sensación de ${cur.FeelsLikeC}°C.`, h: false };
-        } catch {
-          return { t: 'Mirá el pronóstico acá: <a href="https://www.google.com/search?q=clima+hoy" target="_blank">Ver Clima</a>', h: true };
-        }
+          const c = d.current_condition[0];
+          return { t: `El clima en ${d.nearest_area[0].areaName[0].value} es ${c.temp_C}°C (sensación ${c.FeelsLikeC}°C).`, h: false };
+        } catch { return { t: 'No pude obtener el clima.', h: false }; }
       }
-      if (/hora/.test(t)) return { t: `Son las ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`, h: false };
-      if (/fecha|dia/.test(t)) return { t: `Hoy es ${new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}.`, h: false };
-      if (/anotar\s+(.+)/.test(t)) {
-        const item = t.match(/anotar\s+(.+)/)[1];
-        notas.push(item);
-        localStorage.setItem('lia_notas', JSON.stringify(notas));
-        return { t: `Anotado: "${item}".`, h: false };
-      }
-      if (/notas|pendientes|acordate/.test(t)) {
-        if (!notas.length) return { t: "No tenés notas guardadas. Decime 'anotar...' y lo guardo.", h: false };
-        return { t: "Tus notas: " + notas.join(", "), h: false };
-      }
-      if (/hola|buen dia/.test(t)) return { t: "¡Hola, papá! ¿Cómo estás?", h: false };
-      if (/como estas|todo bien/.test(t)) return { t: "¡Todo perfecto por acá! ¿Y vos?", h: false };
-      if (/chiste/.test(t)) return { t: "¿Qué hace una abeja en el gimnasio? ¡Zum-ba! 😂", h: false };
-      if (/te quiero/.test(t)) return { t: "¡Yo también te quiero un montón!", h: false };
+      if (/hora/.test(limpio)) return { t: `Son las ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}.`, h: false };
+      if (/hola|buen dia/.test(limpio)) return { t: '¡Hola, papá! ¿Cómo andás?', h: false };
+      if (/como estas|todo bien/.test(limpio)) return { t: '¡Todo perfecto por acá! ¿Y vos?', h: false };
+      if (/chiste/.test(limpio)) return { t: '¿Qué hace una abeja en el gym? ¡Zum-ba! 😂', h: false };
 
-      return { t: `Podés buscarlo acá: <a href="https://www.google.com/search?q=${encodeURIComponent(texto)}" target="_blank">Buscar en Google 🔍</a>`, h: true };
+      return { t: `Podés buscarlo acá: <a href="https://www.google.com/search?q=${encodeURIComponent(t)}" target="_blank" style="color:#6a1b9a;font-weight:bold;">Buscar en Google 🔍</a>`, h: true };
     }
 
     async function enviar() {
-      const v = input.value.trim();
+      const v = txt.value.trim();
       if (!v) return;
       poner(v, 'user');
-      input.value = '';
-      mostrarPredicciones();
-      
+      txt.value = '';
+      pintarChips();
+
       const r = await responder(v);
       poner(r.t, 'lia', r.h);
-      hablar(r.habla || r.t);
+      hablar(r.voz || r.t);
     }
 
-    input.oninput = mostrarPredicciones;
-    sendBtn.onclick = enviar;
-    input.onkeydown = e => { if (e.key === 'Enter') enviar(); };
-
-    window.onload = () => {
-      mostrarPredicciones();
-      poner("¡Hola, papá! Ya podés pedirme que dibuje cosas, por ejemplo: 'dibujá un astronauta en moto'.", "lia");
-    };
+    txt.oninput = pintarChips;
+    send.onclick = enviar;
+    txt.onkeydown = e => { if (e.key === 'Enter') enviar(); };
+    window.onload = () => { pintarChips(); poner("¡Hola, papá! Ya podés pedirme que dibuje lo que quieras.", "lia"); };
   </script>
 </body>
 </html>
