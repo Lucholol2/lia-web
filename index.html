@@ -3,31 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lia</title>
+  <title>Lia - Edición de Fotos</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
     body { background: #e1bee7; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 10px; }
     .top { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     h1 { color: #4a148c; font-size: 1.1em; }
-    #chat { width: 100%; max-width: 400px; height: 58vh; background: #fff; border-radius: 14px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    #chat { width: 100%; max-width: 400px; height: 54vh; background: #fff; border-radius: 14px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
     .msg { padding: 8px 12px; border-radius: 14px; max-width: 85%; font-size: 0.9em; word-break: break-word; }
     .user { background: #8e24aa; color: #fff; align-self: flex-end; }
     .lia { background: #f3e5f5; color: #3d176a; align-self: flex-start; }
-    .img-box { margin-top: 6px; border-radius: 8px; overflow: hidden; border: 1px solid #ce93d8; }
-    .img-box img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
-    .img-box a { display: block; background: #8e24aa; color: #fff; text-align: center; padding: 5px; font-size: 0.75em; text-decoration: none; font-weight: bold; }
+    
+    /* Contenedor de imagen cargada/editada */
+    .img-box { margin-top: 6px; border-radius: 8px; overflow: hidden; border: 1px solid #ce93d8; background: #000; }
+    .img-box canvas, .img-box img { width: 100%; max-height: 220px; object-fit: contain; display: block; }
+    .img-box a, .img-box button { display: block; background: #8e24aa; color: #fff; text-align: center; padding: 6px; font-size: 0.8em; text-decoration: none; font-weight: bold; border: none; width: 100%; cursor: pointer; }
+    
     #chips { width: 100%; max-width: 400px; display: flex; gap: 5px; margin: 6px 0; overflow-x: auto; }
     .chip { background: #fff; color: #6a1b9a; border: 1px solid #ce93d8; border-radius: 12px; padding: 3px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; white-space: nowrap; }
-    .bar { width: 100%; max-width: 400px; display: flex; gap: 5px; }
+    .bar { width: 100%; max-width: 400px; display: flex; gap: 5px; align-items: center; }
     input { flex: 1; padding: 8px 12px; border: 2px solid #ce93d8; border-radius: 18px; outline: none; }
     button { border: none; border-radius: 18px; background: #8e24aa; color: #fff; font-weight: bold; cursor: pointer; padding: 0 12px; height: 36px; }
     #mic.on { background: #e53935; }
+    #file-btn { background: #f3e5f5; color: #8e24aa; border: 2px solid #ce93d8; width: 36px; padding: 0; font-size: 1.1em; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
   </style>
 </head>
 <body>
 
   <div class="top">
-    <h1>Lia Asistente 🎨🎙️</h1>
+    <h1>Lia Edición 📸✨</h1>
     <button id="tog" style="font-size:0.75em; background:#fff; color:#4a148c; border:1px solid #ce93d8;">Voz: ON 🔊</button>
   </div>
 
@@ -35,16 +39,20 @@
   <div id="chips"></div>
 
   <div class="bar">
+    <input type="file" id="file-input" accept="image/*" style="display: none;" />
+    <button id="file-btn" title="Subir Foto">📎</button>
     <button id="mic" style="background:#fff; color:#8e24aa; border:2px solid #8e24aa;">🎙️</button>
-    <input type="text" id="txt" placeholder="Escribí o pedí 'dibujá un...'" autocomplete="off" />
+    <input type="text" id="txt" placeholder="Escribí, subí foto o pedí 'grises'..." autocomplete="off" />
     <button id="send">Enviar</button>
   </div>
 
   <script>
     const box = document.getElementById('chat'), txt = document.getElementById('txt'), send = document.getElementById('send');
     const mic = document.getElementById('mic'), tog = document.getElementById('tog'), chips = document.getElementById('chips');
-    let voz = true, rec = null;
-    const palabras = ["hola", "clima", "hora", "chiste", "dibujá un martillo", "dibujá un gato", "dibujá un mate"];
+    const fileInput = document.getElementById('file-input'), fileBtn = document.getElementById('file-btn');
+    
+    let voz = true, rec = null, imagenOriginal = null, canvasActual = null;
+    const palabras = ["hola", "clima", "blanco y negro", "invertir", "brillo", "desenfocar", "sepia", "restaurar"];
 
     tog.onclick = () => { voz = !voz; tog.textContent = voz ? 'Voz: ON 🔊' : 'Voz: OFF 🔇'; if (!voz) speechSynthesis.cancel(); };
 
@@ -56,6 +64,7 @@
       speechSynthesis.speak(u);
     }
 
+    // Micrófono
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SR) {
       rec = new SR(); rec.lang = 'es-AR';
@@ -64,6 +73,58 @@
       rec.onresult = e => { txt.value = e.results[0][0].transcript; enviar(); };
       mic.onclick = () => { try { rec.start(); } catch(e) { rec.stop(); } };
     } else { mic.style.display = 'none'; }
+
+    // Subida de imagen
+    fileBtn.onclick = () => fileInput.click();
+    fileInput.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = event => {
+        imagenOriginal = new Image();
+        imagenOriginal.onload = () => {
+          poner("📸 Foto cargada. ¿Cómo querés modificarla? (Podés pedir: 'blanco y negro', 'invertir', 'sepia', 'brillo', 'borrosa')", "lia");
+          hablar("Foto cargada. ¿Cómo querés modificarla?");
+          mostrarImagenEnChat();
+        };
+        imagenOriginal.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    function mostrarImagenEnChat(filtro = "none") {
+      const id = "canvas-" + Date.now();
+      const html = `
+        <div class="img-box">
+          <canvas id="${id}"></canvas>
+          <button onclick="descargarImagen('${id}')">Descargar Foto Modificada 💾</button>
+        </div>
+      `;
+      poner(html, "lia", true);
+      
+      setTimeout(() => {
+        const canv = document.getElementById(id);
+        const ctx = canv.getContext('2d');
+        
+        // Ajustar dimensiones
+        const max = 500;
+        let w = imagenOriginal.width, h = imagenOriginal.height;
+        if (w > max) { h *= max / w; w = max; }
+        canv.width = w; canv.height = h;
+        
+        ctx.filter = filtro;
+        ctx.drawImage(imagenOriginal, 0, 0, w, h);
+        canvasActual = canv;
+      }, 50);
+    }
+
+    window.descargarImagen = (id) => {
+      const c = document.getElementById(id);
+      const link = document.createElement('a');
+      link.download = 'lia_modificada.png';
+      link.href = c.toDataURL();
+      link.click();
+    };
 
     function poner(t, tipo, html = false) {
       const d = document.createElement('div');
@@ -76,7 +137,7 @@
     function pintarChips() {
       chips.innerHTML = '';
       const v = txt.value.trim().toLowerCase();
-      const lista = v ? palabras.filter(p => p.includes(v)).slice(0, 4) : ["hola", "clima", "chiste", "dibujá un martillo"];
+      const lista = v ? palabras.filter(p => p.includes(v)).slice(0, 4) : ["blanco y negro", "invertir", "brillo", "desenfocar"];
       lista.forEach(p => {
         const c = document.createElement('div'); c.className = 'chip'; c.textContent = p;
         c.onclick = () => { txt.value = p; txt.focus(); pintarChips(); };
@@ -87,15 +148,47 @@
     async function responder(t) {
       const limpio = t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-      // Generar imagen con traducción automática de palabras clave
+      // Procesar modificación de imagen si hay una foto cargada
+      if (imagenOriginal) {
+        if (/blanco y negro|gris|grises/.test(limpio)) {
+          mostrarImagenEnChat("grayscale(100%)");
+          return { t: "¡Listo! La pasé a blanco y negro.", h: false };
+        }
+        if (/invertir|negativo|inversa/.test(limpio)) {
+          mostrarImagenEnChat("invert(100%)");
+          return { t: "¡Hecho! Colores invertidos.", h: false };
+        }
+        if (/sepia|antiguo|viejo/.test(limpio)) {
+          mostrarImagenEnChat("sepia(100%)");
+          return { t: "Filtro sepia aplicado.", h: false };
+        }
+        if (/brillo|aclarar|luz/.test(limpio)) {
+          mostrarImagenEnChat("brightness(150%)");
+          return { t: "Le subí el brillo.", h: false };
+        }
+        if (/oscurecer|oscuro/.test(limpio)) {
+          mostrarImagenEnChat("brightness(50%)");
+          return { t: "La hice más oscura.", h: false };
+        }
+        if (/borrosa|desenfocar|blur/.test(limpio)) {
+          mostrarImagenEnChat("blur(4px)");
+          return { t: "Aplicado desenfoque suave.", h: false };
+        }
+        if (/original|restaurar|deshacer|normal/.test(limpio)) {
+          mostrarImagenEnChat("none");
+          return { t: "Imagen restaurada a su versión original.", h: false };
+        }
+      }
+
+      // Comportamiento regular si no hay edición de foto
       const m = t.match(/^(?:dibuja|dibujá|genera|generá|crea|creá|imagen de)\s+(.+)/i);
       if (m) {
         let p = m[1].trim().toLowerCase();
-        const dic = { 'martillo': 'tool hammer', 'un martillo': 'tool hammer', 'mate': 'yerba mate drink', 'gato': 'cat', 'perro': 'dog', 'auto': 'car' };
+        const dic = { 'martillo': 'tool hammer', 'mate': 'yerba mate drink', 'gato': 'cat', 'perro': 'dog' };
         const q = encodeURIComponent(dic[p] || p);
         const url = `https://image.pollinations.ai/p/${q}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*9999)}`;
         return {
-          t: `🎨 Acá tenés "${m[1]}":<div class="img-box"><img src="${url}"><a href="${url}" target="_blank">Ver grande 🔍</a></div>`,
+          t: `🎨 Dibujo de "${m[1]}":<div class="img-box"><img src="${url}"><a href="${url}" target="_blank">Ver grande 🔍</a></div>`,
           h: true, voz: '¡Hecho! Acá tenés el dibujo.'
         };
       }
@@ -110,7 +203,6 @@
       }
       if (/hora/.test(limpio)) return { t: `Son las ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}.`, h: false };
       if (/hola|buen dia/.test(limpio)) return { t: '¡Hola, papá! ¿Cómo andás?', h: false };
-      if (/como estas|todo bien/.test(limpio)) return { t: '¡Todo perfecto por acá! ¿Y vos?', h: false };
       if (/chiste/.test(limpio)) return { t: '¿Qué hace una abeja en el gym? ¡Zum-ba! 😂', h: false };
 
       return { t: `Podés buscarlo acá: <a href="https://www.google.com/search?q=${encodeURIComponent(t)}" target="_blank" style="color:#6a1b9a;font-weight:bold;">Buscar en Google 🔍</a>`, h: true };
@@ -131,7 +223,7 @@
     txt.oninput = pintarChips;
     send.onclick = enviar;
     txt.onkeydown = e => { if (e.key === 'Enter') enviar(); };
-    window.onload = () => { pintarChips(); poner("¡Hola, papá! Ya podés pedirme que dibuje lo que quieras.", "lia"); };
+    window.onload = () => { pintarChips(); poner("¡Hola, papá! Subí una foto tocando el clip 📎 y decime cómo la querés modificar.", "lia"); };
   </script>
 </body>
 </html>
