@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lia - Chat Inteligente</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { background: linear-gradient(135deg, #f3e5f5, #ce93d8); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; }
+    h1 { color: #6a1b9a; font-size: 1.3em; margin: 6px 0; }
+    #chat { width: 100%; max-width: 420px; height: 65vh; background: #fff; border-radius: 16px; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .msg { padding: 10px 14px; border-radius: 16px; max-width: 80%; font-size: 0.95em; line-height: 1.4; word-break: break-word; }
+    .user { background: #8e24aa; color: #fff; align-self: flex-end; }
+    .lia { background: #f3e5f5; color: #3d176a; align-self: flex-start; }
+    .bar { width: 100%; max-width: 420px; display: flex; gap: 8px; margin-top: 10px; }
+    input { flex: 1; padding: 10px 14px; border: 2px solid #ce93d8; border-radius: 20px; outline: none; }
+    button { padding: 0 16px; border: none; border-radius: 20px; background: #8e24aa; color: #fff; font-weight: bold; cursor: pointer; }
+    button:active { opacity: 0.8; }
+  </style>
+</head>
+<body>
+
+  <h1>Lia - Compañera Virtual 😊</h1>
+  <div id="chat"></div>
+
+  <div class="bar">
+    <input type="text" id="txt" placeholder="Escribí acá..." autocomplete="off" />
+    <button id="btn">Enviar</button>
+  </div>
+
+  <script>
+    const box = document.getElementById('chat'), input = document.getElementById('txt'), btn = document.getElementById('btn');
+
+    function ponerMensaje(texto, tipo) {
+      const d = document.createElement('div');
+      d.className = `msg ${tipo}`;
+      d.textContent = texto;
+      box.appendChild(d);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function responder(texto) {
+      const t = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[¿?¡!.,]/g, "").trim();
+
+      // Detección por palabras clave para responder sola siempre
+      if (/hola|buen dia|buenas|que tal/.test(t)) return "¡Hola, papá! ¿Cómo andás hoy?";
+      if (/como estas|como te va|todo bien/.test(t)) return "¡Todo muy bien por acá! Feliz de hablar con vos 😊";
+      if (/que haces|que contas/.test(t)) return "Acá ando, atenta a lo que me escribas.";
+      if (/quien sos|como te llamas/.test(t)) return "Soy Lia, tu asistente virtual.";
+      if (/te quiero|sos linda|genia/.test(t)) return "¡Muchas gracias! Vos sos el mejor papá del mundo ❤️";
+      if (/gracias/.test(t)) return "¡De nada! Siempre es un placer ayudarte.";
+      if (/chau|adios|hasta luego|me voy/.test(t)) return "¡Hasta luego! Cuidate mucho y que tengas lindo día.";
+      if (/hora|que hora/.test(t)) return "Fijate abajo a la derecha en la barra de Windows ⏰";
+      if (/chiste/.test(t)) return "¿Por qué los pájaros vuelan para el sur? ¡Porque caminando tardan mucho! 😂";
+      if (/mate|cafe|comida|comer/.test(t)) return "¡Qué rico! Unos buenos mates vienen perfecto a cualquier hora.";
+
+      // Respuestas automáticas variadas cuando no conoce la frase
+      const genericas = [
+        "¡Qué interesante lo que decís!",
+        "Te escucho con atención, contame más sobre eso.",
+        "Qué buen tema para charlar.",
+        "Totalmente de acuerdo con vos.",
+        "Me alegra hablar con vos sobre cualquier cosa 😊"
+      ];
+      return genericas[Math.floor(Math.random() * genericas.length)];
+    }
+
+    function enviar() {
+      const v = input.value.trim();
+      if (!v) return;
+      ponerMensaje(v, 'user');
+      input.value = '';
+      setTimeout(() => ponerMensaje(responder(v), 'lia'), 300);
+    }
+
+    btn.addEventListener('click', enviar);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') enviar(); });
+    window.onload = () => ponerMensaje("¡Hola, papá! ¿De qué charlamos hoy?", "lia");
+  </script>
+</body>
+</html>
